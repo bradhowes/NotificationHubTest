@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>Title</key>
+    <string>Settings</string>
+    <key>PreferenceSpecifiers</key>
+    <array>
+      <dict>
+	<key>Type</key>
+	<string>PSGroupSpecifier</string>
+	<key>Title</key>
+	<string>Remote Server Driver</string>
+	<key>FooterText</key>
+	<string>Remote server to register with for push notifications. Once registered, the app should begin to receive periodic push notifications.</string>
+      </dict>
+      <dict>
+	<key>Type</key>
+	<string>PSToggleSwitchSpecifier</string>
+	<key>DefaultValue</key>
+	<true/>
+	<key>Key</key>
+	<string>useRemoteServer</string>
+	<key>Title</key>
+	<string>Enable</string>
+      </dict>
+      <dict>
+	<key>Type</key>
+	<string>PSTextFieldSpecifier</string>
+	<key>Key</key>
+	<string>remoteServerName</string>
+	<key>Title</key>
+	<string>Host</string>
+	<key>DefaultValue</key>
+	<string>emitter-bradhowes.c9.io</string>
+      </dict>
+      <dict>
+	<key>Type</key>
+	<string>PSTextFieldSpecifier</string>
+	<key>Key</key>
+	<string>remoteServerPort</string>
+	<key>Title</key>
+	<string>Port</string>
+	<key>DefaultValue</key>
+	<string>80</string>
+      </dict>
+      <dict>
+	<key>Type</key>
+	<string>PSGroupSpecifier</string>
+	<key>Title</key>
+	<string>APNs Production Certificate</string>
+	<key>FooterText</key>
+	<string>Certificate settings for the APNs service used by store (production) applications. Certificates must be in PKS12 format and they must be installed in the root of the application bundle. </string>
+      </dict>
+      <dict>
+	<key>Type</key>
+	<string>PSTextFieldSpecifier</string>
+	<key>Key</key>
+	<string>prodCertFileName</string>
+	<key>Title</key>
+	<string>File Name</string>
+	<key>DefaultValue</key>
+	<string>apns-prod.p12</string>
+	<key>KeyboardType</key>
+	<string>URL</string>
+      </dict>
+      <dict>
+	<key>Type</key>
+	<string>PSTextFieldSpecifier</string>
+	<key>Key</key>
+	<string>prodCertPassword</string>
+	<key>Title</key>
+	<string>Password</string>
+	<key>IsSecure</key>
+	<true/>
+	<key>DefaultValue</key>
+	<string></string>
+      </dict>
+      <dict>
+	<key>Type</key>
+	<string>PSGroupSpecifier</string>
+	<key>Title</key>
+	<string>APNs Sandbox Certificate</string>
+	<key>FooterText</key>
+	<string>Certificate settings for the APNs service used while developing and testing applications. Certificates must be in PKS12 format and they must be installed in the root of the application bundle.</string>
+      </dict>
+      <dict>
+	<key>Type</key>
+	<string>PSTextFieldSpecifier</string>
+	<key>Key</key>
+	<string>sandboxCertFileName</string>
+	<key>Title</key>
+	<string>File Name</string>
+	<key>DefaultValue</key>
+	<string>apns-dev.p12</string>
+	<key>KeyboardType</key>
+	<string>URL</string>
+      </dict>
+      <dict>
+	<key>Type</key>
+	<string>PSTextFieldSpecifier</string>
+	<key>Key</key>
+	<string>sandboxCertPassword</string>
+	<key>Title</key>
+	<string>Password</string>
+	<key>IsSecure</key>
+	<true/>
+	<key>DefaultValue</key>
+	<string></string>
+      </dict>
+      <dict>
+	<key>Type</key>
+	<string>PSGroupSpecifier</string>
+	<key>FooterText</key>
+	<string>Select which APNs environment to use.</string>
+      </dict>
+      <dict>
+	<key>Type</key>
+	<string>PSToggleSwitchSpecifier</string>
+	<key>DefaultValue</key>
+	<true/>
+	<key>Key</key>
+	<string>useSandbox</string>
+	<key>Title</key>
+	<string>Use APNs Sandbox</string>
+      </dict>
+      <dict>
+	<key>Type</key>
+	<string>PSGroupSpecifier</string>
+	<key>Title</key>
+	<string>Notification Interval</string>
+	<key>FooterText</key>
+	<string>The number of minutes between notification attempts.</string>
+      </dict>
+      <dict>
+	<key>Type</key>
+	<string>PSTextFieldSpecifier</string>
+	<key>Key</key>
+	<string>emitInterval</string>
+	<key>DefaultValue</key>
+	<string>15</string>
+	<key>KeyboardType</key>
+	<string>NumberPad</string>
+      </dict>
+      <dict>
+	<key>Type</key>
+	<string>PSGroupSpecifier</string>
+	<key>Title</key>
+	<string>Max Histogram Bin</string>
+	<key>FooterText</key>
+	<string>The histogram plot groups latencies in 1-second bins. This controls the largest bin to show.</string>
+      </dict>
+      <dict>
+	<key>Type</key>
+	<string>PSTextFieldSpecifier</string>
+	<key>Key</key>
+	<string>maxBin</string>
+	<key>DefaultValue</key>
+	<string>60</string>
+	<key>KeyboardType</key>
+	<string>NumberPad</string>
+      </dict>
+      <dict>
+	<key>Type</key>
+	<string>PSGroupSpecifier</string>
+	<key>Title</key>
+	<string>Simulate Notifications</string>
+	<key>FooterText</key>
+	<string>When enabled, simulated notifications will be generated. This is primarily used for testing the plot functionality in the application.</string>
+      </dict>
+      <dict>
+	<key>Type</key>
+	<string>PSToggleSwitchSpecifier</string>
+	<key>Title</key>
+	<string>Simulated</string>
+	<key>Key</key>
+	<string>sim</string>
+	<key>DefaultValue</key>
+	<false/>
+      </dict>
+    </array>
+  </dict>
+</plist>

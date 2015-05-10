@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6724" systemVersion="14E11f" targetRuntime="iOS.CocoaTouch.iPad" propertyAccessControl="none" useAutolayout="YES" initialViewController="EfK-3L-tuf">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6711"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="ZM2-zd-bLe">
+            <objects>
+                <viewController id="EfK-3L-tuf" userLabel="View Controller" customClass="BRHMainViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="zzx-Dm-F64"/>
+                        <viewControllerLayoutGuide type="bottom" id="Nue-0Y-yd3"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="yit-K1-ow8">
+                        <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="FmQ-JL-2yf" userLabel="Plot View" customClass="BRHLatencyPlot">
+                                <rect key="frame" x="0.0" y="20" width="768" height="480"/>
+                            </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ONE-EM-TwI" userLabel="Histogram View" customClass="BRHCountBars">
+                                <rect key="frame" x="0.0" y="500" width="768" height="480"/>
+                            </view>
+                            <textView hidden="YES" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" keyboardDismissMode="interactive" editable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rlO-M0-gYp" userLabel="Log View">
+                                <rect key="frame" x="0.0" y="500" width="768" height="480"/>
+                                <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <string key="text">Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.</string>
+                                <color key="textColor" red="0.0" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                            </textView>
+                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" barStyle="black" translatesAutoresizingMaskIntoConstraints="NO" id="DgV-fR-XAQ">
+                                <rect key="frame" x="0.0" y="980" width="768" height="44"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="44" id="HzX-xY-rcQ"/>
+                                </constraints>
+                                <items>
+                                    <barButtonItem systemItem="play" id="4dL-dM-vf3">
+                                        <color key="tintColor" red="0.40000000600000002" green="1" blue="0.40000000600000002" alpha="1" colorSpace="calibratedRGB"/>
+                                        <connections>
+                                            <action selector="startStop:" destination="EfK-3L-tuf" id="DMi-PC-jvv"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem systemItem="stop" id="P1f-ej-7Vs">
+                                        <color key="tintColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                        <connections>
+                                            <action selector="startStop:" destination="EfK-3L-tuf" id="B8m-J8-rAZ"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="JId-fa-2Eb"/>
+                                    <barButtonItem image="log.png" id="No5-ge-Eg5" userLabel="Bar Button Item - Log">
+                                        <connections>
+                                            <action selector="showHideLogView:" destination="EfK-3L-tuf" id="ShS-jv-yCJ"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="ZMp-EO-Ynu"/>
+                                    <barButtonItem systemItem="action" id="qBI-A3-wKw">
+                                        <connections>
+                                            <action selector="share:" destination="EfK-3L-tuf" id="DOj-K2-9eR"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="Uzi-0P-Pfc"/>
+                                    <barButtonItem image="settings.png" id="IgH-0U-OyX" userLabel="Bar Button Item - Settings">
+                                        <connections>
+                                            <action selector="showSettings:" destination="EfK-3L-tuf" id="ubj-23-9fv"/>
+                                            <segue destination="hlW-8h-EAS" kind="modal" modalTransitionStyle="crossDissolve" id="wqY-Oe-2Ng"/>
+                                        </connections>
+                                    </barButtonItem>
+                                </items>
+                                <color key="tintColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                            </toolbar>
+                        </subviews>
+                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="FmQ-JL-2yf" firstAttribute="leading" secondItem="yit-K1-ow8" secondAttribute="leading" id="0FV-WC-r8a"/>
+                            <constraint firstAttribute="trailing" secondItem="rlO-M0-gYp" secondAttribute="trailing" id="321-8V-14r"/>
+                            <constraint firstItem="FmQ-JL-2yf" firstAttribute="height" secondItem="ONE-EM-TwI" secondAttribute="height" id="Cu3-TC-A6g"/>
+                            <constraint firstAttribute="trailing" secondItem="FmQ-JL-2yf" secondAttribute="trailing" id="G3D-Bu-k8r"/>
+                            <constraint firstItem="FmQ-JL-2yf" firstAttribute="top" secondItem="zzx-Dm-F64" secondAttribute="bottom" id="KsZ-yw-y67"/>
+                            <constraint firstItem="ONE-EM-TwI" firstAttribute="leading" secondItem="yit-K1-ow8" secondAttribute="leading" id="LwU-tV-rZP"/>
+                            <constraint firstAttribute="trailing" secondItem="ONE-EM-TwI" secondAttribute="trailing" id="LzG-xc-Ptl"/>
+                            <constraint firstItem="rlO-M0-gYp" firstAttribute="top" secondItem="FmQ-JL-2yf" secondAttribute="bottom" id="Ofv-3Z-o1i"/>
+                            <constraint firstItem="Nue-0Y-yd3" firstAttribute="top" secondItem="ONE-EM-TwI" secondAttribute="bottom" constant="44" id="YLT-zI-Nh8"/>
+                            <constraint firstItem="rlO-M0-gYp" firstAttribute="leading" secondItem="yit-K1-ow8" secondAttribute="leading" id="Z5w-0s-xMs"/>
+                            <constraint firstItem="DgV-fR-XAQ" firstAttribute="top" secondItem="rlO-M0-gYp" secondAttribute="bottom" id="ZGh-t2-ZTh"/>
+                            <constraint firstAttribute="trailing" secondItem="DgV-fR-XAQ" secondAttribute="trailing" id="bKK-wJ-E0Q"/>
+                            <constraint firstItem="ONE-EM-TwI" firstAttribute="top" secondItem="FmQ-JL-2yf" secondAttribute="bottom" id="ffp-WX-Dkj"/>
+                            <constraint firstItem="Nue-0Y-yd3" firstAttribute="top" secondItem="DgV-fR-XAQ" secondAttribute="bottom" id="iXL-ho-1vd"/>
+                            <constraint firstItem="DgV-fR-XAQ" firstAttribute="leading" secondItem="yit-K1-ow8" secondAttribute="leading" id="mNo-Ji-Gfc"/>
+                        </constraints>
+                    </view>
+                    <extendedEdge key="edgesForExtendedLayout"/>
+                    <connections>
+                        <outlet property="countBars" destination="ONE-EM-TwI" id="dxR-92-wbw"/>
+                        <outlet property="latencyPlot" destination="FmQ-JL-2yf" id="KQa-4k-bct"/>
+                        <outlet property="log" destination="rlO-M0-gYp" id="3Zd-uZ-aPT"/>
+                        <outlet property="logVerticalConstraint" destination="Ofv-3Z-o1i" id="bw9-5y-d3E"/>
+                        <outlet property="playButton" destination="4dL-dM-vf3" id="Okz-9m-kqW"/>
+                        <outlet property="settingsButton" destination="IgH-0U-OyX" id="vjM-Q4-LNc"/>
+                        <outlet property="shareButton" destination="qBI-A3-wKw" id="x8W-D4-PA8"/>
+                        <outlet property="stopButton" destination="P1f-ej-7Vs" id="oTt-jV-RWt"/>
+                        <outlet property="toolbar" destination="DgV-fR-XAQ" id="LcA-dS-KNK"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Jpf-xH-QbP" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="468" y="-617"/>
+        </scene>
+        <!--Root View Controller-->
+        <scene sceneID="YPl-zx-3mX">
+            <objects>
+                <tableViewController id="VnL-PW-SLs" customClass="BRHSettingsViewController" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="grouped" separatorStyle="default" rowHeight="44" sectionHeaderHeight="10" sectionFooterHeight="10" id="v5d-fu-bcA">
+                        <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
+                        <connections>
+                            <outlet property="dataSource" destination="VnL-PW-SLs" id="CMe-Ao-ltq"/>
+                            <outlet property="delegate" destination="VnL-PW-SLs" id="ebb-B6-Bx0"/>
+                        </connections>
+                    </tableView>
+                    <navigationItem key="navigationItem" title="Root View Controller" id="SNe-1E-14N">
+                        <barButtonItem key="rightBarButtonItem" title="Done" id="F1v-L0-kXM">
+                            <connections>
+                                <action selector="dismiss:" destination="VnL-PW-SLs" id="KDo-De-nmj"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                    <connections>
+                        <outlet property="view" destination="v5d-fu-bcA" id="Dis-nH-ZZG"/>
+                    </connections>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="d5S-Uj-sgi" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2487" y="-617"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="gPA-zv-Yjc">
+            <objects>
+                <navigationController definesPresentationContext="YES" id="hlW-8h-EAS" sceneMemberID="viewController">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="QYf-8u-tyd">
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="VnL-PW-SLs" kind="relationship" relationship="rootViewController" id="zDL-W7-DQT"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="8p1-pK-bIO" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1507" y="-617"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="log.png" width="30" height="30"/>
+        <image name="settings.png" width="30" height="30"/>
+    </resources>
+    <simulatedMetricsContainer key="defaultSimulatedMetrics">
+        <simulatedStatusBarMetrics key="statusBar" statusBarStyle="blackOpaque"/>
+        <simulatedOrientationMetrics key="orientation"/>
+        <simulatedScreenMetrics key="destination"/>
+    </simulatedMetricsContainer>
+</document>
