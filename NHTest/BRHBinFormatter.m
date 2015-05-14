@@ -8,20 +8,24 @@
 
 #import "BRHBinFormatter.h"
 
+@interface BRHBinFormatter ()
+@property (assign, nonatomic) NSUInteger maxBins;
+@end
+
 @implementation BRHBinFormatter
 
-+ (BRHBinFormatter*)binFormatterWithMaxBins:(NSInteger)maxBins
++ (BRHBinFormatter*)binFormatterWithMaxBins:(NSUInteger)maxBins
 {
     BRHBinFormatter* obj = [[BRHBinFormatter alloc] initWithMaxBins:maxBins];
     return obj;
 }
 
-- (id)initWithMaxBins:(NSInteger)maxBins
+- (id)initWithMaxBins:(NSUInteger)maxBins
 {
     if ((self = [super init]) != nil) {
         self.maxBins = maxBins;
     }
-    
+
     return self;
 }
 
@@ -33,13 +37,13 @@
 {
     NSInteger value = [obj integerValue];
     if (value == 0) {
-        return @"<1s";
+        return @"<1";
     }
     else if (value == self.maxBins - 1) {
-        return [NSString stringWithFormat:@"+%lds", (long)value];
+        return [NSString stringWithFormat:@"%ld+", (long)value];
     }
     else {
-        return [NSString stringWithFormat:@"%lds", (long)value];
+        return [NSString stringWithFormat:@"%ld", (long)value];
     }
 }
 

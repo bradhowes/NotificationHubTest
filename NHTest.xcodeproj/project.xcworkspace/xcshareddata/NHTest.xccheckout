@@ -6,6 +6,8 @@
 	<false/>
 	<key>IDESourceControlProjectIdentifier</key>
 	<string>FAA9A150-A8FF-4434-9BE6-C6DBBF375BC9</string>
+	<key>IDESourceControlProjectName</key>
+	<string>NHTest</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
 		<key>1712FC0BC3C9AABD8B7B5376E310E93FBDB3BCFA</key>
@@ -14,26 +16,32 @@
 		<string>https://github.com/robbiehanson/CocoaAsyncSocket.git</string>
 		<key>35B5C9A93714EC9BEB56BAE809C5551E5C66E52D</key>
 		<string>https://github.com/CocoaLumberjack/CocoaLumberjack.git</string>
+		<key>6CA5B4D0E44BD888A9B18A1030C3A3361042F074</key>
+		<string>https://github.com/bradhowes/NotificationHubTest.git</string>
 		<key>8B3D884E5CB77CFCF2CE65E14C999AAC1DC843A5</key>
 		<string>https://github.com/core-plot/core-plot.git</string>
 	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>NHTest.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>1712FC0BC3C9AABD8B7B5376E310E93FBDB3BCFA</key>
-		<string>InAppSettingsKit/</string>
+		<string>../../../../src/iphone/InAppSettingsKit</string>
 		<key>1C75F1C5CFCB95B3702F6F632FA05ED5244B519E</key>
-		<string>CocoaAsyncSocket/</string>
+		<string>../../../../src/iphone/CocoaAsyncSocket</string>
 		<key>35B5C9A93714EC9BEB56BAE809C5551E5C66E52D</key>
-		<string>CocoaLumberjack/</string>
+		<string>../../../../src/iphone/CocoaLumberjack</string>
+		<key>6CA5B4D0E44BD888A9B18A1030C3A3361042F074</key>
+		<string>../..</string>
 		<key>8B3D884E5CB77CFCF2CE65E14C999AAC1DC843A5</key>
-		<string>core-plot/</string>
+		<string>../../../../src/iphone/core-plot</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
-	<string>https://github.com/CocoaLumberjack/CocoaLumberjack.git</string>
+	<string>https://github.com/bradhowes/NotificationHubTest.git</string>
 	<key>IDESourceControlProjectVersion</key>
 	<integer>111</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>
-	<string>35B5C9A93714EC9BEB56BAE809C5551E5C66E52D</string>
+	<string>6CA5B4D0E44BD888A9B18A1030C3A3361042F074</string>
 	<key>IDESourceControlProjectWCConfigurations</key>
 	<array>
 		<dict>
@@ -67,6 +75,14 @@
 			<string>1712FC0BC3C9AABD8B7B5376E310E93FBDB3BCFA</string>
 			<key>IDESourceControlWCCName</key>
 			<string>InAppSettingsKit</string>
+		</dict>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>6CA5B4D0E44BD888A9B18A1030C3A3361042F074</string>
+			<key>IDESourceControlWCCName</key>
+			<string>NotificationHubTest</string>
 		</dict>
 	</array>
 </dict>

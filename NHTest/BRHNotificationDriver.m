@@ -28,7 +28,6 @@ NSString *BRHNotificationDriverRunningStateChanged = @"BRHNotificationDriverRunn
 @property (nonatomic, strong) NSTimer *emitter;
 @property (nonatomic, strong) NSMutableArray *orderedLatencies;
 @property (nonatomic, assign) NSTimeInterval whenOffset;
-@property (nonatomic, strong) BRHRemoteDriver* remoteDriver;
 @property (nonatomic, assign) BOOL useRemoteServer;
 
 - (void)settingsChanged:(NSNotification *)notification;
@@ -208,7 +207,9 @@ extractIdentityAndTrust(CFDataRef inPKCS12Data, SecIdentityRef *outIdentity, Sec
         self.emitInterval = 1.0;
     }
     else if (self.useRemoteServer) {
-        self.remoteDriver = [[BRHRemoteDriver alloc] initWithDeviceToken:self.deviceToken host:[settings stringForKey:@"remoteServerName"] port:(int)[settings integerForKey:@"remoteServerPort"]];
+        NSString *deviceToken = [self.deviceToken base64EncodedStringWithOptions:0];
+        NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"http://%@:%ld", [settings stringForKey:@"remoteServerName"], (long)[settings integerForKey:@"remoteServerPort"]]];
+        self.remoteDriver = [[BRHRemoteDriver alloc] initWithURL:url deviceToken:deviceToken];
         [self.remoteDriver postRegistration];
     }
     else {
@@ -311,23 +312,20 @@ extractIdentityAndTrust(CFDataRef inPKCS12Data, SecIdentityRef *outIdentity, Sec
 
     BRHOutstandingNotification *notification;
 
-    NSString *alert = contents[@"alert"];
-    if ([alert isEqualToString:@"Testing"]) {
+    if (self.remoteDriver) {
+        notification = [BRHOutstandingNotification new];
+        NSString *when = contents[@"when"];
+        double dwhen = [when doubleValue];
+        // dwhen += self.remoteDriver.deviceOffset;
+        notification.when = [NSDate dateWithTimeIntervalSince1970: dwhen];
+        notification.identifier = identifier;
+    }
+    else {
         notification = [self.outstandingNotifications objectForKey:identifier];
         if (notification == nil) {
             [BRHLogger add:@"received expired response to %d", [identifier integerValue]];
             return;
         }
-    }
-    else {
-
-        // This is from a remote sender.
-        notification = [BRHOutstandingNotification new];
-        NSString *when = contents[@"when"];
-        double dwhen = [when doubleValue];
-        dwhen += self.remoteDriver.deviceOffset;
-        notification.when = [NSDate dateWithTimeIntervalSince1970: dwhen];
-        notification.identifier = identifier;
     }
 
     NSTimeInterval latency = [timeOfArrival timeIntervalSinceDate:notification.when];

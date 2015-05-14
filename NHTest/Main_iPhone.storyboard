@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6724" systemVersion="14E11f" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="YuD-bI-rsP">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="7706" systemVersion="14E17e" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="YuD-bI-rsP">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6711"/>
-        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="7703"/>
     </dependencies>
     <scenes>
         <!--Main View Controller-->
@@ -27,7 +26,7 @@
                             <textView hidden="YES" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" keyboardDismissMode="interactive" editable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="McT-h3-kUQ" userLabel="Log View">
                                 <rect key="frame" x="0.0" y="272" width="320" height="252"/>
                                 <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
-                                <mutableString key="text">Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.</mutableString>
+                                <string key="text">Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.</string>
                                 <color key="textColor" red="0.0" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
@@ -35,7 +34,7 @@
                             <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" barStyle="black" translucent="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4mH-10-4Vg">
                                 <rect key="frame" x="0.0" y="524" width="320" height="44"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="44" id="ggt-7O-wj8"/>
+                                    <constraint firstAttribute="height" constant="44" id="jeC-IT-VnP"/>
                                 </constraints>
                                 <items>
                                     <barButtonItem systemItem="play" id="c2a-Sb-Ii3">
@@ -74,21 +73,21 @@
                         </subviews>
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstAttribute="trailing" secondItem="uv4-D3-WQe" secondAttribute="trailing" id="0EW-30-PRa"/>
-                            <constraint firstItem="McT-h3-kUQ" firstAttribute="top" secondItem="cM3-Ao-Xyw" secondAttribute="bottom" id="6Tr-Bn-efS"/>
-                            <constraint firstItem="4mH-10-4Vg" firstAttribute="leading" secondItem="kiz-9v-mjw" secondAttribute="leadingMargin" constant="-16" id="ECE-lb-fji"/>
-                            <constraint firstItem="4mH-10-4Vg" firstAttribute="top" secondItem="uv4-D3-WQe" secondAttribute="bottom" id="FgH-EZ-4CB"/>
-                            <constraint firstItem="4mH-10-4Vg" firstAttribute="top" secondItem="McT-h3-kUQ" secondAttribute="bottom" id="H9y-eN-DVI"/>
-                            <constraint firstItem="McT-h3-kUQ" firstAttribute="leading" secondItem="kiz-9v-mjw" secondAttribute="leading" id="bfq-dH-t8Y"/>
-                            <constraint firstItem="uv4-D3-WQe" firstAttribute="top" secondItem="cM3-Ao-Xyw" secondAttribute="bottom" id="dem-3k-Esa"/>
-                            <constraint firstAttribute="trailing" secondItem="cM3-Ao-Xyw" secondAttribute="trailing" id="hpg-Ai-fwA"/>
-                            <constraint firstAttribute="trailingMargin" secondItem="4mH-10-4Vg" secondAttribute="trailing" constant="-16" id="kJr-Sg-JP3"/>
-                            <constraint firstItem="cM3-Ao-Xyw" firstAttribute="top" secondItem="Cp7-mU-xtb" secondAttribute="bottom" id="oHR-0U-8mV"/>
-                            <constraint firstItem="uv4-D3-WQe" firstAttribute="height" secondItem="cM3-Ao-Xyw" secondAttribute="height" id="s8g-ZE-Z28"/>
-                            <constraint firstItem="uv4-D3-WQe" firstAttribute="leading" secondItem="kiz-9v-mjw" secondAttribute="leading" id="tRF-bH-lOG"/>
-                            <constraint firstItem="cM3-Ao-Xyw" firstAttribute="leading" secondItem="kiz-9v-mjw" secondAttribute="leading" id="wae-OE-ipW"/>
-                            <constraint firstAttribute="trailing" secondItem="McT-h3-kUQ" secondAttribute="trailing" id="xua-yX-FLE"/>
-                            <constraint firstItem="LUr-cR-oPy" firstAttribute="top" secondItem="4mH-10-4Vg" secondAttribute="bottom" id="y8U-Lw-VGx"/>
+                            <constraint firstAttribute="trailing" secondItem="McT-h3-kUQ" secondAttribute="trailing" id="4mr-Mv-uX1"/>
+                            <constraint firstAttribute="trailing" secondItem="4mH-10-4Vg" secondAttribute="trailing" id="88E-nY-hJs"/>
+                            <constraint firstAttribute="trailing" secondItem="uv4-D3-WQe" secondAttribute="trailing" id="8fn-fC-ct5"/>
+                            <constraint firstItem="McT-h3-kUQ" firstAttribute="top" secondItem="cM3-Ao-Xyw" secondAttribute="bottom" id="CoR-l0-mLm"/>
+                            <constraint firstItem="cM3-Ao-Xyw" firstAttribute="height" secondItem="uv4-D3-WQe" secondAttribute="height" id="FCP-aQ-TnS"/>
+                            <constraint firstItem="cM3-Ao-Xyw" firstAttribute="top" secondItem="Cp7-mU-xtb" secondAttribute="bottom" id="HXM-xD-Pss"/>
+                            <constraint firstItem="uv4-D3-WQe" firstAttribute="top" secondItem="cM3-Ao-Xyw" secondAttribute="bottom" id="MDc-WL-QUd"/>
+                            <constraint firstItem="LUr-cR-oPy" firstAttribute="top" secondItem="4mH-10-4Vg" secondAttribute="bottom" id="U1G-Ao-LhE"/>
+                            <constraint firstItem="McT-h3-kUQ" firstAttribute="leading" secondItem="kiz-9v-mjw" secondAttribute="leading" id="WQJ-Pc-wxa"/>
+                            <constraint firstItem="4mH-10-4Vg" firstAttribute="top" secondItem="McT-h3-kUQ" secondAttribute="bottom" id="btt-Cv-FD4"/>
+                            <constraint firstItem="cM3-Ao-Xyw" firstAttribute="leading" secondItem="kiz-9v-mjw" secondAttribute="leading" id="fAd-au-NqM"/>
+                            <constraint firstItem="uv4-D3-WQe" firstAttribute="leading" secondItem="kiz-9v-mjw" secondAttribute="leading" id="fsU-5j-cVi"/>
+                            <constraint firstAttribute="trailing" secondItem="cM3-Ao-Xyw" secondAttribute="trailing" id="g5r-Hw-MKc"/>
+                            <constraint firstItem="4mH-10-4Vg" firstAttribute="leading" secondItem="kiz-9v-mjw" secondAttribute="leading" id="hWG-OJ-unU"/>
+                            <constraint firstItem="4mH-10-4Vg" firstAttribute="top" secondItem="uv4-D3-WQe" secondAttribute="bottom" id="jfO-eq-gE8"/>
                         </constraints>
                     </view>
                     <extendedEdge key="edgesForExtendedLayout"/>
@@ -96,7 +95,6 @@
                         <outlet property="countBars" destination="uv4-D3-WQe" id="3Ly-KM-O0S"/>
                         <outlet property="latencyPlot" destination="cM3-Ao-Xyw" id="xyW-Xw-OQ2"/>
                         <outlet property="log" destination="McT-h3-kUQ" id="BLx-fz-E66"/>
-                        <outlet property="logVerticalConstraint" destination="6Tr-Bn-efS" id="Muj-Kh-OKb"/>
                         <outlet property="playButton" destination="c2a-Sb-Ii3" id="29o-eD-nci"/>
                         <outlet property="settingsButton" destination="OV8-gS-C8g" id="HfF-vw-UaF"/>
                         <outlet property="shareButton" destination="DM3-uR-wgg" id="NmI-kd-B3w"/>
@@ -115,7 +113,7 @@
                     <tableView key="view" opaque="NO" clipsSubviews="YES" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="grouped" separatorStyle="default" rowHeight="44" sectionHeaderHeight="10" sectionFooterHeight="10" id="Xzg-Sk-hFq">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
+                        <color key="backgroundColor" red="0.93725490196078431" green="0.93725490196078431" blue="0.95686274509803926" alpha="1" colorSpace="calibratedRGB"/>
                     </tableView>
                     <navigationItem key="navigationItem" title="Root View Controller" id="2HI-Yl-Ute">
                         <barButtonItem key="rightBarButtonItem" title="Done" id="6aZ-CJ-Xwp">

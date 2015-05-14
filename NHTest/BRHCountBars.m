@@ -50,90 +50,123 @@ static NSString *const kHistogramPlot = @"Histogram";
     graph.plotAreaFrame.borderLineStyle = nil;
     graph.plotAreaFrame.cornerRadius = 0.0f;
 
-    graph.plotAreaFrame.paddingTop = 8.0;
+    graph.plotAreaFrame.paddingTop = 12.0;
     graph.plotAreaFrame.paddingLeft = 25.0;
     graph.plotAreaFrame.paddingBottom = 35.0;
     graph.plotAreaFrame.paddingRight = 10.0;
-    
+
     CPTMutableLineStyle *axisLineStyle = [CPTMutableLineStyle lineStyle];
-    axisLineStyle.lineWidth = 2.0;
-    axisLineStyle.lineColor = [[CPTColor grayColor] colorWithAlphaComponent:1.0];
+    axisLineStyle.lineWidth = 0.75;
+    axisLineStyle.lineColor = [CPTColor colorWithGenericGray:0.45];
+
+    CPTMutableLineStyle *gridLineStyle = [CPTMutableLineStyle lineStyle];
+    gridLineStyle.lineWidth = 0.75;
+    gridLineStyle.lineColor = [CPTColor colorWithGenericGray:0.45];
     
-    CPTMutableLineStyle *majorGridLineStyle = [CPTMutableLineStyle lineStyle];
-    majorGridLineStyle.lineWidth = 0.75;
-    majorGridLineStyle.lineColor = [[CPTColor colorWithGenericGray:0.5] colorWithAlphaComponent:0.75];
-    
-    CPTMutableLineStyle *minorGridLineStyle = [CPTMutableLineStyle lineStyle];
-    minorGridLineStyle.lineWidth = 0.25;
-    minorGridLineStyle.lineColor = [[CPTColor whiteColor] colorWithAlphaComponent:0.1];
-    
-    CPTMutableTextStyle *textStyle = [CPTMutableTextStyle textStyle];
-    textStyle.color = [CPTColor colorWithGenericGray:0.75];
-    textStyle.fontSize = 13.0f;
+    CPTMutableLineStyle *tickLineStyle = [CPTMutableLineStyle lineStyle];
+    tickLineStyle.lineWidth = 0.75;
+    tickLineStyle.lineColor = [CPTColor colorWithGenericGray:0.45];
+
+    CPTMutableTextStyle *labelStyle = [CPTMutableTextStyle textStyle];
+    labelStyle.color = [CPTColor colorWithGenericGray:0.75];
+    labelStyle.fontSize = 12.0f;
+
+    CPTMutableTextStyle *titleStyle = [CPTMutableTextStyle textStyle];
+    titleStyle.color = [CPTColor colorWithGenericGray:0.75];
+    titleStyle.fontSize = 11.0f;
     
     CPTXYPlotSpace *plotSpace = (CPTXYPlotSpace*)graph.defaultPlotSpace;
     plotSpace.identifier = kHistogramPlot;
     plotSpace.allowsUserInteraction = NO;
-    plotSpace.xRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromFloat(-0.5f) length:CPTDecimalFromInteger(numBins)];
-    plotSpace.yRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromInteger(0) length:CPTDecimalFromInteger(5)];
+    plotSpace.xRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromInt(-1) length:CPTDecimalFromInteger(numBins + 1)];
+    plotSpace.yRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromInt(0) length:CPTDecimalFromInteger(5)];
 
     CPTXYAxisSet *axisSet = (CPTXYAxisSet *)graph.axisSet;
+
+    // X Axis
+    //
     CPTXYAxis *x = axisSet.xAxis;
-    x.axisLineStyle = axisLineStyle;
-    x.titleTextStyle = textStyle;
-    x.labelTextStyle = textStyle;
+    x.axisLineStyle = nil;
+    x.titleTextStyle = titleStyle;
+    x.labelTextStyle = labelStyle;
+    x.majorTickLineStyle = tickLineStyle;
+    x.minorTickLineStyle = tickLineStyle;
+
     x.majorIntervalLength = CPTDecimalFromInt(5);
-    x.minorTicksPerInterval = 0;
-    x.majorGridLineStyle = nil;
-    x.majorTickLength = 0.0;
-    x.visibleRange   = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromFloat(0.0f) length:CPTDecimalFromFloat(numBins + 1)];
-    x.gridLinesRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromFloat(0.0f) length:CPTDecimalFromFloat(numBins + 1)];
+    x.tickDirection = CPTSignNegative;
+    x.majorTickLength = 5.0;
+    x.minorTickLength = 5.0;
+    x.minorTicksPerInterval = 4;
+
+    CPTMutablePlotRange *range = [CPTMutablePlotRange plotRangeWithLocation:CPTDecimalFromInt(0) length:CPTDecimalFromLongLong(numBins - 1)];
+    x.visibleRange = range;
+    x.gridLinesRange = range;
+
+    x.labelFormatter = [BRHBinFormatter binFormatterWithMaxBins:numBins];
+    x.labelOffset = -4.0;
+    x.title = @"Histogram (1s bin)";
+    x.titleOffset = 18.0;
     
+    // Y Axis
+    //
+    CPTXYAxis *y = axisSet.yAxis;
+    y.axisLineStyle = nil;
+    y.labelTextStyle = labelStyle;
+    y.majorTickLineStyle = tickLineStyle;
+    y.labelingPolicy = CPTAxisLabelingPolicyAutomatic;
+    y.preferredNumberOfMajorTicks = 5;
+    y.minorTickLineStyle = nil;
+    y.majorGridLineStyle = gridLineStyle;
+    y.minorGridLineStyle = nil;
+
+    y.majorTickLength = 8.0;
+    y.tickDirection = CPTSignNegative;
 
     NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
     [formatter setMaximumFractionDigits:0];
-    x.labelFormatter = formatter;
-    x.title = @"Histogram (1s bin)";
-    x.titleOffset = 18.0f;
-    x.majorTickLineStyle = nil;
-    
-    // We have our own way of formatting the elapsed times at the bottom
-    //
-    x.labelFormatter = [BRHBinFormatter binFormatterWithMaxBins:numBins];
-
-    CPTXYAxis *y = axisSet.yAxis;
-    y.axisLineStyle = axisLineStyle;
-    y.tickDirection = CPTSignNegative;
-    y.labelingPolicy = CPTAxisLabelingPolicyAutomatic;
-    y.titleTextStyle = textStyle;
-    y.labelTextStyle = textStyle;
-    y.majorGridLineStyle = majorGridLineStyle;
-    y.minorGridLineStyle = nil;
-    y.minorTickLineStyle = nil;
-    y.majorTickLineStyle = nil;
-    y.majorTickLength = 0.0;
-    y.labelOffset = 12.0;
-    y.visibleRange   = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromFloat(0.0f) length:CPTDecimalFromFloat(numBins + 1)];
-    y.gridLinesRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromFloat(0.0f) length:CPTDecimalFromFloat(numBins + 1)];
-    
     formatter = [[NSNumberFormatter alloc] init];
     [formatter setMaximumFractionDigits:2];
     y.labelFormatter = formatter;
-    y.title = @"Counts";
-    y.titleOffset = 25.0f;
-    y.axisLineStyle = nil;
-    
+    y.labelOffset = 2.0;
+    //y.labelExclusionRanges = [NSArray arrayWithObject:[CPTPlotRange plotRangeWithLocation:CPTDecimalFromInt(0) length:CPTDecimalFromFloat(0.5)]];
+
     CPTBarPlot *plot = [CPTBarPlot tubularBarPlotWithColor:[CPTColor cyanColor] horizontalBars:NO];
+    // plot.fill = [CPTFill fillWithColor:[CPTColor whiteColor]];
     plot.barWidth = CPTDecimalFromFloat(0.7);
-    //plot.barOffset = CPTDecimalFromFloat(0.0);
     plot.identifier = kHistogramPlot;
     plot.dataSource = self;
     plot.delegate = self;
     [graph addPlot:plot toPlotSpace:plotSpace];
-    
+
     self.backgroundColor = [UIColor blackColor];
-//    self.countBars.collapsesLayers = YES;
     self.hostedGraph = graph;
+
+#if 0
+    for (int z = 0; z < 13; ++z)
+        [self.dataSource addValue:0.5];
+
+    [self.dataSource addValue:1];
+    [self.dataSource addValue:1];
+    [self.dataSource addValue:1];
+
+    [self.dataSource addValue:2];
+    [self.dataSource addValue:2];
+    [self.dataSource addValue:2];
+    [self.dataSource addValue:2];
+    [self.dataSource addValue:2];
+
+    [self.dataSource addValue:28];
+    [self.dataSource addValue:29];
+    [self.dataSource addValue:30];
+    [self.dataSource addValue:30];
+    [self.dataSource addValue:31];
+    [self.dataSource addValue:32];
+    [self.dataSource addValue:33];
+    [self.dataSource addValue:34];
+    [self.dataSource addValue:35];
+
+    // [plotSpace scaleToFitPlots: graph.allPlots];
+#endif
 }
 
 - (void)clear
@@ -164,13 +197,9 @@ static NSString *const kHistogramPlot = @"Histogram";
     [self.hostedGraph.allPlots[0] reloadDataInIndexRange:NSMakeRange(bin, 1)];
 
     NSUInteger count = [[self.dataSource binAtIndex:bin] unsignedIntegerValue];
-    if ([plotSpace.yRange compareToNumber:@(count)] != CPTPlotRangeComparisonResultNumberInRange) {
-        plotSpace.globalYRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromUnsignedInteger(0) length:CPTDecimalFromUnsignedInteger(MAX(count, 5))];
-        plotSpace.yRange = plotSpace.globalYRange;
-    }
-
-    // Update any visible bin annotiation with the latest value
-    //
+    count = MAX((count / 5 + 1) * 5, 5);
+    plotSpace.yRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromInt(0) length:CPTDecimalFromInteger(count)];
+    
     if (self.binAnnotation != nil && self.binAnnotationIndex == bin) {
         CPTTextLayer *textLayer = (CPTTextLayer*)self.binAnnotation.contentLayer;
         textLayer.text = [NSString stringWithFormat:@"%ld", (unsigned long)count];

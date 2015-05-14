@@ -476,7 +476,7 @@ static double const kPlotSymbolSpan = kPlotSymbolSize + 5.0;
     }
     
     self.latencyAnnotationIndex = index;
-    
+
     NSNumber *y = data.value;
     NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
     [formatter setMaximumFractionDigits:3];
@@ -488,7 +488,7 @@ static double const kPlotSymbolSpan = kPlotSymbolSize + 5.0;
     hitAnnotationTextStyle.fontSize = 16.0;
     hitAnnotationTextStyle.fontName = @"Helvetica-Bold";
     
-    CPTTextLayer *textLayer = [[CPTTextLayer alloc] initWithText:yString style:hitAnnotationTextStyle];
+    CPTTextLayer *textLayer = [[CPTTextLayer alloc] initWithText:[NSString stringWithFormat:@"%@ %@", data.identifier, yString] style:hitAnnotationTextStyle];
     NSArray *anchorPoint = [NSArray arrayWithObjects:data.when, y, nil];
     
     // Now add the annotation to the plot area

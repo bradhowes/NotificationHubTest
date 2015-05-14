@@ -13,6 +13,10 @@ extern NSString *BRHNotificationDriverRunningStateChanged;
 
 @class BRHHistogram;
 @class BRHLatencyValue;
+@class BRHRemoteDriver;
+
+typedef void (^BRHNotificationDriverFetchCompletionHandler)(BOOL success, NSString* msg);
+typedef void (^BRHNotificationDriverUpdateCompletionHandler)(BOOL success, BOOL updated);
 
 @interface BRHNotificationDriver : NSObject
 
@@ -21,6 +25,7 @@ extern NSString *BRHNotificationDriverRunningStateChanged;
 @property (nonatomic, strong) NSMutableArray *latencies;
 @property (nonatomic, strong) BRHHistogram *bins;
 @property (nonatomic, strong) NSDate *startTime;
+@property (nonatomic, strong) BRHRemoteDriver* remoteDriver;
 @property (nonatomic, assign) NSTimeInterval emitInterval;
 @property (nonatomic, readonly, getter=isRunning) BOOL running;
 
@@ -33,7 +38,6 @@ extern NSString *BRHNotificationDriverRunningStateChanged;
 
 - (void)emitNotification;
 - (void)received:(NSNumber *)identifier timeOfArrival:(NSDate *)timeOfArrival contents:(NSDictionary *)contents;
-
 - (void)editingSettings:(BOOL)state;
 
 @end

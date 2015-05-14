@@ -86,6 +86,13 @@
 			remoteGlobalIDString = BC9B83460FB8A0A40035D8DA;
 			remoteInfo = "CorePlot-CocoaTouch";
 		};
+		BD6B9F0E1B0109C9003AA71C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BD6CF5D41AFD4C34004969F2 /* InAppSettingsKit.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = E42ADA8E168202D700295D85;
+			remoteInfo = InAppSettingsKit;
+		};
 		BD6CF5D91AFD4C35004969F2 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = BD6CF5D41AFD4C34004969F2 /* InAppSettingsKit.xcodeproj */;
@@ -121,6 +128,7 @@
 		BD3EC5501876CE87005AE4B8 /* BRHNotificationDriver.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BRHNotificationDriver.m; sourceTree = "<group>"; };
 		BD3EC5521876E090005AE4B8 /* BRHLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BRHLogger.h; sourceTree = "<group>"; };
 		BD3EC5531876E090005AE4B8 /* BRHLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BRHLogger.m; sourceTree = "<group>"; };
+		BD5D575E1AFFC2B000580C4D /* BRHOutstandingNotification.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BRHOutstandingNotification.h; sourceTree = "<group>"; };
 		BD5EE9B31874BCED00A55A13 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		BD5FE31D18F94078006368C4 /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Reachability.h; path = Vendor/Reachability.h; sourceTree = "<group>"; };
 		BD5FE31E18F94078006368C4 /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Reachability.m; path = Vendor/Reachability.m; sourceTree = "<group>"; };
@@ -136,7 +144,6 @@
 		BD6CF5D41AFD4C34004969F2 /* InAppSettingsKit.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = InAppSettingsKit.xcodeproj; path = ../../src/iphone/InAppSettingsKit/InAppSettingsKit.xcodeproj; sourceTree = "<group>"; };
 		BD6CF5EC1AFE5AD8004969F2 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		BD6CF5EE1AFECF7C004969F2 /* BRHOutstandingNotification.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BRHOutstandingNotification.m; sourceTree = "<group>"; };
-		BD6CF5F01AFECFA5004969F2 /* BRHOutstandingNotification.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = BRHOutstandingNotification.h; path = ../BRHOutstandingNotification.h; sourceTree = "<group>"; };
 		BD6CF6001AFF6273004969F2 /* BRHBinFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BRHBinFormatter.h; sourceTree = "<group>"; };
 		BD6CF6051AFF6281004969F2 /* BRHBinFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BRHBinFormatter.m; sourceTree = "<group>"; };
 		BDA7A4F11871AF60002F7780 /* NHTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NHTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -321,7 +328,7 @@
 				BD3EC54F1876CE87005AE4B8 /* BRHNotificationDriver.h */,
 				BD3EC5501876CE87005AE4B8 /* BRHNotificationDriver.m */,
 				BD6CF5EE1AFECF7C004969F2 /* BRHOutstandingNotification.m */,
-				BD6CF5F01AFECFA5004969F2 /* BRHOutstandingNotification.h */,
+				BD5D575E1AFFC2B000580C4D /* BRHOutstandingNotification.h */,
 				BDF2FFBB1A8E0F7D00364460 /* BRHRemoteDriver.h */,
 				BDF2FFBC1A8E0F7E00364460 /* BRHRemoteDriver.m */,
 				BD5FE39A18F95695006368C4 /* BRHSettingsViewController.h */,
@@ -463,6 +470,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				BD6B9F0F1B0109C9003AA71C /* PBXTargetDependency */,
 				BD128B701875807100307B0C /* PBXTargetDependency */,
 			);
 			name = NHTest;
@@ -650,6 +658,11 @@
 			isa = PBXTargetDependency;
 			name = "CorePlot-CocoaTouch";
 			targetProxy = BD128B6F1875807100307B0C /* PBXContainerItemProxy */;
+		};
+		BD6B9F0F1B0109C9003AA71C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = InAppSettingsKit;
+			targetProxy = BD6B9F0E1B0109C9003AA71C /* PBXContainerItemProxy */;
 		};
 		BDA7A51E1871AF60002F7780 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;

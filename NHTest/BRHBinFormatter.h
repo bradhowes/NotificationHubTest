@@ -9,10 +9,9 @@
 #import <Foundation/Foundation.h>
 
 @interface BRHBinFormatter : NSNumberFormatter
-@property (assign, nonatomic) NSInteger maxBins;
 
-+ (BRHBinFormatter*)binFormatterWithMaxBins:(NSInteger)maxBins;
-- (id)initWithMaxBins:(NSInteger)maxBins;
++ (BRHBinFormatter*)binFormatterWithMaxBins:(NSUInteger)maxBins;
+- (id)initWithMaxBins:(NSUInteger)maxBins;
 
 @end
 

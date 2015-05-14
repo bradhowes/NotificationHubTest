@@ -39,22 +39,6 @@
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "NHTest/BRHCountBars.m"
-            timestampString = "452944773.05477"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "162"
-            endingLineNumber = "162"
-            landmarkName = "-update:"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
             filePath = "../../src/iphone/core-plot/framework/Source/CPTPlot.m"
             timestampString = "445367611.563502"
             startingColumnNumber = "9223372036854775807"
@@ -104,11 +88,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NHTest/BRHRemoteDriver.m"
-            timestampString = "452782642.922358"
+            timestampString = "453247312.942913"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "81"
-            endingLineNumber = "81"
+            startingLineNumber = "97"
+            endingLineNumber = "97"
             landmarkName = "-deleteRegistration"
             landmarkType = "5">
          </BreakpointContent>
@@ -120,11 +104,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NHTest/BRHRemoteDriver.m"
-            timestampString = "452782642.922358"
+            timestampString = "453247312.942913"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "123"
-            endingLineNumber = "123"
+            startingLineNumber = "191"
+            endingLineNumber = "191"
             landmarkName = "-URLSession:didReceiveChallenge:completionHandler:"
             landmarkType = "5">
          </BreakpointContent>
@@ -136,11 +120,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NHTest/BRHRemoteDriver.m"
-            timestampString = "452782642.922358"
+            timestampString = "453247312.942913"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "116"
-            endingLineNumber = "116"
+            startingLineNumber = "183"
+            endingLineNumber = "183"
             landmarkName = "-URLSession:didBecomeInvalidWithError:"
             landmarkType = "5">
             <Locations>
@@ -175,22 +159,6 @@
                   offsetFromSymbolStart = "24">
                </Location>
             </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "NHTest/BRHRemoteDriver.m"
-            timestampString = "452782642.922358"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "128"
-            endingLineNumber = "128"
-            landmarkName = "-URLSessionDidFinishEventsForBackgroundURLSession:"
-            landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>
