@@ -97,6 +97,7 @@ extractIdentityAndTrust(CFDataRef inPKCS12Data, SecIdentityRef *outIdentity, Sec
             [settings setInteger:numBins forKey:@"emitInterval"];
         }
         
+        _sim = [settings boolForKey:@"sim"];
         _useRemoteServer = [settings boolForKey:@"useRemoteServer"];
         _bins = [BRHHistogram histogramWithSize:numBins + 1];
 
@@ -109,6 +110,7 @@ extractIdentityAndTrust(CFDataRef inPKCS12Data, SecIdentityRef *outIdentity, Sec
 - (void)settingsChanged:(NSNotification *)notification
 {
     NSUserDefaults *settings = [NSUserDefaults standardUserDefaults];
+
     NSUInteger numBins = [settings integerForKey:@"maxBin"];
     if (numBins < 10 || numBins > 120) {
         numBins = 60;
@@ -121,12 +123,16 @@ extractIdentityAndTrust(CFDataRef inPKCS12Data, SecIdentityRef *outIdentity, Sec
     }
 
     NSUInteger emitInterval = [settings integerForKey:@"emitInterval"];
-    if (emitInterval < 5) {
-        emitInterval = 5;
+    if (emitInterval < 1) {
+        emitInterval = 1;
         [settings setInteger:emitInterval forKey:@"emitInteval"];
     }
 
     self.useRemoteServer = [settings boolForKey:@"useRemoteServer"];
+    self.sim = [settings boolForKey:@"sim"];
+    if (self.sim)
+        self.useRemoteServer = NO;
+
     [self connect];
 }
 
@@ -143,7 +149,10 @@ extractIdentityAndTrust(CFDataRef inPKCS12Data, SecIdentityRef *outIdentity, Sec
 
 - (void)connect
 {
+    if (self.useRemoteServer || self.sim) return;
+    
     NSUserDefaults *settings = [NSUserDefaults standardUserDefaults];
+    
     BOOL useSandbox = [settings boolForKey:@"useSandbox"];
     DDLogDebug(@"useSandbox: %d", useSandbox);
     
@@ -160,8 +169,8 @@ extractIdentityAndTrust(CFDataRef inPKCS12Data, SecIdentityRef *outIdentity, Sec
     SecTrustRef trust;
     OSStatus status = extractIdentityAndTrust((__bridge CFDataRef)cert, &_identity, &trust, (__bridge CFStringRef)password);
     password = nil;
-    self.apns = nil;
     
+    self.apns = nil;
     if (status != errSecSuccess) {
         DDLogError(@"failed to extract identity from cert - %d", (int)status);
         [BRHLogger add:@"invalid cert for sending notifications"];
@@ -200,42 +209,29 @@ extractIdentityAndTrust(CFDataRef inPKCS12Data, SecIdentityRef *outIdentity, Sec
     _running = YES;
 
     NSUserDefaults* settings = [NSUserDefaults standardUserDefaults];
-    self.sim = [settings boolForKey:@"sim"];
+    NSLog(@"settings: %@", settings);
 
-    if (self.sim) {
-        self.apns = nil;
-        self.emitInterval = 1.0;
-    }
-    else if (self.useRemoteServer) {
+    if (self.useRemoteServer) {
         NSString *deviceToken = [self.deviceToken base64EncodedStringWithOptions:0];
-        NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"http://%@:%ld", [settings stringForKey:@"remoteServerName"], (long)[settings integerForKey:@"remoteServerPort"]]];
+        NSString *host = [settings stringForKey:@"remoteServerName"];
+        long port = [settings integerForKey:@"remoteServerPort"];
+        NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"http://%@:%ld", host, port]];
+        [BRHLogger add:@"remote URL: %@", url.absoluteString];
         self.remoteDriver = [[BRHRemoteDriver alloc] initWithURL:url deviceToken:deviceToken];
         [self.remoteDriver postRegistration];
     }
     else {
-        [self connect];
-
-        BOOL needsUpdate = NO;
-        double value = [[[NSUserDefaults standardUserDefaults] stringForKey:@"emitInterval"] doubleValue];
-        
-        // Keep interval between 1 - 60.
-        if (value < 1) {
-            value = 1;
-            needsUpdate = YES;
+        if (self.sim) {
+            self.apns = nil;
+            self.emitInterval = 1;
         }
-        else if (value > 60.0) {
-            value = 60.0;
-            needsUpdate = YES;
+        else {
+            [self connect];
+            double value = [[[NSUserDefaults standardUserDefaults] stringForKey:@"emitInterval"] doubleValue];
+            self.emitInterval = value;
         }
 
-        if (needsUpdate == YES) {
-            DDLogWarn(@"saving emitInterval value");
-            [[NSUserDefaults standardUserDefaults] setObject:[NSString stringWithFormat:@"%f", value] forKey:@"emitInterval"];
-        }
-
-        self.emitInterval = value * 60.0;
         [BRHLogger add:@"emit interval: %f", self.emitInterval];
-
         [self startEmitter];
     }
 }

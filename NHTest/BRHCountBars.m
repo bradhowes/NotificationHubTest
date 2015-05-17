@@ -37,9 +37,8 @@ static NSString *const kHistogramPlot = @"Histogram";
 
 - (void)makeHistogramPlot
 {
-    NSUInteger numBins = self.dataSource.count;
-    
     CPTXYGraph *graph = [[CPTXYGraph alloc] initWithFrame:CGRectZero];
+    self.hostedGraph = graph;
     [graph applyTheme:[CPTTheme themeNamed:kCPTDarkGradientTheme]];
     
     graph.paddingTop = 0.0f;
@@ -50,7 +49,7 @@ static NSString *const kHistogramPlot = @"Histogram";
     graph.plotAreaFrame.borderLineStyle = nil;
     graph.plotAreaFrame.cornerRadius = 0.0f;
 
-    graph.plotAreaFrame.paddingTop = 12.0;
+    graph.plotAreaFrame.paddingTop = 10.0;
     graph.plotAreaFrame.paddingLeft = 25.0;
     graph.plotAreaFrame.paddingBottom = 35.0;
     graph.plotAreaFrame.paddingRight = 10.0;
@@ -75,6 +74,8 @@ static NSString *const kHistogramPlot = @"Histogram";
     titleStyle.color = [CPTColor colorWithGenericGray:0.75];
     titleStyle.fontSize = 11.0f;
     
+    NSUInteger numBins = self.dataSource.count;
+    
     CPTXYPlotSpace *plotSpace = (CPTXYPlotSpace*)graph.defaultPlotSpace;
     plotSpace.identifier = kHistogramPlot;
     plotSpace.allowsUserInteraction = NO;
@@ -86,48 +87,54 @@ static NSString *const kHistogramPlot = @"Histogram";
     // X Axis
     //
     CPTXYAxis *x = axisSet.xAxis;
-    x.axisLineStyle = nil;
     x.titleTextStyle = titleStyle;
-    x.labelTextStyle = labelStyle;
-    x.majorTickLineStyle = tickLineStyle;
-    x.minorTickLineStyle = tickLineStyle;
+    x.title = @"Histogram (1s bin)";
+    x.titleOffset = 18.0;
 
-    x.majorIntervalLength = CPTDecimalFromInt(5);
+    x.axisLineStyle = nil;
+
+    x.labelTextStyle = labelStyle;
+    x.labelOffset = -4.0;
+    x.labelFormatter = [BRHBinFormatter binFormatterWithMaxBins:numBins];
+
     x.tickDirection = CPTSignNegative;
+    x.majorTickLineStyle = tickLineStyle;
     x.majorTickLength = 5.0;
-    x.minorTickLength = 5.0;
+    x.majorIntervalLength = CPTDecimalFromInt(5);
+
+    x.minorTickLineStyle = tickLineStyle;
+    x.minorTickLength = 3.0;
     x.minorTicksPerInterval = 4;
 
     CPTMutablePlotRange *range = [CPTMutablePlotRange plotRangeWithLocation:CPTDecimalFromInt(0) length:CPTDecimalFromLongLong(numBins - 1)];
     x.visibleRange = range;
     x.gridLinesRange = range;
 
-    x.labelFormatter = [BRHBinFormatter binFormatterWithMaxBins:numBins];
-    x.labelOffset = -4.0;
-    x.title = @"Histogram (1s bin)";
-    x.titleOffset = 18.0;
-    
     // Y Axis
     //
     CPTXYAxis *y = axisSet.yAxis;
+    y.titleTextStyle = nil;
+    y.title = nil;
+
     y.axisLineStyle = nil;
-    y.labelTextStyle = labelStyle;
-    y.majorTickLineStyle = tickLineStyle;
+
     y.labelingPolicy = CPTAxisLabelingPolicyAutomatic;
+    y.labelTextStyle = labelStyle;
+    y.labelOffset = 5.0;
+    NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
+    [formatter setMaximumFractionDigits:2];
+    y.labelFormatter = formatter;
+
+    y.tickDirection = CPTSignNegative;
+    y.majorTickLineStyle = tickLineStyle;
+    y.majorTickLength = 5.0;
     y.preferredNumberOfMajorTicks = 5;
+
     y.minorTickLineStyle = nil;
+
     y.majorGridLineStyle = gridLineStyle;
     y.minorGridLineStyle = nil;
 
-    y.majorTickLength = 8.0;
-    y.tickDirection = CPTSignNegative;
-
-    NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
-    [formatter setMaximumFractionDigits:0];
-    formatter = [[NSNumberFormatter alloc] init];
-    [formatter setMaximumFractionDigits:2];
-    y.labelFormatter = formatter;
-    y.labelOffset = 2.0;
     //y.labelExclusionRanges = [NSArray arrayWithObject:[CPTPlotRange plotRangeWithLocation:CPTDecimalFromInt(0) length:CPTDecimalFromFloat(0.5)]];
 
     CPTBarPlot *plot = [CPTBarPlot tubularBarPlotWithColor:[CPTColor cyanColor] horizontalBars:NO];
@@ -139,7 +146,6 @@ static NSString *const kHistogramPlot = @"Histogram";
     [graph addPlot:plot toPlotSpace:plotSpace];
 
     self.backgroundColor = [UIColor blackColor];
-    self.hostedGraph = graph;
 
 #if 0
     for (int z = 0; z < 13; ++z)
@@ -188,6 +194,8 @@ static NSString *const kHistogramPlot = @"Histogram";
 - (void)refreshDisplay
 {
     [self.hostedGraph reloadData];
+    CPTXYPlotSpace *plotSpace = (CPTXYPlotSpace *)self.hostedGraph.defaultPlotSpace;
+    plotSpace.yRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromInt(0) length:CPTDecimalFromInteger(5)];
 }
 
 - (void)update:(NSNotification*)notification

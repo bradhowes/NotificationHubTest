@@ -122,7 +122,7 @@ typedef void (^BRHCompletionHandler)(void);
     
     NSURLSessionUploadTask *task = [self.session uploadTaskWithRequest:request fromData:body completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         NSHTTPURLResponse *r = (NSHTTPURLResponse*)response;
-        NSLog(@"response: %@", r);
+        [BRHLogger add:@"%@ - %@", url.absoluteString, r];
     }];
     
     [task resume];
@@ -139,7 +139,7 @@ typedef void (^BRHCompletionHandler)(void);
     
     NSURLSessionDataTask *task = [self.session dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         NSHTTPURLResponse *r = (NSHTTPURLResponse*)response;
-        NSLog(@"response: %@", r);
+        [BRHLogger add:@"%@ - %@", url.absoluteString, r];
         if (r.statusCode == 200) {
             NSDictionary *payload = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:&error];
             NSString* msg = [payload objectForKey:@"msg"];
@@ -164,7 +164,7 @@ typedef void (^BRHCompletionHandler)(void);
     
     NSURLSessionDataTask *task = [self.session dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         NSHTTPURLResponse *r = (NSHTTPURLResponse*)response;
-        NSLog(@"response: %@", r);
+        [BRHLogger add:@"%@ - %@", url.absoluteString, r];
         if (r.statusCode == 200) {
             NSArray *updates = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:&error];
             NSString* msg = nil;

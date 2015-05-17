@@ -39,11 +39,12 @@
                                                                   @"sandboxCertFileName":@"apn-nhtest-dev.p12",
                                                                   @"sandboxCertPassword":@"",
                                                                   @"useSandbox":@"1",
-                                                                  @"emitInterval":@"60",
-                                                                  @"maxBin":@"60",
+                                                                  @"emitInterval":@"15",
+                                                                  @"maxBin":@"30",
                                                                   @"useRemoteServer":@"0",
                                                                   @"remoteServerName":@"emitter-bradhowes.c9.io",
-                                                                  @"remoteServerPort":@"80"
+                                                                  @"remoteServerPort":@"80",
+                                                                  @"sim":@"0"
                                                                   }];
     }
 
