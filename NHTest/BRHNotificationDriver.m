@@ -10,6 +10,7 @@
 
 #import "BRHAPNsClient.h"
 #import "BRHRemoteDriver.h"
+#import "BRHEventLog.h"
 #import "BRHLogger.h"
 #import "BRHHistogram.h"
 #import "BRHLatencyValue.h"
@@ -305,10 +306,17 @@ extractIdentityAndTrust(CFDataRef inPKCS12Data, SecIdentityRef *outIdentity, Sec
 - (void)received:(NSNumber *)identifier timeOfArrival:(NSDate *)timeOfArrival contents:(NSDictionary *)contents
 {
     [BRHLogger add: @"received - %@", contents];
-
     BRHOutstandingNotification *notification;
 
     if (self.remoteDriver) {
+
+        if (self.latencies.count > 0) {
+            BRHLatencyValue* tmp = [self.latencies lastObject];
+            if (identifier.integerValue == tmp.identifier.integerValue) {
+                return;
+            }
+        }
+
         notification = [BRHOutstandingNotification new];
         NSString *when = contents[@"when"];
         double dwhen = [when doubleValue];
@@ -327,24 +335,29 @@ extractIdentityAndTrust(CFDataRef inPKCS12Data, SecIdentityRef *outIdentity, Sec
     NSTimeInterval latency = [timeOfArrival timeIntervalSinceDate:notification.when];
     [self recordLatency:latency forID:identifier withTime:[timeOfArrival timeIntervalSinceDate:self.startTime]];
 
-    [BRHLogger add:@"received ID %@ when: %f elapsed: %@", [identifier stringValue], [timeOfArrival timeIntervalSinceDate:self.startTime], [@(latency) stringValue]];
+    NSString *latencyString = [@(latency) stringValue];
+    [BRHLogger add:@"received ID %@ when: %f elapsed: %@", [identifier stringValue], [timeOfArrival timeIntervalSinceDate:self.startTime], latencyString];
+    [BRHEventLog add:@"received", [identifier stringValue], timeOfArrival, latencyString, nil];
 
-    // Check outstanding notifications to see if any have expired
-    //
-    NSMutableArray *toBeRemoved = [NSMutableArray arrayWithObject:notification.identifier];
-    [self.outstandingNotifications enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
-        if (obj == notification) return;
-        BRHOutstandingNotification *notification = obj;
-        if ([notification.expiration timeIntervalSinceDate:timeOfArrival] < 0.0) {
-            NSTimeInterval latency = [notification.expiration timeIntervalSinceDate:notification.when];
-            [self recordLatency:latency forID:notification.identifier withTime:[notification.expiration timeIntervalSinceDate:self.startTime]];
-            [BRHLogger add:@"*** forgetting notification ID %@ elapsed: %@", [identifier stringValue], [@(latency) stringValue]];
-            [toBeRemoved addObject:key];
+    if (! self.remoteDriver) {
+        
+        // Check outstanding notifications to see if any have expired
+        //
+        NSMutableArray *toBeRemoved = [NSMutableArray arrayWithObject:notification.identifier];
+        [self.outstandingNotifications enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+            if (obj == notification) return;
+            BRHOutstandingNotification *notification = obj;
+            if ([notification.expiration timeIntervalSinceDate:timeOfArrival] < 0.0) {
+                NSTimeInterval latency = [notification.expiration timeIntervalSinceDate:notification.when];
+                [self recordLatency:latency forID:notification.identifier withTime:[notification.expiration timeIntervalSinceDate:self.startTime]];
+                [BRHLogger add:@"*** forgetting notification ID %@ elapsed: %@", [identifier stringValue], [@(latency) stringValue]];
+                [toBeRemoved addObject:key];
+            }
+        }];
+        
+        if (toBeRemoved.count) {
+            [self.outstandingNotifications removeObjectsForKeys:toBeRemoved];
         }
-    }];
-
-    if (toBeRemoved.count) {
-        [self.outstandingNotifications removeObjectsForKeys:toBeRemoved];
     }
 }
 

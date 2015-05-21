@@ -16,4 +16,6 @@
 @property (nonatomic, strong) NSNumber *median;
 @property (nonatomic, strong) NSNumber *average;
 
+- (BOOL)duplicateOf:(BRHLatencyValue*)other;
+
 @end

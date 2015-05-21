@@ -14,6 +14,7 @@
 		BD3EC5481876068E005AE4B8 /* plot@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = BD3EC5461876068E005AE4B8 /* plot@2x.png */; };
 		BD3EC5511876CE87005AE4B8 /* BRHNotificationDriver.m in Sources */ = {isa = PBXBuildFile; fileRef = BD3EC5501876CE87005AE4B8 /* BRHNotificationDriver.m */; };
 		BD3EC5541876E090005AE4B8 /* BRHLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = BD3EC5531876E090005AE4B8 /* BRHLogger.m */; };
+		BD55ED8C1B0DF56A00E70F1F /* BRHEventLog.m in Sources */ = {isa = PBXBuildFile; fileRef = BD55ED8B1B0DF56A00E70F1F /* BRHEventLog.m */; };
 		BD5EE9B41874BCED00A55A13 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BD5EE9B31874BCED00A55A13 /* QuartzCore.framework */; };
 		BD5FE31F18F94078006368C4 /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = BD5FE31E18F94078006368C4 /* Reachability.m */; };
 		BD5FE39718F94F50006368C4 /* settings.png in Resources */ = {isa = PBXBuildFile; fileRef = BD5FE39418F94F50006368C4 /* settings.png */; };
@@ -61,6 +62,8 @@
 		BDE3876418F82A2E009E75CF /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = BDE3876318F82A2E009E75CF /* Settings.bundle */; };
 		BDE3877318F85127009E75CF /* apn-nhtest-dev.p12 in Resources */ = {isa = PBXBuildFile; fileRef = BDE3877118F85127009E75CF /* apn-nhtest-dev.p12 */; };
 		BDE3877418F85127009E75CF /* apn-nhtest-prod.p12 in Resources */ = {isa = PBXBuildFile; fileRef = BDE3877218F85127009E75CF /* apn-nhtest-prod.p12 */; };
+		BDEA88141B0E53E9004BB6AB /* events@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = BDEA88121B0E53E9004BB6AB /* events@2x.png */; };
+		BDEA88151B0E53E9004BB6AB /* events.png in Resources */ = {isa = PBXBuildFile; fileRef = BDEA88131B0E53E9004BB6AB /* events.png */; };
 		BDF2FFBD1A8E0F7E00364460 /* BRHRemoteDriver.m in Sources */ = {isa = PBXBuildFile; fileRef = BDF2FFBC1A8E0F7E00364460 /* BRHRemoteDriver.m */; };
 		BDFBF343187C55460080CC99 /* BRHHistogram.m in Sources */ = {isa = PBXBuildFile; fileRef = BDFBF342187C55460080CC99 /* BRHHistogram.m */; };
 		BDFBF348187C5A1F0080CC99 /* BRHLatencyValue.m in Sources */ = {isa = PBXBuildFile; fileRef = BDFBF347187C5A1F0080CC99 /* BRHLatencyValue.m */; };
@@ -128,6 +131,8 @@
 		BD3EC5501876CE87005AE4B8 /* BRHNotificationDriver.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BRHNotificationDriver.m; sourceTree = "<group>"; };
 		BD3EC5521876E090005AE4B8 /* BRHLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BRHLogger.h; sourceTree = "<group>"; };
 		BD3EC5531876E090005AE4B8 /* BRHLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BRHLogger.m; sourceTree = "<group>"; };
+		BD55ED871B0DF55600E70F1F /* BRHEventLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BRHEventLog.h; sourceTree = "<group>"; };
+		BD55ED8B1B0DF56A00E70F1F /* BRHEventLog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BRHEventLog.m; sourceTree = "<group>"; };
 		BD5D575E1AFFC2B000580C4D /* BRHOutstandingNotification.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BRHOutstandingNotification.h; sourceTree = "<group>"; };
 		BD5EE9B31874BCED00A55A13 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		BD5FE31D18F94078006368C4 /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Reachability.h; path = Vendor/Reachability.h; sourceTree = "<group>"; };
@@ -193,10 +198,12 @@
 		BDC5D7F21950FFD400D64B50 /* libxml2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.dylib; path = usr/lib/libxml2.dylib; sourceTree = SDKROOT; };
 		BDE3875018F827C9009E75CF /* Main_iPad.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main_iPad.storyboard; sourceTree = "<group>"; };
 		BDE3875118F827C9009E75CF /* Main_iPhone.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main_iPhone.storyboard; sourceTree = "<group>"; };
-		BDE3875718F8288D009E75CF /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = NHTest/main.m; sourceTree = "<group>"; };
+		BDE3875718F8288D009E75CF /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		BDE3876318F82A2E009E75CF /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		BDE3877118F85127009E75CF /* apn-nhtest-dev.p12 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "apn-nhtest-dev.p12"; sourceTree = "<group>"; };
 		BDE3877218F85127009E75CF /* apn-nhtest-prod.p12 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "apn-nhtest-prod.p12"; sourceTree = "<group>"; };
+		BDEA88121B0E53E9004BB6AB /* events@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "events@2x.png"; sourceTree = "<group>"; };
+		BDEA88131B0E53E9004BB6AB /* events.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = events.png; sourceTree = "<group>"; };
 		BDF2FFBB1A8E0F7D00364460 /* BRHRemoteDriver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BRHRemoteDriver.h; sourceTree = "<group>"; };
 		BDF2FFBC1A8E0F7E00364460 /* BRHRemoteDriver.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BRHRemoteDriver.m; sourceTree = "<group>"; };
 		BDFBF341187C55460080CC99 /* BRHHistogram.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BRHHistogram.h; sourceTree = "<group>"; };
@@ -268,7 +275,6 @@
 		BDA7A4E81871AF60002F7780 = {
 			isa = PBXGroup;
 			children = (
-				BDE3875718F8288D009E75CF /* main.m */,
 				BDA7A4FA1871AF60002F7780 /* NHTest */,
 				BDB5D47218F93E49007B0C23 /* Vendor */,
 				BDA7A51F1871AF60002F7780 /* NotificationHubTestTests */,
@@ -311,6 +317,7 @@
 			children = (
 				BDE3875018F827C9009E75CF /* Main_iPad.storyboard */,
 				BDE3875118F827C9009E75CF /* Main_iPhone.storyboard */,
+				BDE3875718F8288D009E75CF /* main.m */,
 				BDFF04F21958406000677A74 /* BRHAPNsClient.h */,
 				BDFF04F31958406000677A74 /* BRHAPNsClient.m */,
 				BDA7A5031871AF60002F7780 /* BRHAppDelegate.h */,
@@ -323,6 +330,8 @@
 				BDFBF342187C55460080CC99 /* BRHHistogram.m */,
 				BDFBF346187C5A1F0080CC99 /* BRHLatencyValue.h */,
 				BDFBF347187C5A1F0080CC99 /* BRHLatencyValue.m */,
+				BD55ED871B0DF55600E70F1F /* BRHEventLog.h */,
+				BD55ED8B1B0DF56A00E70F1F /* BRHEventLog.m */,
 				BD3EC5521876E090005AE4B8 /* BRHLogger.h */,
 				BD3EC5531876E090005AE4B8 /* BRHLogger.m */,
 				BD3EC54F1876CE87005AE4B8 /* BRHNotificationDriver.h */,
@@ -350,6 +359,8 @@
 		BDA7A4FB1871AF60002F7780 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				BDEA88121B0E53E9004BB6AB /* events@2x.png */,
+				BDEA88131B0E53E9004BB6AB /* events.png */,
 				BD5FE39418F94F50006368C4 /* settings.png */,
 				BD5FE39518F94F50006368C4 /* settings@2x.png */,
 				BD5FE39618F94F50006368C4 /* settings.opacity */,
@@ -593,6 +604,8 @@
 				BD3EC5411876043A005AE4B8 /* log.png in Resources */,
 				BD3EC5471876068E005AE4B8 /* plot.png in Resources */,
 				BDE3875318F827C9009E75CF /* Main_iPhone.storyboard in Resources */,
+				BDEA88151B0E53E9004BB6AB /* events.png in Resources */,
+				BDEA88141B0E53E9004BB6AB /* events@2x.png in Resources */,
 				BD6585B41875FA15008D1BA7 /* trash-75.png in Resources */,
 				BDE3875218F827C9009E75CF /* Main_iPad.storyboard in Resources */,
 				BD5FE39918F94F50006368C4 /* settings.opacity in Resources */,
@@ -633,6 +646,7 @@
 				BD6CF6061AFF6281004969F2 /* BRHBinFormatter.m in Sources */,
 				BDFBF348187C5A1F0080CC99 /* BRHLatencyValue.m in Sources */,
 				BD5FE39D18F97919006368C4 /* BRHMainViewController.m in Sources */,
+				BD55ED8C1B0DF56A00E70F1F /* BRHEventLog.m in Sources */,
 				BDC0475619D0557300A14DE9 /* DDFileLogger.m in Sources */,
 				BDC0475319D0557300A14DE9 /* DDAbstractDatabaseLogger.m in Sources */,
 				BDA7A5051871AF60002F7780 /* BRHAppDelegate.m in Sources */,

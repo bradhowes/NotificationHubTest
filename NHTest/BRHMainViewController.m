@@ -10,6 +10,7 @@
 #import "BRHCountBars.h"
 #import "BRHLatencyPlot.h"
 #import "BRHLatencyValue.h"
+#import "BRHEventLog.h"
 #import "BRHLogger.h"
 #import "BRHMainViewController.h"
 #import "BRHNotificationDriver.h"
@@ -22,10 +23,8 @@ static void *const kKVOContext = (void *)&kKVOContext;
 @property (nonatomic, strong) UIPopoverController *activityPopover;
 @property (nonatomic, weak) BRHNotificationDriver *dataSource;
 
-- (void)animateFrame;
-- (void)animateAlpha;
+- (void)animateTextView:(UITextView *)view withConstraint:(NSLayoutConstraint *)constraint buttonIndex:(int)index;
 - (NSURL *)makeLogDirectory;
-- (void)logChanged:(NSNotification *)notification;
 
 @end
 
@@ -44,18 +43,11 @@ static void *const kKVOContext = (void *)&kKVOContext;
     [self.latencyPlot initialize:driver];
     [self.countBars initialize:driver];
 
-    // Receive notifications when log changes and notifications arrive
-    //
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(logChanged:) name:BRHLogContentsChanged object:[BRHLogger sharedInstance]];
-
-    // Restore the log view with the last contents
-    //
-    self.log.attributedText = [[NSAttributedString alloc] initWithString:[[BRHLogger sharedInstance] contents] attributes:self.log.typingAttributes];
+    [BRHLogger sharedInstance].textView = self.log;
+    [BRHEventLog sharedInstance].textView = self.events;
 
     self.playButton.enabled = YES;
     self.stopButton.enabled = NO;
-
-    self.stats.text = @"";
 
     // Remove the "Stop" button
     //
@@ -68,66 +60,44 @@ static void *const kKVOContext = (void *)&kKVOContext;
     self.runDirectory = [[NSFileManager defaultManager] URLForDirectory:NSDocumentDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:nil];
 }
 
-- (void)logChanged:(NSNotification*)notification
+- (void)animateTextView:(UITextView *)view withConstraint:(NSLayoutConstraint *)constraint buttonIndex:(int)index
 {
-    if (notification.userInfo == nil) {
-        self.log.text = @"";
-    }
-    else {
-        NSString *line = notification.userInfo[@"line"];
-        [self.log.textStorage appendAttributedString:[[NSAttributedString alloc] initWithString:line attributes:_log.typingAttributes]];
-        [self.log scrollRangeToVisible:NSMakeRange(_log.text.length, 0)];
-    }
-}
-
-- (void)animateAlpha
-{
-    if (self.log.hidden == YES) {
-        self.log.alpha = 0.0;
-        self.log.hidden = NO;
-        [UIView animateWithDuration:0.2f animations:^{
-            self.log.alpha = 1.0;
-        }];
-    }
-    else {
-        self.log.alpha = 1.0;
-        [UIView animateWithDuration:0.2f animations:^{
-            self.log.alpha = 0.0;
-        } completion:^(BOOL finished) {
-            self.log.hidden = YES;
-        }];
-    }
-}
-
-- (void)animateFrame
-{
-    if (self.log.hidden == YES) {
-        UIBarButtonItem* button = [self.toolbar.items objectAtIndex:2];
+    UIBarButtonItem* button = [self.toolbar.items objectAtIndex:index];
+    if (view.hidden == YES) {
         button.tintColor = [UIColor cyanColor];
-        self.logVerticalConstraint.constant = self.countBars.frame.size.height;
-        [self.log layoutIfNeeded];
-        self.log.hidden = NO;
+        constraint.constant = self.countBars.frame.size.height;
+        [view layoutIfNeeded];
+        view.hidden = NO;
         [UIView animateWithDuration:0.2f animations:^{
-            self.logVerticalConstraint.constant = 0;
-            [self.log layoutIfNeeded];
+            constraint.constant = 0;
+            [view layoutIfNeeded];
         }];
     }
     else {
-        UIBarButtonItem* button = [self.toolbar.items objectAtIndex:2];
         button.tintColor = nil;
         [UIView animateWithDuration:0.2f animations:^{
-            self.logVerticalConstraint.constant = self.countBars.frame.size.height;
-            [self.log layoutIfNeeded];
+            constraint.constant = self.countBars.frame.size.height;
+            [view layoutIfNeeded];
         } completion:^(BOOL finished) {
-            self.log.hidden = YES;
+            view.hidden = YES;
         }];
     }
 }
 
 - (IBAction)showHideLogView:(id)sender
 {
-    // [self animateAlpha];
-    [self animateFrame];
+    if (self.log.hidden && ! self.events.hidden) {
+        [self animateTextView:self.events withConstraint:self.eventsVerticalConstraint buttonIndex:4];
+    }
+    [self animateTextView:self.log withConstraint:self.logVerticalConstraint buttonIndex:2];
+}
+
+- (IBAction)showHideEventsView:(id)sender
+{
+    if (self.events.hidden && ! self.log.hidden) {
+        [self animateTextView:self.log withConstraint:self.logVerticalConstraint buttonIndex:2];
+    }
+    [self animateTextView:self.events withConstraint:self.eventsVerticalConstraint buttonIndex:4];
 }
 
 - (NSURL*)makeLogDirectory
@@ -153,10 +123,9 @@ static void *const kKVOContext = (void *)&kKVOContext;
 {
     // Begin recording into a new directory
     //
-    NSURL *url = [[self makeLogDirectory] URLByAppendingPathComponent:@"log.txt"];
-    DDLogDebug(@"URL: %@", [url description]);
-    [BRHLogger sharedInstance].logPath = url;
-    [[BRHLogger sharedInstance] clear];
+    NSURL* logDir = [self makeLogDirectory];
+    [BRHLogger sharedInstance].logPath = logDir;
+    [BRHEventLog sharedInstance].logPath = logDir;
 }
 
 - (void)start
@@ -167,7 +136,6 @@ static void *const kKVOContext = (void *)&kKVOContext;
     [self.toolbar setItems:items animated:YES];
     self.stopButton.enabled = YES;
     [self startRecording];
-    self.stats.text = @"";
 
     [driver reset];
 
@@ -181,6 +149,7 @@ static void *const kKVOContext = (void *)&kKVOContext;
         [obj reloadData];
     }];
 
+    [BRHEventLog add:@"started", nil];
     [driver start];
 }
 
@@ -191,6 +160,7 @@ static void *const kKVOContext = (void *)&kKVOContext;
     [items replaceObjectAtIndex:0 withObject:self.playButton];
     [self.toolbar setItems:items animated:YES];
     [driver stop];
+    [BRHEventLog add:@"stopped", nil];
 }
 
 - (IBAction)startStop:(id)sender
@@ -201,10 +171,6 @@ static void *const kKVOContext = (void *)&kKVOContext;
     else {
         [self stop];
     }
-}
-
-- (IBAction)clearLogView:(id)sender {
-    [[BRHLogger sharedInstance] clear];
 }
 
 - (IBAction)share:(id)sender
@@ -229,6 +195,7 @@ static void *const kKVOContext = (void *)&kKVOContext;
     NSMutableArray *objectsToShare = [NSMutableArray new];
     [objectsToShare addObject:plotUrl];
     [objectsToShare addObject:[BRHLogger sharedInstance].logPath];
+    [objectsToShare addObject:[BRHEventLog sharedInstance].logPath];
 
     UIActivityViewController *controller = [[UIActivityViewController alloc] initWithActivityItems:objectsToShare applicationActivities:nil];
 
@@ -261,24 +228,8 @@ static void *const kKVOContext = (void *)&kKVOContext;
 
 - (void)refreshDisplay
 {
-    [self.latencyPlot refreshDisplay];
-    [self.countBars refreshDisplay];
-}
-
-- (void)update:(NSNotification*)notification
-{
-    NSNumberFormatter* fmt = [NSNumberFormatter new];
-    [fmt setNumberStyle:NSNumberFormatterDecimalStyle];
-    [fmt setMaximumFractionDigits:3];
-
-    BRHLatencyValue *stat = [notification.userInfo objectForKeyedSubscript:@"value"];
-    self.stats.text = [NSString stringWithFormat:@"Med: %@\nAvg: %@\nMin: %@\nMax: %@\nCnt: %lu",
-                       [fmt stringFromNumber:stat.median],
-                       [fmt stringFromNumber:stat.average],
-                       [fmt stringFromNumber:self.dataSource.min.value],
-                       [fmt stringFromNumber:self.dataSource.max.value],
-                       (unsigned long)self.dataSource.latencies.count];
-    
+//    [self.latencyPlot refreshDisplay];
+//    [self.countBars refreshDisplay];
 }
 
 - (UIStatusBarStyle)preferredStatusBarStyle

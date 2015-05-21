@@ -22,13 +22,15 @@
 
 @property (nonatomic, strong) IBOutlet BRHLatencyPlot *latencyPlot;
 @property (nonatomic, strong) IBOutlet BRHCountBars *countBars;
-@property (nonatomic, strong) IBOutlet UITextView *stats;
+@property (nonatomic, strong) IBOutlet UITextView *events;
 @property (nonatomic, strong) IBOutlet UITextView *log;
 @property (nonatomic, strong) NSURL *runDirectory;
 @property (strong, nonatomic) IBOutlet NSLayoutConstraint *logVerticalConstraint;
+@property (strong, nonatomic) IBOutlet NSLayoutConstraint *eventsVerticalConstraint;
 
 - (IBAction)startStop:(id)sender;
 - (IBAction)showHideLogView:(id)sender;
+- (IBAction)showHideEventsView:(id)sender;
 - (IBAction)share:(id)sender;
 
 - (void)refreshDisplay;

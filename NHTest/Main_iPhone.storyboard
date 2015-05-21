@@ -55,6 +55,12 @@
                                             <action selector="showHideLogView:" destination="YuD-bI-rsP" id="JuP-r6-J0e"/>
                                         </connections>
                                     </barButtonItem>
+                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="XFl-bo-1ga"/>
+                                    <barButtonItem image="events.png" id="xoW-7U-FYG" userLabel="Bar Button Item - Events">
+                                        <connections>
+                                            <action selector="showHideEventsView:" destination="YuD-bI-rsP" id="L9g-u6-moS"/>
+                                        </connections>
+                                    </barButtonItem>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="u4x-wG-5PZ"/>
                                     <barButtonItem systemItem="action" id="DM3-uR-wgg">
                                         <connections>
@@ -70,31 +76,46 @@
                                 </items>
                                 <color key="tintColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                             </toolbar>
+                            <textView hidden="YES" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" keyboardDismissMode="interactive" editable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Wi4-NJ-hWr" userLabel="Events View">
+                                <rect key="frame" x="0.0" y="272" width="320" height="252"/>
+                                <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <string key="text">Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.</string>
+                                <color key="textColor" red="0.0" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                            </textView>
                         </subviews>
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
+                            <constraint firstItem="Wi4-NJ-hWr" firstAttribute="top" secondItem="cM3-Ao-Xyw" secondAttribute="bottom" id="4Ql-Na-7bf"/>
                             <constraint firstAttribute="trailing" secondItem="McT-h3-kUQ" secondAttribute="trailing" id="4mr-Mv-uX1"/>
                             <constraint firstAttribute="trailing" secondItem="4mH-10-4Vg" secondAttribute="trailing" id="88E-nY-hJs"/>
                             <constraint firstAttribute="trailing" secondItem="uv4-D3-WQe" secondAttribute="trailing" id="8fn-fC-ct5"/>
                             <constraint firstItem="McT-h3-kUQ" firstAttribute="top" secondItem="cM3-Ao-Xyw" secondAttribute="bottom" id="CoR-l0-mLm"/>
                             <constraint firstItem="cM3-Ao-Xyw" firstAttribute="height" secondItem="uv4-D3-WQe" secondAttribute="height" id="FCP-aQ-TnS"/>
+                            <constraint firstAttribute="trailing" secondItem="Wi4-NJ-hWr" secondAttribute="trailing" id="GJf-J5-5wK"/>
                             <constraint firstItem="cM3-Ao-Xyw" firstAttribute="top" secondItem="Cp7-mU-xtb" secondAttribute="bottom" id="HXM-xD-Pss"/>
                             <constraint firstItem="uv4-D3-WQe" firstAttribute="top" secondItem="cM3-Ao-Xyw" secondAttribute="bottom" id="MDc-WL-QUd"/>
                             <constraint firstItem="LUr-cR-oPy" firstAttribute="top" secondItem="4mH-10-4Vg" secondAttribute="bottom" id="U1G-Ao-LhE"/>
                             <constraint firstItem="McT-h3-kUQ" firstAttribute="leading" secondItem="kiz-9v-mjw" secondAttribute="leading" id="WQJ-Pc-wxa"/>
                             <constraint firstItem="4mH-10-4Vg" firstAttribute="top" secondItem="McT-h3-kUQ" secondAttribute="bottom" id="btt-Cv-FD4"/>
+                            <constraint firstItem="4mH-10-4Vg" firstAttribute="top" secondItem="Wi4-NJ-hWr" secondAttribute="bottom" id="djY-ZX-WWB"/>
                             <constraint firstItem="cM3-Ao-Xyw" firstAttribute="leading" secondItem="kiz-9v-mjw" secondAttribute="leading" id="fAd-au-NqM"/>
                             <constraint firstItem="uv4-D3-WQe" firstAttribute="leading" secondItem="kiz-9v-mjw" secondAttribute="leading" id="fsU-5j-cVi"/>
                             <constraint firstAttribute="trailing" secondItem="cM3-Ao-Xyw" secondAttribute="trailing" id="g5r-Hw-MKc"/>
                             <constraint firstItem="4mH-10-4Vg" firstAttribute="leading" secondItem="kiz-9v-mjw" secondAttribute="leading" id="hWG-OJ-unU"/>
                             <constraint firstItem="4mH-10-4Vg" firstAttribute="top" secondItem="uv4-D3-WQe" secondAttribute="bottom" id="jfO-eq-gE8"/>
+                            <constraint firstItem="Wi4-NJ-hWr" firstAttribute="leading" secondItem="kiz-9v-mjw" secondAttribute="leading" id="q5d-p0-nVd"/>
                         </constraints>
                     </view>
                     <extendedEdge key="edgesForExtendedLayout"/>
                     <connections>
                         <outlet property="countBars" destination="uv4-D3-WQe" id="3Ly-KM-O0S"/>
+                        <outlet property="events" destination="Wi4-NJ-hWr" id="eoj-J2-CSr"/>
+                        <outlet property="eventsVerticalConstraint" destination="4Ql-Na-7bf" id="whV-18-wIp"/>
                         <outlet property="latencyPlot" destination="cM3-Ao-Xyw" id="xyW-Xw-OQ2"/>
                         <outlet property="log" destination="McT-h3-kUQ" id="BLx-fz-E66"/>
+                        <outlet property="logVerticalConstraint" destination="CoR-l0-mLm" id="tfd-KO-TJr"/>
                         <outlet property="playButton" destination="c2a-Sb-Ii3" id="29o-eD-nci"/>
                         <outlet property="settingsButton" destination="OV8-gS-C8g" id="HfF-vw-UaF"/>
                         <outlet property="shareButton" destination="DM3-uR-wgg" id="NmI-kd-B3w"/>
@@ -147,6 +168,7 @@
         </scene>
     </scenes>
     <resources>
+        <image name="events.png" width="30" height="30"/>
         <image name="log.png" width="30" height="30"/>
         <image name="settings.png" width="30" height="30"/>
     </resources>

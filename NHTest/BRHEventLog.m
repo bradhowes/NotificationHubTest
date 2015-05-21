@@ -1,47 +1,52 @@
 //
-//  BRHLogger.m
+//  BRHEventLog.m
 //  NotificationHubTest
 //
 //  Created by Brad Howes on 1/3/14.
 //  Copyright (c) 2014 Brad Howes. All rights reserved.
 //
 
-#import "BRHLogger.h"
+#import "BRHEventLog.h"
 
-@interface BRHLogger ()
+@interface BRHEventLog ()
 
 @property (nonatomic, strong) NSMutableString *log;
 @property (nonatomic, strong) NSDateFormatter *dateTimeFormatter;
 @property (nonatomic, strong) NSTimer *flushTimer;
 
-- (NSString *)add:(NSString *)format arguments:(va_list)argList;
+- (NSString *)add:(NSString *)line;
 - (void)flushToDisk;
 - (void)writeLog:(NSTimer *)timer;
 - (void)clear;
 
 @end
 
-@implementation BRHLogger
+@implementation BRHEventLog
 
 + (instancetype)sharedInstance
 {
-    static BRHLogger *singleton = nil;
+    static BRHEventLog *singleton = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        singleton = [BRHLogger new];
+        singleton = [BRHEventLog new];
     });
 
     return singleton;
 }
 
-+ (NSString *)add:(NSString *)format, ...
++ (NSString *)add:(NSString *)first, ...
 {
-    NSString *line = nil;
-    if (format != nil) {
+    NSString* line = nil;
+    if (first != nil) {
         va_list args;
-        va_start(args, format);
-        line = [[BRHLogger sharedInstance] add:format arguments:args];
+        va_start(args, first);
+        line = first;
+        while ((first = va_arg(args, NSString*)) != nil) {
+            line = [line stringByAppendingFormat:@",%@", first];
+        }
         va_end(args);
+
+        line = [[BRHEventLog sharedInstance] add:line];
     }
 
     return line;
@@ -49,7 +54,7 @@
 
 + (void)clear
 {
-    [[BRHLogger sharedInstance] clear];
+    [[BRHEventLog sharedInstance] clear];
 }
 
 - (instancetype)init
@@ -59,28 +64,26 @@
         NSFileManager *fileManager = [NSFileManager defaultManager];
         NSURL *url = [fileManager URLForDirectory:NSDocumentDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:nil];
         self.logPath = url;
-
+        
         self.textView = nil;
         self.log = [NSMutableString stringWithContentsOfURL:self.logPath encoding:NSUTF8StringEncoding error:nil];
 
-        self.dateTimeFormatter = [NSDateFormatter new];
+        self.dateTimeFormatter = [[NSDateFormatter alloc] init];
         [self.dateTimeFormatter setDateFormat:@"HH:mm:ss.SSSSSS"];
     }
 
     return self;
 }
 
-- (NSString *)add:(NSString *)format arguments:(va_list)argList
+- (NSString *)add:(NSString *)line
 {
-    NSString *content = [[NSString alloc] initWithFormat:format arguments:argList];
-    if ([content hasSuffix:@"\n"] == NO) content = [content stringByAppendingString:@"\n"];
-    NSString *line = [NSString stringWithFormat:@"%@: %@", [_dateTimeFormatter stringFromDate:[NSDate date]], content];
+    if ([line hasSuffix:@"\n"] == NO) line = [line stringByAppendingString:@"\n"];
+    line = [NSString stringWithFormat:@"%@,%@", [_dateTimeFormatter stringFromDate:[NSDate date]], line];
     [_log appendString:line];
     if (_textView) {
         [_textView.textStorage appendAttributedString:[[NSAttributedString alloc] initWithString:line attributes:_textView.typingAttributes]];
         [_textView scrollRangeToVisible:NSMakeRange(_textView.text.length, 0)];
     }
-
     [self flushToDisk];
     return line;
 }
@@ -101,13 +104,8 @@
 
 - (void)setLogPath:(NSURL *)logPath
 {
-    _logPath = [logPath URLByAppendingPathComponent:@"log.txt"];
+    _logPath = [logPath URLByAppendingPathComponent:@"events.csv"];
     [self clear];
-}
-
-- (NSString *)contents
-{
-    return _log;
 }
 
 - (void)clear

@@ -6,6 +6,7 @@
 //  Copyright (c) 2015 Brad Howes. All rights reserved.
 //
 
+#import "BRHEventLog.h"
 #import "BRHLogger.h"
 #import "BRHRemoteDriver.h"
 
@@ -78,8 +79,11 @@ typedef void (^BRHCompletionHandler)(void);
     [request setValue:[NSString stringWithFormat:@"%ld", (unsigned long)[body length]] forHTTPHeaderField:@"Content-Length"];
     [request setHTTPBody:body];
 
+    [BRHEventLog add:@"registering", [dict objectForKey:@"interval"], nil];
+
     NSURLSessionUploadTask *task = [self.session uploadTaskWithRequest:request fromData:body completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         if (error) {
+            [BRHEventLog add:@"registering failed", [error description], nil];
             NSLog(@"failed: %@", error);
         }
         else {
@@ -89,6 +93,7 @@ typedef void (^BRHCompletionHandler)(void);
             self.serverWhen = [serverWhen doubleValue];
             self.deviceOffset = [[NSDate date] timeIntervalSince1970] - self.serverWhen;
             NSLog(@"deviceOffset: %f", self.deviceOffset);
+            [BRHEventLog add:@"regsitered", serverWhen, @(self.deviceOffset), nil];
         }
     }];
 
@@ -120,9 +125,17 @@ typedef void (^BRHCompletionHandler)(void);
     [request setValue:[NSString stringWithFormat:@"%ld", (unsigned long)[body length]] forHTTPHeaderField:@"Content-Length"];
     [request setHTTPBody:body];
     
+    [BRHEventLog add:@"unregistering", nil];
     NSURLSessionUploadTask *task = [self.session uploadTaskWithRequest:request fromData:body completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-        NSHTTPURLResponse *r = (NSHTTPURLResponse*)response;
-        [BRHLogger add:@"%@ - %@", url.absoluteString, r];
+        if (error) {
+            [BRHEventLog add:@"unregistering failed", [error description], nil];
+            NSLog(@"failed: %@", error);
+        }
+        else {
+            NSHTTPURLResponse *r = (NSHTTPURLResponse*)response;
+            NSLog(@"response: %@", r);
+            [BRHEventLog add:@"unregsitered", nil];
+        }
     }];
     
     [task resume];
@@ -137,15 +150,18 @@ typedef void (^BRHCompletionHandler)(void);
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
     [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
     
+    [BRHEventLog add:@"fetching", @(msgId), nil];
     NSURLSessionDataTask *task = [self.session dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         NSHTTPURLResponse *r = (NSHTTPURLResponse*)response;
         [BRHLogger add:@"%@ - %@", url.absoluteString, r];
         if (r.statusCode == 200) {
             NSDictionary *payload = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:&error];
             NSString* msg = [payload objectForKey:@"msg"];
+            [BRHEventLog add:@"fetched", msg, nil];
             completionHandler(true, msg != nil);
         }
         else {
+            [BRHEventLog add:@"fetch failed", @(r.statusCode), nil];
             completionHandler(false, false);
         }
     }];

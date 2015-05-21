@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6724" systemVersion="14E11f" targetRuntime="iOS.CocoaTouch.iPad" propertyAccessControl="none" useAutolayout="YES" initialViewController="EfK-3L-tuf">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="7706" systemVersion="14E17e" targetRuntime="iOS.CocoaTouch.iPad" propertyAccessControl="none" useAutolayout="YES" initialViewController="EfK-3L-tuf">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6711"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="7703"/>
     </dependencies>
     <scenes>
         <!--View Controller-->
@@ -54,6 +54,12 @@
                                             <action selector="showHideLogView:" destination="EfK-3L-tuf" id="ShS-jv-yCJ"/>
                                         </connections>
                                     </barButtonItem>
+                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="UbM-Fy-TQq"/>
+                                    <barButtonItem image="events.png" id="D0j-zC-TBT" userLabel="Bar Button Item - Events">
+                                        <connections>
+                                            <action selector="showHideEventsView:" destination="EfK-3L-tuf" id="CE8-Cz-guz"/>
+                                        </connections>
+                                    </barButtonItem>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="ZMp-EO-Ynu"/>
                                     <barButtonItem systemItem="action" id="qBI-A3-wKw">
                                         <connections>
@@ -63,13 +69,20 @@
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="Uzi-0P-Pfc"/>
                                     <barButtonItem image="settings.png" id="IgH-0U-OyX" userLabel="Bar Button Item - Settings">
                                         <connections>
-                                            <action selector="showSettings:" destination="EfK-3L-tuf" id="ubj-23-9fv"/>
                                             <segue destination="hlW-8h-EAS" kind="modal" modalTransitionStyle="crossDissolve" id="wqY-Oe-2Ng"/>
                                         </connections>
                                     </barButtonItem>
                                 </items>
                                 <color key="tintColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                             </toolbar>
+                            <textView hidden="YES" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" keyboardDismissMode="interactive" editable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="m91-dH-aZW" userLabel="Events View">
+                                <rect key="frame" x="0.0" y="500" width="768" height="480"/>
+                                <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <string key="text">Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.</string>
+                                <color key="textColor" red="0.0" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                            </textView>
                         </subviews>
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
@@ -77,9 +90,11 @@
                             <constraint firstAttribute="trailing" secondItem="rlO-M0-gYp" secondAttribute="trailing" id="321-8V-14r"/>
                             <constraint firstItem="FmQ-JL-2yf" firstAttribute="height" secondItem="ONE-EM-TwI" secondAttribute="height" id="Cu3-TC-A6g"/>
                             <constraint firstAttribute="trailing" secondItem="FmQ-JL-2yf" secondAttribute="trailing" id="G3D-Bu-k8r"/>
+                            <constraint firstItem="m91-dH-aZW" firstAttribute="top" secondItem="FmQ-JL-2yf" secondAttribute="bottom" id="GI9-7A-9BS"/>
                             <constraint firstItem="FmQ-JL-2yf" firstAttribute="top" secondItem="zzx-Dm-F64" secondAttribute="bottom" id="KsZ-yw-y67"/>
                             <constraint firstItem="ONE-EM-TwI" firstAttribute="leading" secondItem="yit-K1-ow8" secondAttribute="leading" id="LwU-tV-rZP"/>
                             <constraint firstAttribute="trailing" secondItem="ONE-EM-TwI" secondAttribute="trailing" id="LzG-xc-Ptl"/>
+                            <constraint firstItem="DgV-fR-XAQ" firstAttribute="top" secondItem="m91-dH-aZW" secondAttribute="bottom" id="OWf-ip-OAm"/>
                             <constraint firstItem="rlO-M0-gYp" firstAttribute="top" secondItem="FmQ-JL-2yf" secondAttribute="bottom" id="Ofv-3Z-o1i"/>
                             <constraint firstItem="Nue-0Y-yd3" firstAttribute="top" secondItem="ONE-EM-TwI" secondAttribute="bottom" constant="44" id="YLT-zI-Nh8"/>
                             <constraint firstItem="rlO-M0-gYp" firstAttribute="leading" secondItem="yit-K1-ow8" secondAttribute="leading" id="Z5w-0s-xMs"/>
@@ -88,11 +103,15 @@
                             <constraint firstItem="ONE-EM-TwI" firstAttribute="top" secondItem="FmQ-JL-2yf" secondAttribute="bottom" id="ffp-WX-Dkj"/>
                             <constraint firstItem="Nue-0Y-yd3" firstAttribute="top" secondItem="DgV-fR-XAQ" secondAttribute="bottom" id="iXL-ho-1vd"/>
                             <constraint firstItem="DgV-fR-XAQ" firstAttribute="leading" secondItem="yit-K1-ow8" secondAttribute="leading" id="mNo-Ji-Gfc"/>
+                            <constraint firstAttribute="trailing" secondItem="m91-dH-aZW" secondAttribute="trailing" id="wFf-cL-MBh"/>
+                            <constraint firstItem="m91-dH-aZW" firstAttribute="leading" secondItem="yit-K1-ow8" secondAttribute="leading" id="zYC-wS-2C4"/>
                         </constraints>
                     </view>
                     <extendedEdge key="edgesForExtendedLayout"/>
                     <connections>
                         <outlet property="countBars" destination="ONE-EM-TwI" id="dxR-92-wbw"/>
+                        <outlet property="events" destination="m91-dH-aZW" id="nzO-cU-hg5"/>
+                        <outlet property="eventsVerticalConstraint" destination="GI9-7A-9BS" id="vAk-lI-FGy"/>
                         <outlet property="latencyPlot" destination="FmQ-JL-2yf" id="KQa-4k-bct"/>
                         <outlet property="log" destination="rlO-M0-gYp" id="3Zd-uZ-aPT"/>
                         <outlet property="logVerticalConstraint" destination="Ofv-3Z-o1i" id="bw9-5y-d3E"/>
@@ -152,6 +171,7 @@
         </scene>
     </scenes>
     <resources>
+        <image name="events.png" width="30" height="30"/>
         <image name="log.png" width="30" height="30"/>
         <image name="settings.png" width="30" height="30"/>
     </resources>

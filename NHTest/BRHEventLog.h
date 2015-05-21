@@ -1,5 +1,5 @@
 //
-//  BRHLogger.h
+//  BRHEventLog.h
 //  NotificationHubTest
 //
 //  Created by Brad Howes on 1/3/14.
@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface BRHLogger : NSObject
+@interface BRHEventLog : NSObject
 
 @property (nonatomic, strong) NSURL *logPath;
 @property (nonatomic, strong) UITextView *textView;

@@ -120,13 +120,13 @@ static NSString *const kHistogramPlot = @"Histogram";
 
     y.labelingPolicy = CPTAxisLabelingPolicyAutomatic;
     y.labelTextStyle = labelStyle;
-    y.labelOffset = 5.0;
+    y.labelOffset = 12.0;
     NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
     [formatter setMaximumFractionDigits:2];
     y.labelFormatter = formatter;
 
     y.tickDirection = CPTSignNegative;
-    y.majorTickLineStyle = tickLineStyle;
+    y.majorTickLineStyle = nil;
     y.majorTickLength = 5.0;
     y.preferredNumberOfMajorTicks = 5;
 
@@ -205,7 +205,7 @@ static NSString *const kHistogramPlot = @"Histogram";
     [self.hostedGraph.allPlots[0] reloadDataInIndexRange:NSMakeRange(bin, 1)];
 
     NSUInteger count = [[self.dataSource binAtIndex:bin] unsignedIntegerValue];
-    count = MAX((count / 5 + 1) * 5, 5);
+    count = floor((MAX(MAX(count, plotSpace.yRange.lengthDouble),5) + 4) / 5) * 5;
     plotSpace.yRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromInt(0) length:CPTDecimalFromInteger(count)];
     
     if (self.binAnnotation != nil && self.binAnnotationIndex == bin) {

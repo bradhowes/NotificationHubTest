@@ -42,7 +42,7 @@ static double const kPlotSymbolSize = 10.0;
     self.dataSource = driver.latencies;
     [self makeLatencyPlot];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(update:) name:BRHNotificationDriverReceivedNotification object:driver];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientationChanged:) name:UIDeviceOrientationDidChangeNotification  object:nil];
+//    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientationChanged:) name:UIDeviceOrientationDidChangeNotification  object:nil];
 }
 
 - (void)makeLatencyPlot
@@ -198,7 +198,7 @@ static double const kPlotSymbolSize = 10.0;
 
     plot.dataSource = self;
     plot.delegate = self;
-    plot.plotSymbolMarginForHitDetection = 20.0;
+    plot.plotSymbolMarginForHitDetection = kPlotSymbolSize * 1.5;
     
     [graph addPlot:plot];
     
@@ -229,27 +229,23 @@ static double const kPlotSymbolSize = 10.0;
 
 #if 0
     NSMutableArray* ds = (NSMutableArray*)self.dataSource;
-    for (int i = 0; i < 52; ++i) {
+    for (int i = 0; i < 300; ++i) {
         BRHLatencyValue *stat = [BRHLatencyValue new];
         stat.identifier = [NSNumber numberWithInt:i];
         stat.when = [NSNumber numberWithDouble:i];
-        stat.value = [NSNumber numberWithDouble:1.3];
+        stat.value = [NSNumber numberWithDouble:(i % 100) * 0.35];
         stat.average = [NSNumber numberWithDouble:2.5];
         stat.median = [NSNumber numberWithDouble:1.4];
         
         [ds addObject:stat];
     }
-
-    CPTPlot *p = (CPTPlot*)(graph.allPlots[0]);
-    CPTPlotArea* area = p.plotArea;
-    NSLog(@"masksToBorder: %d", area.masksToBorder);
-    NSLog(@"masksToBounds: %d", area.masksToBounds);
-    area.masksToBorder = NO;
-    area.masksToBounds = NO;
 #endif
+}
 
+- (void)layoutSubviews
+{
+    [super layoutSubviews];
     [self updateBounds];
-    [self updateYScale:nil];
 }
 
 - (int)calculatePlotWidth
@@ -301,29 +297,20 @@ static double const kPlotSymbolSize = 10.0;
 
     NSArray *plotData = self.dataSource;
     NSInteger xMin = 0;
-    NSInteger xMax;
+    NSInteger xMax = 0;
     double yMax;
 
     if (plotData.count == 0) {
-        xMax = visiblePoints;
-        yMax = 2.0;
+        xMax = visiblePoints - 1;
+        yMax = 1.0;
     }
     else {
-        BRHLatencyValue* v = [plotData lastObject];
-        xMax = v.identifier.integerValue;
-        xMin = xMax - visiblePoints;
-        if (xMin < 0) {
-            xMin = 0;
-        }
-
-        NSRange span = NSMakeRange(xMin, xMax - xMin + 1);
-        NSNumber* tmp = [[plotData subarrayWithRange:span] valueForKeyPath:@"@max.value"];
-        yMax = floor(tmp.doubleValue + 1.9);
-        // yMax = (int)((tmp.doubleValue + 3) / 2) * 2.0;
-    }
-
-    if (xMax < visiblePoints) {
-        xMax = visiblePoints;
+        BRHLatencyValue* tmp = [plotData lastObject];
+        xMax = tmp.identifier.integerValue;
+        if (xMax < visiblePoints) xMax = visiblePoints - 1;
+        xMin = xMax - visiblePoints + 1;
+        if (xMin < 0) xMin = 0;
+        yMax = [self getMaxYInViewRange];
     }
 
     NSDecimal xMin1 = CPTDecimalFromDouble(0.0 - 0.5);
@@ -333,7 +320,10 @@ static double const kPlotSymbolSize = 10.0;
     CPTXYPlotSpace *plotSpace = (CPTXYPlotSpace*)graph.defaultPlotSpace;
 
     plotSpace.globalXRange = [CPTPlotRange plotRangeWithLocation:xMin1 length:xMax1];
-    plotSpace.xRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromDouble(xMin - 0.5) length:CPTDecimalFromDouble(visiblePoints + 1.0)];
+    
+    if (xMax < visiblePoints || xMax < plotSpace.xRange.endDouble + 2) {
+        plotSpace.xRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromDouble(xMin - 0.5) length:CPTDecimalFromDouble(visiblePoints)];
+    }
 
     CPTPlotRange *yRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromDouble(0.0) length:CPTDecimalFromDouble(yMax)];
     plotSpace.globalYRange = yRange;
@@ -418,43 +408,48 @@ static double const kPlotSymbolSize = 10.0;
 
 - (double)getMaxYInViewRange
 {
-    double dmaxy = 2.0;
+    double dmaxy = 0.0;
     NSArray *latencies = self.dataSource;
 
     if (latencies.count > 0) {
         CPTXYGraph *theGraph = (CPTXYGraph *)self.hostedGraph;
         CPTXYPlotSpace *plotSpace = (CPTXYPlotSpace *)theGraph.defaultPlotSpace;
-        int visiblePoints = [self calculatePlotWidth];
 
-        int pos2 = plotSpace.xRange.endDouble;
-        if (pos2 >= latencies.count) pos2 = latencies.count - 1;
+        double pos = round(plotSpace.xRange.locationDouble);
+        double end = plotSpace.xRange.endDouble;
 
-        int pos1 = pos2 - visiblePoints + 1;
-        if (pos1 < 0) pos1 = 0;
+        if (pos < 0.0) pos = 0.0;
 
-        NSNumber *maxy = [[latencies subarrayWithRange:NSMakeRange(pos1, pos2 - pos1 + 1)] valueForKeyPath:@"@max.value"];
-        dmaxy = maxy.doubleValue;
-        dmaxy = floor(dmaxy + 1.9);
+        while (pos < latencies.count) {
+            BRHLatencyValue* value = [latencies objectAtIndex:pos];
+            pos += 1;
+            if (value.identifier.intValue > end) break;
+            if (value.value.doubleValue > dmaxy) {
+                dmaxy = value.value.doubleValue;
+            }
+        }
     }
 
+    NSLog(@"dmaxy: %f", dmaxy);
+    dmaxy = fmax(round(dmaxy + 0.5), 1.0);
+    
     return dmaxy;
 }
 
 - (void)updateYScale:(NSTimer*)timer;
 {
     double dmaxy = [self getMaxYInViewRange];
-
     [[NSRunLoop mainRunLoop] cancelPerformSelector:@selector(updateYScale:) target:self argument:nil];
 
     CPTXYGraph *theGraph = (CPTXYGraph*)self.hostedGraph;
     CPTXYPlotSpace *plotSpace = (CPTXYPlotSpace*)theGraph.defaultPlotSpace;
     CPTPlotRange *newRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromDouble(0.0) length:CPTDecimalFromDouble(dmaxy)];
 
-    if (dmaxy < plotSpace.globalYRange.endDouble) {
-        plotSpace.globalYRange = newRange;
+    if (dmaxy < plotSpace.yRange.endDouble) {
         plotSpace.yRange = newRange;
+        plotSpace.globalYRange = newRange;
     }
-    else if (dmaxy > plotSpace.globalYRange.endDouble){
+    else {
         plotSpace.globalYRange = newRange;
         plotSpace.yRange = newRange;
     }
