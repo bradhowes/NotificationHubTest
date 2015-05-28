@@ -8,11 +8,12 @@
 
 #import "BRHLogger.h"
 
-@interface BRHLogger ()
+@interface BRHLogger () <UITextViewDelegate>
 
 @property (nonatomic, strong) NSMutableString *log;
 @property (nonatomic, strong) NSDateFormatter *dateTimeFormatter;
 @property (nonatomic, strong) NSTimer *flushTimer;
+@property (nonatomic, assign) BOOL scrollToEnd;
 
 - (NSString *)add:(NSString *)format arguments:(va_list)argList;
 - (void)flushToDisk;
@@ -65,9 +66,16 @@
 
         self.dateTimeFormatter = [NSDateFormatter new];
         [self.dateTimeFormatter setDateFormat:@"HH:mm:ss.SSSSSS"];
+        
+        self.scrollToEnd = YES;
     }
 
     return self;
+}
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+{
+    self.scrollToEnd = NO;
 }
 
 - (NSString *)add:(NSString *)format arguments:(va_list)argList
@@ -77,8 +85,12 @@
     NSString *line = [NSString stringWithFormat:@"%@: %@", [_dateTimeFormatter stringFromDate:[NSDate date]], content];
     [_log appendString:line];
     if (_textView) {
+        CGFloat fromBottom = _textView.contentSize.height - _textView.contentOffset.y - 2 * _textView.bounds.size.height;
         [_textView.textStorage appendAttributedString:[[NSAttributedString alloc] initWithString:line attributes:_textView.typingAttributes]];
-        [_textView scrollRangeToVisible:NSMakeRange(_textView.text.length, 0)];
+        if (fromBottom < 0 || self.scrollToEnd == YES) {
+            self.scrollToEnd = YES;
+            [_textView scrollRangeToVisible:NSMakeRange(_textView.textStorage.length, 0)];
+        }
     }
 
     [self flushToDisk];
@@ -93,9 +105,15 @@
 
 - (void)setTextView:(UITextView *)textView
 {
+    if (_textView) {
+        _textView.delegate = nil;
+    }
+    
     _textView = textView;
     if (_textView) {
+        _textView.delegate = self;
         _textView.text = _log;
+        [_textView scrollRangeToVisible:NSMakeRange(_textView.text.length, 0)];
     }
 }
 

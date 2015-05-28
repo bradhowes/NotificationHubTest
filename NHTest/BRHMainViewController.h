@@ -33,6 +33,4 @@
 - (IBAction)showHideEventsView:(id)sender;
 - (IBAction)share:(id)sender;
 
-- (void)refreshDisplay;
-
 @end

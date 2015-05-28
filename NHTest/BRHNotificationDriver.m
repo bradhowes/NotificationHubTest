@@ -78,7 +78,7 @@ extractIdentityAndTrust(CFDataRef inPKCS12Data, SecIdentityRef *outIdentity, Sec
         _sim = NO;
         _running = NO;
         _notificationSequenceId = 0;
-        _emitInterval = 60.0;
+        _emitInterval = [NSNumber numberWithInt:60];
         _latencies = [NSMutableArray arrayWithCapacity:10000];
         _outstandingNotifications = [NSMutableDictionary dictionaryWithCapacity:10];
         _orderedLatencies = [NSMutableArray arrayWithCapacity:10000];
@@ -92,12 +92,13 @@ extractIdentityAndTrust(CFDataRef inPKCS12Data, SecIdentityRef *outIdentity, Sec
             [settings setInteger:numBins forKey:@"maxBin"];
         }
 
-        NSUInteger emitInterval = [settings integerForKey:@"emitInterval"];
-        if (emitInterval < 10) {
-            emitInterval = 10;
-            [settings setInteger:numBins forKey:@"emitInterval"];
-        }
+        _emitInterval = [NSNumber numberWithInteger:[settings integerForKey:@"emitInterval"]];
         
+        if (_emitInterval.intValue < 10) {
+            _emitInterval = [NSNumber numberWithInt:10];
+            [settings setInteger:_emitInterval.integerValue forKey:@"emitInterval"];
+        }
+
         _sim = [settings boolForKey:@"sim"];
         _useRemoteServer = [settings boolForKey:@"useRemoteServer"];
         _bins = [BRHHistogram histogramWithSize:numBins + 1];
@@ -128,6 +129,8 @@ extractIdentityAndTrust(CFDataRef inPKCS12Data, SecIdentityRef *outIdentity, Sec
         emitInterval = 1;
         [settings setInteger:emitInterval forKey:@"emitInteval"];
     }
+
+    self.emitInterval = [NSNumber numberWithInteger:emitInterval];
 
     self.useRemoteServer = [settings boolForKey:@"useRemoteServer"];
     self.sim = [settings boolForKey:@"sim"];
@@ -224,15 +227,14 @@ extractIdentityAndTrust(CFDataRef inPKCS12Data, SecIdentityRef *outIdentity, Sec
     else {
         if (self.sim) {
             self.apns = nil;
-            self.emitInterval = 1;
+            self.emitInterval = [NSNumber numberWithInt:1];
         }
         else {
             [self connect];
-            double value = [[[NSUserDefaults standardUserDefaults] stringForKey:@"emitInterval"] doubleValue];
-            self.emitInterval = value;
+            self.emitInterval = [NSNumber numberWithInteger:[[NSUserDefaults standardUserDefaults] integerForKey:@"emitInterval"]];
         }
 
-        [BRHLogger add:@"emit interval: %f", self.emitInterval];
+        [BRHLogger add:@"emit interval: %@", self.emitInterval];
         [self startEmitter];
     }
 }
@@ -300,7 +302,8 @@ extractIdentityAndTrust(CFDataRef inPKCS12Data, SecIdentityRef *outIdentity, Sec
 - (void)emitterFired:(NSTimer *)timer
 {
     [self emitNotification];
-    self.emitter = [NSTimer scheduledTimerWithTimeInterval:self.emitInterval target:self selector:@selector(emitterFired:) userInfo:nil repeats:NO];
+    NSTimeInterval emitInterval = self.emitInterval.intValue;
+    self.emitter = [NSTimer scheduledTimerWithTimeInterval:emitInterval target:self selector:@selector(emitterFired:) userInfo:nil repeats:NO];
 }
 
 - (void)received:(NSNumber *)identifier timeOfArrival:(NSDate *)timeOfArrival contents:(NSDictionary *)contents
@@ -320,7 +323,7 @@ extractIdentityAndTrust(CFDataRef inPKCS12Data, SecIdentityRef *outIdentity, Sec
         notification = [BRHOutstandingNotification new];
         NSString *when = contents[@"when"];
         double dwhen = [when doubleValue];
-        // dwhen += self.remoteDriver.deviceOffset;
+        dwhen += self.remoteDriver.deviceOffset;
         notification.when = [NSDate dateWithTimeIntervalSince1970: dwhen];
         notification.identifier = identifier;
     }

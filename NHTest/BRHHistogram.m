@@ -74,4 +74,17 @@
     }
 }
 
+- (NSUInteger)max
+{
+    NSNumber* found = nil;
+    
+    for (NSNumber* number in _bins) {
+        if (found == nil || [found compare:number] == NSOrderedAscending) {
+            found = number;
+        }
+    }
+    
+    return found ? [found unsignedIntegerValue] : 0;
+}
+
 @end

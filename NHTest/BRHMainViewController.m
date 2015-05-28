@@ -49,6 +49,9 @@ static void *const kKVOContext = (void *)&kKVOContext;
     self.playButton.enabled = YES;
     self.stopButton.enabled = NO;
 
+    self.log.hidden = YES;
+    self.events.hidden = YES;
+    
     // Remove the "Stop" button
     //
     NSMutableArray *items = [self.toolbar.items mutableCopy];
@@ -64,22 +67,32 @@ static void *const kKVOContext = (void *)&kKVOContext;
 {
     UIBarButtonItem* button = [self.toolbar.items objectAtIndex:index];
     if (view.hidden == YES) {
+        [view scrollRangeToVisible:NSMakeRange(view.textStorage.length, 0)];
         button.tintColor = [UIColor cyanColor];
-        constraint.constant = self.countBars.frame.size.height;
-        [view layoutIfNeeded];
+        constraint.constant = view.frame.size.height;
+        [self.view layoutIfNeeded];
+
         view.hidden = NO;
-        [UIView animateWithDuration:0.2f animations:^{
+        constraint.constant = 0;
+        [UIView animateWithDuration:0.3f animations:^{
+            [self.view layoutIfNeeded];
+        } completion:^(BOOL finished) {
             constraint.constant = 0;
-            [view layoutIfNeeded];
+            [self.view layoutIfNeeded];
         }];
     }
     else {
         button.tintColor = nil;
-        [UIView animateWithDuration:0.2f animations:^{
-            constraint.constant = self.countBars.frame.size.height;
-            [view layoutIfNeeded];
+        constraint.constant = 0;
+        [self.view layoutIfNeeded];
+
+        constraint.constant = view.frame.size.height;
+        [UIView animateWithDuration:0.3f animations:^{
+            [self.view layoutIfNeeded];
         } completion:^(BOOL finished) {
             view.hidden = YES;
+            constraint.constant = 0;
+            [view layoutIfNeeded];
         }];
     }
 }
@@ -224,12 +237,6 @@ static void *const kKVOContext = (void *)&kKVOContext;
             [self.activityPopover dismissPopoverAnimated:YES];
         }
     }
-}
-
-- (void)refreshDisplay
-{
-//    [self.latencyPlot refreshDisplay];
-//    [self.countBars refreshDisplay];
 }
 
 - (UIStatusBarStyle)preferredStatusBarStyle

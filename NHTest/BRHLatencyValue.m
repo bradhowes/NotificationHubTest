@@ -15,7 +15,7 @@
     return [self.value compare:other.value];
 }
 
-- (BOOL)duplicateOf:(BRHLatencyValue*)other
+- (BOOL)isDuplicateOf:(BRHLatencyValue*)other
 {
     return other.identifier.integerValue == self.identifier.integerValue;
 }

@@ -26,7 +26,7 @@ typedef void (^BRHNotificationDriverUpdateCompletionHandler)(BOOL success, BOOL 
 @property (nonatomic, strong) BRHHistogram *bins;
 @property (nonatomic, strong) NSDate *startTime;
 @property (nonatomic, strong) BRHRemoteDriver* remoteDriver;
-@property (nonatomic, assign) NSTimeInterval emitInterval;
+@property (nonatomic, assign) NSNumber* emitInterval;
 @property (nonatomic, readonly, getter=isRunning) BOOL running;
 
 - (void)reset;

@@ -30,6 +30,8 @@
 		BD6CF5ED1AFE5AD8004969F2 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BD6CF5EC1AFE5AD8004969F2 /* Accelerate.framework */; };
 		BD6CF5EF1AFECF7C004969F2 /* BRHOutstandingNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = BD6CF5EE1AFECF7C004969F2 /* BRHOutstandingNotification.m */; };
 		BD6CF6061AFF6281004969F2 /* BRHBinFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = BD6CF6051AFF6281004969F2 /* BRHBinFormatter.m */; };
+		BD6EA1CC1B0F60D3001F34E0 /* DropboxSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BD6EA1CB1B0F60D3001F34E0 /* DropboxSDK.framework */; };
+		BD6EA1D11B0F610E001F34E0 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BD6EA1D01B0F610E001F34E0 /* Security.framework */; };
 		BDA7A4F51871AF60002F7780 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BDA7A4F41871AF60002F7780 /* Foundation.framework */; };
 		BDA7A4F71871AF60002F7780 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BDA7A4F61871AF60002F7780 /* CoreGraphics.framework */; };
 		BDA7A4F91871AF60002F7780 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BDA7A4F81871AF60002F7780 /* UIKit.framework */; };
@@ -151,6 +153,9 @@
 		BD6CF5EE1AFECF7C004969F2 /* BRHOutstandingNotification.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BRHOutstandingNotification.m; sourceTree = "<group>"; };
 		BD6CF6001AFF6273004969F2 /* BRHBinFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BRHBinFormatter.h; sourceTree = "<group>"; };
 		BD6CF6051AFF6281004969F2 /* BRHBinFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BRHBinFormatter.m; sourceTree = "<group>"; };
+		BD6EA1CB1B0F60D3001F34E0 /* DropboxSDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DropboxSDK.framework; path = "../../Dropbox/Saves/dropbox-ios-sdk-1.3.13/DropboxSDK.framework"; sourceTree = "<group>"; };
+		BD6EA1D01B0F610E001F34E0 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		BD6EA1D21B0F6613001F34E0 /* dbconfig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = dbconfig.h; sourceTree = "<group>"; };
 		BDA7A4F11871AF60002F7780 /* NHTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NHTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BDA7A4F41871AF60002F7780 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		BDA7A4F61871AF60002F7780 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -226,8 +231,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BD6EA1D11B0F610E001F34E0 /* Security.framework in Frameworks */,
 				BD6CF5ED1AFE5AD8004969F2 /* Accelerate.framework in Frameworks */,
 				BD6CF5E91AFD5123004969F2 /* libInAppSettingsKit.a in Frameworks */,
+				BD6EA1CC1B0F60D3001F34E0 /* DropboxSDK.framework in Frameworks */,
 				BDC5D7F31950FFD400D64B50 /* libxml2.dylib in Frameworks */,
 				BDC5D7F11950FFC800D64B50 /* CoreLocation.framework in Frameworks */,
 				BDC5D7EF1950FFBE00D64B50 /* CFNetwork.framework in Frameworks */,
@@ -296,6 +303,8 @@
 		BDA7A4F31871AF60002F7780 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				BD6EA1D01B0F610E001F34E0 /* Security.framework */,
+				BD6EA1CB1B0F60D3001F34E0 /* DropboxSDK.framework */,
 				BD6CF5EC1AFE5AD8004969F2 /* Accelerate.framework */,
 				BDC5D7F21950FFD400D64B50 /* libxml2.dylib */,
 				BDC5D7F01950FFC800D64B50 /* CoreLocation.framework */,
@@ -317,6 +326,7 @@
 			children = (
 				BDE3875018F827C9009E75CF /* Main_iPad.storyboard */,
 				BDE3875118F827C9009E75CF /* Main_iPhone.storyboard */,
+				BD6EA1D21B0F6613001F34E0 /* dbconfig.h */,
 				BDE3875718F8288D009E75CF /* main.m */,
 				BDFF04F21958406000677A74 /* BRHAPNsClient.h */,
 				BDFF04F31958406000677A74 /* BRHAPNsClient.m */,
@@ -798,6 +808,10 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"/Users/howes/Dropbox/Saves/dropbox-ios-sdk-1.3.13",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "NHTest/NHTest-Prefix.pch";
 				INFOPLIST_FILE = "$(SRCROOT)/NHTest/NHTest-Info.plist";
@@ -818,6 +832,10 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"/Users/howes/Dropbox/Saves/dropbox-ios-sdk-1.3.13",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "NHTest/NHTest-Prefix.pch";
 				INFOPLIST_FILE = "$(SRCROOT)/NHTest/NHTest-Info.plist";

@@ -8,11 +8,12 @@
 
 #import "BRHEventLog.h"
 
-@interface BRHEventLog ()
+@interface BRHEventLog () <UITextViewDelegate>
 
 @property (nonatomic, strong) NSMutableString *log;
 @property (nonatomic, strong) NSDateFormatter *dateTimeFormatter;
 @property (nonatomic, strong) NSTimer *flushTimer;
+@property (nonatomic, assign) BOOL scrollToEnd;
 
 - (NSString *)add:(NSString *)line;
 - (void)flushToDisk;
@@ -69,10 +70,17 @@
         self.log = [NSMutableString stringWithContentsOfURL:self.logPath encoding:NSUTF8StringEncoding error:nil];
 
         self.dateTimeFormatter = [[NSDateFormatter alloc] init];
-        [self.dateTimeFormatter setDateFormat:@"HH:mm:ss.SSSSSS"];
+        [self.dateTimeFormatter setDateFormat:@"yyyy-mm-dd HH:mm:ss.SSSSSS"];
+
+        self.scrollToEnd = YES;
     }
 
     return self;
+}
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+{
+    self.scrollToEnd = NO;
 }
 
 - (NSString *)add:(NSString *)line
@@ -81,8 +89,12 @@
     line = [NSString stringWithFormat:@"%@,%@", [_dateTimeFormatter stringFromDate:[NSDate date]], line];
     [_log appendString:line];
     if (_textView) {
+        CGFloat fromBottom = _textView.contentSize.height - _textView.contentOffset.y - 2 * _textView.bounds.size.height;
         [_textView.textStorage appendAttributedString:[[NSAttributedString alloc] initWithString:line attributes:_textView.typingAttributes]];
-        [_textView scrollRangeToVisible:NSMakeRange(_textView.text.length, 0)];
+        if (fromBottom < 0 || self.scrollToEnd == YES) {
+            self.scrollToEnd = YES;
+            [_textView scrollRangeToVisible:NSMakeRange(_textView.text.length, 0)];
+        }
     }
     [self flushToDisk];
     return line;
@@ -96,9 +108,15 @@
 
 - (void)setTextView:(UITextView *)textView
 {
+    if (_textView) {
+        _textView.delegate = nil;
+    }
+    
     _textView = textView;
     if (_textView) {
         _textView.text = _log;
+        _textView.delegate = self;
+        [_textView scrollRangeToVisible:NSMakeRange(_textView.text.length, 0)];
     }
 }
 

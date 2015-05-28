@@ -9,7 +9,8 @@
 #import "BRHBinFormatter.h"
 
 @interface BRHBinFormatter ()
-@property (assign, nonatomic) NSUInteger maxBins;
+@property (nonatomic, assign) NSUInteger maxBins;
+@property (nonatomic, strong) NSString* maxBinLabel;
 @end
 
 @implementation BRHBinFormatter
@@ -24,6 +25,7 @@
 {
     if ((self = [super init]) != nil) {
         self.maxBins = maxBins;
+        self.maxBinLabel = [NSString stringWithFormat:@"%ld+", (long)maxBins];
     }
 
     return self;
@@ -40,7 +42,7 @@
         return @"<1";
     }
     else if (value == self.maxBins - 1) {
-        return [NSString stringWithFormat:@"%ld+", (long)value];
+        return self.maxBinLabel;
     }
     else {
         return [NSString stringWithFormat:@"%ld", (long)value];
@@ -48,4 +50,3 @@
 }
 
 @end
-

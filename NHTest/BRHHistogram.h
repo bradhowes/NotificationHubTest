@@ -28,4 +28,6 @@
 
 - (void)clear;
 
+- (NSUInteger)max;
+
 @end

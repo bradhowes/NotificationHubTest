@@ -10,6 +10,7 @@
 #import "DDFileLogger.h"
 #import "DDTTYLogger.h"
 #import "Reachability.h"
+#import "DropboxSDK/DropboxSDK.h"
 
 #import "BRHAppDelegate.h"
 #import "BRHEventLog.h"
@@ -18,7 +19,12 @@
 #import "BRHNotificationDriver.h"
 #import "BRHRemoteDriver.h"
 
-@interface BRHAppDelegate ()
+#import "dbconfig.h"
+
+@interface BRHAppDelegate () <DBSessionDelegate, DBNetworkRequestDelegate, UIAlertViewDelegate>
+
+@property (nonatomic, strong) NSString *userId;
+@property (nonatomic, assign) int outstandingRequsts;
 
 @end
 
@@ -26,6 +32,15 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    NSString* dbAppKey = DROPBOX_APP_KEY;
+    NSString* dbAppSecret = DROPBOX_APP_SECRET;
+    NSString* dbRoot = kDBRootAppFolder;
+
+    DBSession *session = [[DBSession alloc] initWithAppKey:dbAppKey appSecret:dbAppSecret root:dbRoot];
+    session.delegate = self;
+    [DBSession setSharedSession:session];
+    [DBRequest setNetworkRequestDelegate:self];
+
     [application setStatusBarStyle:UIStatusBarStyleLightContent];
     [application setMinimumBackgroundFetchInterval:UIApplicationBackgroundFetchIntervalMinimum];
 
@@ -46,6 +61,8 @@
                                                               @"remoteServerPort":@"80",
                                                               @"sim":@"0"
                                                               }];
+
+    self.outstandingRequsts = 0;
 
     self.notificationDriver = [[BRHNotificationDriver alloc] init];
 
@@ -160,5 +177,42 @@
         [self.notificationDriver.remoteDriver handleEventsForBackgroundURLSession:identifier completionHandler:completionHandler];
     }
 }
+
+#pragma mark -
+#pragma mark DBSessionDelegate methods
+
+- (void)sessionDidReceiveAuthorizationFailure:(DBSession *)session userId:(NSString *)userId
+{
+    self.userId = userId;
+    [[[UIAlertView alloc] initWithTitle:@"Dropbox Session Ended"
+                               message:@"Do you want to relink?"
+                              delegate:self
+                     cancelButtonTitle:@"Cancel"
+                     otherButtonTitles:@"Relink", nil] show];
+}
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    if (buttonIndex != alertView.cancelButtonIndex) {
+        [[DBSession sharedSession] linkUserId:self.userId fromController:self.window.rootViewController];
+        self.userId = nil;
+    }
+}
+
+#pragma mark -
+#pragma mark DBNetworkRequestDelegate methods
+
+- (void)networkRequestStarted
+{
+    if (self.outstandingRequsts++ == 0)
+        [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
+}
+
+- (void)networkRequestStopped
+{
+    if (self.outstandingRequsts-- == 1)
+        [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
+}
+
 
 @end

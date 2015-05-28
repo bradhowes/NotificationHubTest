@@ -17,6 +17,4 @@
 
 - (void)renderPDF:(CGContextRef)pdfContext;
 
-- (void)refreshDisplay;
-
 @end

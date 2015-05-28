@@ -17,19 +17,21 @@ static NSString *const kMedianPlot = @"Mdn";
 static NSString *const kHistogramPlot = @"Histogram";
 
 static double const kPlotSymbolSize = 10.0;
+static void* kKVOContext = &kKVOContext;
 
 @interface BRHLatencyPlot () <CPTPlotDataSource, CPTPlotSpaceDelegate>
 
 @property (nonatomic, weak) NSArray *dataSource;
 @property (nonatomic, strong) CPTPlotSpaceAnnotation *latencyAnnotation;
 @property (nonatomic, assign) NSUInteger latencyAnnotationIndex;
-@property (nonatomic, assign) double maxPoints;
-@property (nonatomic, assign) double xScaleFactor;
 
-- (void)makeLatencyPlot;
+- (void)makePlot;
 - (void)handleTap:(UITapGestureRecognizer *)recognizer;
 - (void)update:(NSNotification *)notification;
-- (void)orientationChanged:(NSNotification *)notification;
+- (void)updateBounds;
+- (void)updateTitle:(NSInteger)emitInterval;
+- (CPTPlotRange*)getYRangeInViewRange;
+
 
 @end
 
@@ -37,19 +39,36 @@ static double const kPlotSymbolSize = 10.0;
 
 - (void)initialize:(BRHNotificationDriver *)driver
 {
-    // Establish linkages
-    //
     self.dataSource = driver.latencies;
-    [self makeLatencyPlot];
+    NSInteger emitInterval = driver.emitInterval.integerValue;
+    [self makePlot];
+    [self updateTitle:emitInterval];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(update:) name:BRHNotificationDriverReceivedNotification object:driver];
-//    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientationChanged:) name:UIDeviceOrientationDidChangeNotification  object:nil];
+    [driver addObserver:self forKeyPath:@"emitInterval" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:kKVOContext];
+    
 }
 
-- (void)makeLatencyPlot
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
+{
+    if (context == kKVOContext && [keyPath isEqualToString:@"emitInterval"]) {
+        NSNumber* newValue = [change objectForKey:NSKeyValueChangeNewKey];
+        [self updateTitle:[newValue integerValue]];
+    }
+}
+
+- (void)updateTitle:(NSInteger)emitInterval
+{
+    CPTXYGraph *graph = (CPTXYGraph*)self.hostedGraph;
+    CPTXYAxisSet *axisSet = (CPTXYAxisSet *)graph.axisSet;
+    CPTXYAxis *x = axisSet.xAxis;
+    x.title = [NSString stringWithFormat:@"Notification Latencies - %lds Intervals", (long)emitInterval];
+}
+
+- (void)makePlot
 {
     CPTXYGraph *graph = [[CPTXYGraph alloc] initWithFrame:CGRectZero];
     self.hostedGraph = graph;
-    [graph applyTheme:[CPTTheme themeNamed:kCPTDarkGradientTheme]];
+    // [graph applyTheme:[CPTTheme themeNamed:kCPTDarkGradientTheme]];
 
     graph.paddingLeft = 0.0f;
     graph.paddingRight = 0.0f;
@@ -70,7 +89,7 @@ static double const kPlotSymbolSize = 10.0;
     
     CPTMutableLineStyle *gridLineStyle = [CPTMutableLineStyle lineStyle];
     gridLineStyle.lineWidth = 0.75;
-    gridLineStyle.lineColor = [CPTColor colorWithGenericGray:0.45];
+    gridLineStyle.lineColor = [CPTColor colorWithGenericGray:0.25];
     
     CPTMutableLineStyle *tickLineStyle = [CPTMutableLineStyle lineStyle];
     tickLineStyle.lineWidth = 0.75;
@@ -99,7 +118,6 @@ static double const kPlotSymbolSize = 10.0;
     // X axis
     //
     x.titleTextStyle = titleTextStyle;
-    x.title = @"Notification Latencies";
     x.titleOffset = 18.0;
 
     x.axisLineStyle = nil;
@@ -125,7 +143,15 @@ static double const kPlotSymbolSize = 10.0;
 
     // Y axis
     //
+    y.titleTextStyle = nil;
+    y.title = nil;
+    y.preferredNumberOfMajorTicks = 5;
+
+    y.axisLineStyle = nil;
+    y.axisConstraints = [CPTConstraints constraintWithLowerOffset:0.0];
+
     y.labelingPolicy = CPTAxisLabelingPolicyAutomatic;
+    y.labelingPolicy = CPTAxisLabelingPolicyEqualDivisions;
     y.majorGridLineStyle = gridLineStyle;
     y.minorGridLineStyle = nil;
 
@@ -135,8 +161,6 @@ static double const kPlotSymbolSize = 10.0;
     y.minorTickLineStyle = nil;
     y.tickDirection = CPTSignNone;
 
-    y.axisLineStyle = nil;
-    y.axisConstraints = [CPTConstraints constraintWithLowerOffset:0.0];
 
     CPTScatterPlot *plot;
 
@@ -210,7 +234,6 @@ static double const kPlotSymbolSize = 10.0;
     legend.fill = [CPTFill fillWithColor:[[CPTColor darkGrayColor] colorWithAlphaComponent:0.5]];
     legend.textStyle = titleTextStyle;
     legend.borderLineStyle = x.axisLineStyle;
-    NSLog(@"%f %@", x.axisLineStyle.lineWidth, [[UIColor colorWithCGColor:x.axisLineStyle.lineColor.cgColor] description]);
     legend.cornerRadius = 5.0;
     legend.swatchSize = CGSizeMake(25.0, 25.0);
     legend.numberOfRows = 1;
@@ -218,27 +241,30 @@ static double const kPlotSymbolSize = 10.0;
     graph.legendAnchor = CPTRectAnchorTop;
     graph.legendDisplacement = CGPointMake(0.0, 0.0);
     
-    self.backgroundColor = [UIColor blackColor];
-    //    self.latencyPlot.collapsesLayers = YES;
-    
+    // self.backgroundColor = [UIColor blackColor];
+
     UITapGestureRecognizer *recognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap:)];
 
     recognizer.numberOfTouchesRequired = 1;
     recognizer.numberOfTapsRequired = 2;
     [self addGestureRecognizer:recognizer];
 
-#if 0
+#if 1
+    int counter = 0;
     NSMutableArray* ds = (NSMutableArray*)self.dataSource;
-    for (int i = 0; i < 300; ++i) {
-        BRHLatencyValue *stat = [BRHLatencyValue new];
-        stat.identifier = [NSNumber numberWithInt:i];
-        stat.when = [NSNumber numberWithDouble:i];
-        stat.value = [NSNumber numberWithDouble:(i % 100) * 0.35];
-        stat.average = [NSNumber numberWithDouble:2.5];
-        stat.median = [NSNumber numberWithDouble:1.4];
-        
-        [ds addObject:stat];
+    for (int i = 0; i < 30; ++i) {
+        for (int j = 0; j < 55; ++j) {
+            BRHLatencyValue *stat = [BRHLatencyValue new];
+            stat.identifier = [NSNumber numberWithInt:counter++];
+            stat.when = [NSNumber numberWithDouble:counter];
+            stat.value = [NSNumber numberWithDouble:(sin(j/55.0*3.14159) + 1.0) * i * 0.1];
+            stat.average = [NSNumber numberWithDouble:2.5];
+            stat.median = [NSNumber numberWithDouble:1.4];
+            [ds addObject:stat];
+        }
     }
+
+//    [self updateBounds];
 #endif
 }
 
@@ -286,11 +312,6 @@ static double const kPlotSymbolSize = 10.0;
     plotSpace.yRange = savedYRange;
 }
 
-- (void)refreshDisplay
-{
-    [self.hostedGraph reloadData];
-}
-
 - (void)updateBounds
 {
     int visiblePoints = [self calculatePlotWidth];
@@ -298,11 +319,10 @@ static double const kPlotSymbolSize = 10.0;
     NSArray *plotData = self.dataSource;
     NSInteger xMin = 0;
     NSInteger xMax = 0;
-    double yMax;
+    CPTPlotRange *yRange = [self getYRangeInViewRange];
 
     if (plotData.count == 0) {
         xMax = visiblePoints - 1;
-        yMax = 1.0;
     }
     else {
         BRHLatencyValue* tmp = [plotData lastObject];
@@ -310,7 +330,6 @@ static double const kPlotSymbolSize = 10.0;
         if (xMax < visiblePoints) xMax = visiblePoints - 1;
         xMin = xMax - visiblePoints + 1;
         if (xMin < 0) xMin = 0;
-        yMax = [self getMaxYInViewRange];
     }
 
     NSDecimal xMin1 = CPTDecimalFromDouble(0.0 - 0.5);
@@ -324,8 +343,10 @@ static double const kPlotSymbolSize = 10.0;
     if (xMax < visiblePoints || xMax < plotSpace.xRange.endDouble + 2) {
         plotSpace.xRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromDouble(xMin - 0.5) length:CPTDecimalFromDouble(visiblePoints)];
     }
+    else {
+        plotSpace.xRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromInteger(xMin) length:CPTDecimalFromInteger(xMax-xMin + 1)];
+    }
 
-    CPTPlotRange *yRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromDouble(0.0) length:CPTDecimalFromDouble(yMax)];
     plotSpace.globalYRange = yRange;
     plotSpace.yRange = yRange;
 
@@ -341,11 +362,6 @@ static double const kPlotSymbolSize = 10.0;
     x.gridLinesRange = yRange;
 
     y.gridLinesRange = [CPTPlotRange plotRangeWithLocation:xMin1 length:xMax1];
-}
-
-- (void)orientationChanged:(NSNotification *)notification
-{
-    [self updateBounds];
 }
 
 - (void)update:(NSNotification*)notification
@@ -406,9 +422,10 @@ static double const kPlotSymbolSize = 10.0;
 #pragma mark -
 #pragma mark Plot Space Delegate Methods
 
-- (double)getMaxYInViewRange
+- (CPTPlotRange*)getYRangeInViewRange
 {
-    double dmaxy = 0.0;
+    double dmaxy = 1.0;
+    double dminy = 0.0;
     NSArray *latencies = self.dataSource;
 
     if (latencies.count > 0) {
@@ -417,42 +434,42 @@ static double const kPlotSymbolSize = 10.0;
 
         double pos = round(plotSpace.xRange.locationDouble);
         double end = plotSpace.xRange.endDouble;
-
         if (pos < 0.0) pos = 0.0;
 
         while (pos < latencies.count) {
-            BRHLatencyValue* value = [latencies objectAtIndex:pos];
+            BRHLatencyValue *value = [latencies objectAtIndex:pos];
             pos += 1;
             if (value.identifier.intValue > end) break;
             if (value.value.doubleValue > dmaxy) {
                 dmaxy = value.value.doubleValue;
             }
+            else if (dminy == 0.0 || value.value.doubleValue < dminy) {
+                dminy = value.value.doubleValue;
+            }
         }
     }
 
-    NSLog(@"dmaxy: %f", dmaxy);
-    dmaxy = fmax(round(dmaxy + 0.5), 1.0);
-    
-    return dmaxy;
+    dminy = fmax(ceil(((dminy - 0.5 / 2.0) / 0.5) - 1.0) * 0.5, 0.0);
+    dmaxy = fmax(floor(((dmaxy + 0.5 / 2.0) / 0.5) + 1.0) * 0.5, 0.5);
+
+    return [CPTPlotRange plotRangeWithLocation:CPTDecimalFromDouble(dminy) length:CPTDecimalFromDouble(dmaxy - dminy)];
 }
 
-- (void)updateYScale:(NSTimer*)timer;
+- (void)updateYScale
 {
-    double dmaxy = [self getMaxYInViewRange];
-    [[NSRunLoop mainRunLoop] cancelPerformSelector:@selector(updateYScale:) target:self argument:nil];
+    CPTPlotRange* yMinMax = [self getYRangeInViewRange];
 
     CPTXYGraph *theGraph = (CPTXYGraph*)self.hostedGraph;
     CPTXYPlotSpace *plotSpace = (CPTXYPlotSpace*)theGraph.defaultPlotSpace;
-    CPTPlotRange *newRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromDouble(0.0) length:CPTDecimalFromDouble(dmaxy)];
+    CPTXYAxisSet *axisSet = (CPTXYAxisSet *)theGraph.axisSet;
+    CPTXYAxis *x = axisSet.xAxis;
+    CPTXYAxis *y = axisSet.yAxis;
 
-    if (dmaxy < plotSpace.yRange.endDouble) {
-        plotSpace.yRange = newRange;
-        plotSpace.globalYRange = newRange;
-    }
-    else {
-        plotSpace.globalYRange = newRange;
-        plotSpace.yRange = newRange;
-    }
+    plotSpace.globalYRange = yMinMax;
+    plotSpace.yRange = yMinMax;
+    y.visibleAxisRange = yMinMax;
+    y.visibleRange = yMinMax;
+    x.gridLinesRange = yMinMax;
 }
 
 - (void)plotSpace:(CPTPlotSpace*)space didChangePlotRangeForCoordinate:(CPTCoordinate)coordinate
@@ -470,11 +487,8 @@ static double const kPlotSymbolSize = 10.0;
                 self.latencyAnnotation = nil;
             }
         }
-        
-        // Update the Y scaling
-        //
-        [[NSRunLoop mainRunLoop] cancelPerformSelector:@selector(updateYScale:) target:self argument:nil];
-        [[NSRunLoop mainRunLoop] performSelector:@selector(updateYScale:) target:self argument:nil order:0 modes:[NSArray arrayWithObjects:NSDefaultRunLoopMode, NSRunLoopCommonModes, nil]];
+
+        [self updateYScale];
     }
 }
 
@@ -500,14 +514,17 @@ static double const kPlotSymbolSize = 10.0;
     NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
     [formatter setMaximumFractionDigits:3];
     NSString *yString = [formatter stringFromNumber:y];
+    NSString *whenString = [[BRHTimeFormatter new] stringFromNumber:data.when];
     
     // Setup a style for the annotation
     CPTMutableTextStyle *hitAnnotationTextStyle = [CPTMutableTextStyle textStyle];
     hitAnnotationTextStyle.color    = [CPTColor whiteColor];
-    hitAnnotationTextStyle.fontSize = 14.0;
-    hitAnnotationTextStyle.fontName = @"Helvetica-Bold";
+    hitAnnotationTextStyle.fontSize = 12.0;
+    hitAnnotationTextStyle.fontName = @"Helvetica";
 
-    CPTTextLayer *textLayer = [[CPTTextLayer alloc] initWithText:[NSString stringWithFormat:@"%@: %@", data.identifier, yString] style:hitAnnotationTextStyle];
+    NSString* tag = [NSString stringWithFormat:@"%@ %@ %@", data.identifier, yString, whenString];
+    CPTTextLayer *textLayer = [[CPTTextLayer alloc] initWithText:tag
+                                                           style:hitAnnotationTextStyle];
     textLayer.fill = [CPTFill fillWithColor:[CPTColor colorWithGenericGray:0.25]];
     NSArray *anchorPoint = [NSArray arrayWithObjects:data.identifier, y, nil];
 

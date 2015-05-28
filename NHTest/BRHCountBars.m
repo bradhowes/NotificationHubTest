@@ -19,8 +19,9 @@ static NSString *const kHistogramPlot = @"Histogram";
 @property (nonatomic, strong) CPTPlotSpaceAnnotation *binAnnotation;
 @property (nonatomic, assign) NSUInteger binAnnotationIndex;
 
-- (void)makeHistogramPlot;
+- (void)makePlot;
 - (void)update:(NSNotification *)notification;
+- (void)updateBounds;
 
 @end
 
@@ -28,18 +29,16 @@ static NSString *const kHistogramPlot = @"Histogram";
 
 - (void)initialize:(BRHNotificationDriver *)driver
 {
-    // Establish linkages
-    //
     self.dataSource = driver.bins;
-    [self makeHistogramPlot];
+    [self makePlot];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(update:) name:BRHNotificationDriverReceivedNotification object:driver];
 }
 
-- (void)makeHistogramPlot
+- (void)makePlot
 {
     CPTXYGraph *graph = [[CPTXYGraph alloc] initWithFrame:CGRectZero];
     self.hostedGraph = graph;
-    [graph applyTheme:[CPTTheme themeNamed:kCPTDarkGradientTheme]];
+    // [graph applyTheme:[CPTTheme themeNamed:kCPTDarkGradientTheme]];
     
     graph.paddingTop = 0.0f;
     graph.paddingLeft = 0.0f;
@@ -50,7 +49,7 @@ static NSString *const kHistogramPlot = @"Histogram";
     graph.plotAreaFrame.cornerRadius = 0.0f;
 
     graph.plotAreaFrame.paddingTop = 10.0;
-    graph.plotAreaFrame.paddingLeft = 25.0;
+    graph.plotAreaFrame.paddingLeft = 20.0;
     graph.plotAreaFrame.paddingBottom = 35.0;
     graph.plotAreaFrame.paddingRight = 10.0;
 
@@ -60,7 +59,7 @@ static NSString *const kHistogramPlot = @"Histogram";
 
     CPTMutableLineStyle *gridLineStyle = [CPTMutableLineStyle lineStyle];
     gridLineStyle.lineWidth = 0.75;
-    gridLineStyle.lineColor = [CPTColor colorWithGenericGray:0.45];
+    gridLineStyle.lineColor = [CPTColor colorWithGenericGray:0.25];
     
     CPTMutableLineStyle *tickLineStyle = [CPTMutableLineStyle lineStyle];
     tickLineStyle.lineWidth = 0.75;
@@ -106,9 +105,7 @@ static NSString *const kHistogramPlot = @"Histogram";
     x.minorTickLength = 3.0;
     x.minorTicksPerInterval = 4;
 
-    CPTMutablePlotRange *range = [CPTMutablePlotRange plotRangeWithLocation:CPTDecimalFromInt(0) length:CPTDecimalFromLongLong(numBins - 1)];
-    x.visibleRange = range;
-    x.gridLinesRange = range;
+    x.visibleRange = [CPTMutablePlotRange plotRangeWithLocation:CPTDecimalFromInt(0) length:CPTDecimalFromLongLong(numBins)];
 
     // Y Axis
     //
@@ -120,32 +117,28 @@ static NSString *const kHistogramPlot = @"Histogram";
 
     y.labelingPolicy = CPTAxisLabelingPolicyAutomatic;
     y.labelTextStyle = labelStyle;
-    y.labelOffset = 12.0;
-    NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
-    [formatter setMaximumFractionDigits:2];
+    y.labelOffset = 16.0;
+    NSNumberFormatter *formatter = [NSNumberFormatter new];
+    [formatter setMaximumFractionDigits:3];
     y.labelFormatter = formatter;
 
     y.tickDirection = CPTSignNegative;
     y.majorTickLineStyle = nil;
-    y.majorTickLength = 5.0;
+    y.majorTickLength = 0;
     y.preferredNumberOfMajorTicks = 5;
 
     y.minorTickLineStyle = nil;
 
+    y.gridLinesRange = [CPTMutablePlotRange plotRangeWithLocation:CPTDecimalFromDouble(-0.5) length:CPTDecimalFromDouble(numBins)];
     y.majorGridLineStyle = gridLineStyle;
     y.minorGridLineStyle = nil;
 
-    //y.labelExclusionRanges = [NSArray arrayWithObject:[CPTPlotRange plotRangeWithLocation:CPTDecimalFromInt(0) length:CPTDecimalFromFloat(0.5)]];
-
     CPTBarPlot *plot = [CPTBarPlot tubularBarPlotWithColor:[CPTColor cyanColor] horizontalBars:NO];
-    // plot.fill = [CPTFill fillWithColor:[CPTColor whiteColor]];
-    plot.barWidth = CPTDecimalFromFloat(0.7);
+    //plot.barWidth = CPTDecimalFromFloat(0.7);
     plot.identifier = kHistogramPlot;
     plot.dataSource = self;
     plot.delegate = self;
     [graph addPlot:plot toPlotSpace:plotSpace];
-
-    self.backgroundColor = [UIColor blackColor];
 
 #if 0
     for (int z = 0; z < 13; ++z)
@@ -172,7 +165,14 @@ static NSString *const kHistogramPlot = @"Histogram";
     [self.dataSource addValue:35];
 
     // [plotSpace scaleToFitPlots: graph.allPlots];
+    [self updateBounds];
 #endif
+}
+
+- (void)layoutSubviews
+{
+    [super layoutSubviews];
+    [self updateBounds];
 }
 
 - (void)clear
@@ -180,6 +180,7 @@ static NSString *const kHistogramPlot = @"Histogram";
     [self.hostedGraph.allPlots enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         [obj setDataNeedsReloading];
     }];
+    [self updateBounds];
 }
 
 - (void)renderPDF:(CGContextRef)pdfContext
@@ -191,27 +192,27 @@ static NSString *const kHistogramPlot = @"Histogram";
     CGContextEndPage(pdfContext);
 }
 
-- (void)refreshDisplay
+- (void)updateBounds
 {
-    [self.hostedGraph reloadData];
-    CPTXYPlotSpace *plotSpace = (CPTXYPlotSpace *)self.hostedGraph.defaultPlotSpace;
-    plotSpace.yRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromInt(0) length:CPTDecimalFromInteger(5)];
+    BRHHistogram *data = self.dataSource;
+    CPTXYPlotSpace *plotSpace = (CPTXYPlotSpace*)self.hostedGraph.defaultPlotSpace;
+    plotSpace.xRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromInt(-1) length:CPTDecimalFromInteger(data.count + 1)];
+    NSUInteger max = floor((MAX(data.max, 5) + 4) / 5) * 5;
+    plotSpace.yRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromInt(0) length:CPTDecimalFromInteger(max)];
 }
 
 - (void)update:(NSNotification*)notification
 {
     NSUInteger bin = [notification.userInfo[@"bin"] unsignedIntegerValue];
-    CPTXYPlotSpace *plotSpace = (CPTXYPlotSpace *)self.hostedGraph.defaultPlotSpace;
     [self.hostedGraph.allPlots[0] reloadDataInIndexRange:NSMakeRange(bin, 1)];
 
-    NSUInteger count = [[self.dataSource binAtIndex:bin] unsignedIntegerValue];
-    count = floor((MAX(MAX(count, plotSpace.yRange.lengthDouble),5) + 4) / 5) * 5;
-    plotSpace.yRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromInt(0) length:CPTDecimalFromInteger(count)];
-    
     if (self.binAnnotation != nil && self.binAnnotationIndex == bin) {
         CPTTextLayer *textLayer = (CPTTextLayer*)self.binAnnotation.contentLayer;
+        NSUInteger count = [self.dataSource binAtIndex:bin].unsignedIntegerValue;
         textLayer.text = [NSString stringWithFormat:@"%ld", (unsigned long)count];
     }
+    
+    [self updateBounds];
 }
 
 #pragma mark Data Source Methods
@@ -224,7 +225,7 @@ static NSString *const kHistogramPlot = @"Histogram";
 -(NSNumber*)numberForPlot:(CPTPlot *)plot field:(NSUInteger)fieldEnum recordIndex:(NSUInteger)index
 {
     NSNumber *num = [NSDecimalNumber zero];
-    
+
     switch (fieldEnum) {
         case CPTBarPlotFieldBarLocation:
             num = [NSNumber numberWithUnsignedInteger:index];
