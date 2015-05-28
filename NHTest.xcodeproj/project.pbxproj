@@ -66,6 +66,13 @@
 		BDE3877418F85127009E75CF /* apn-nhtest-prod.p12 in Resources */ = {isa = PBXBuildFile; fileRef = BDE3877218F85127009E75CF /* apn-nhtest-prod.p12 */; };
 		BDEA88141B0E53E9004BB6AB /* events@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = BDEA88121B0E53E9004BB6AB /* events@2x.png */; };
 		BDEA88151B0E53E9004BB6AB /* events.png in Resources */ = {isa = PBXBuildFile; fileRef = BDEA88131B0E53E9004BB6AB /* events.png */; };
+		BDF02AF11B17366200DD3C47 /* DropboxUploader.mm in Sources */ = {isa = PBXBuildFile; fileRef = BDF02AE81B17366200DD3C47 /* DropboxUploader.mm */; };
+		BDF02AF21B17366200DD3C47 /* RecordingInfo.mm in Sources */ = {isa = PBXBuildFile; fileRef = BDF02AEA1B17366200DD3C47 /* RecordingInfo.mm */; };
+		BDF02AF31B17366200DD3C47 /* RecordingsViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = BDF02AEC1B17366200DD3C47 /* RecordingsViewController.mm */; };
+		BDF02AF51B17366200DD3C47 /* NetworkActivityIndicator.mm in Sources */ = {isa = PBXBuildFile; fileRef = BDF02AF01B17366200DD3C47 /* NetworkActivityIndicator.mm */; };
+		BDF02AF81B17375000DD3C47 /* UserSettings.mm in Sources */ = {isa = PBXBuildFile; fileRef = BDF02AF71B17375000DD3C47 /* UserSettings.mm */; };
+		BDF02AFA1B17462100DD3C47 /* RecordingInfo.xcdatamodel in Sources */ = {isa = PBXBuildFile; fileRef = BDF02AF91B17462100DD3C47 /* RecordingInfo.xcdatamodel */; };
+		BDF02AFC1B174C0400DD3C47 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BDF02AFB1B174C0400DD3C47 /* CoreData.framework */; };
 		BDF2FFBD1A8E0F7E00364460 /* BRHRemoteDriver.m in Sources */ = {isa = PBXBuildFile; fileRef = BDF2FFBC1A8E0F7E00364460 /* BRHRemoteDriver.m */; };
 		BDFBF343187C55460080CC99 /* BRHHistogram.m in Sources */ = {isa = PBXBuildFile; fileRef = BDFBF342187C55460080CC99 /* BRHHistogram.m */; };
 		BDFBF348187C5A1F0080CC99 /* BRHLatencyValue.m in Sources */ = {isa = PBXBuildFile; fileRef = BDFBF347187C5A1F0080CC99 /* BRHLatencyValue.m */; };
@@ -208,7 +215,19 @@
 		BDE3877218F85127009E75CF /* apn-nhtest-prod.p12 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "apn-nhtest-prod.p12"; sourceTree = "<group>"; };
 		BDEA88121B0E53E9004BB6AB /* events@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "events@2x.png"; sourceTree = "<group>"; };
 		BDEA88131B0E53E9004BB6AB /* events.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = events.png; sourceTree = "<group>"; };
-		BDF02AE51B17309500DD3C47 /* dbconfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = dbconfig.h; path = ../dbconfig.h; sourceTree = "<group>"; };
+		BDF02AE61B1735F400DD3C47 /* dbconfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dbconfig.h; sourceTree = "<group>"; };
+		BDF02AE71B17366200DD3C47 /* DropboxUploader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DropboxUploader.h; sourceTree = "<group>"; };
+		BDF02AE81B17366200DD3C47 /* DropboxUploader.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DropboxUploader.mm; sourceTree = "<group>"; };
+		BDF02AE91B17366200DD3C47 /* RecordingInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RecordingInfo.h; sourceTree = "<group>"; };
+		BDF02AEA1B17366200DD3C47 /* RecordingInfo.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RecordingInfo.mm; sourceTree = "<group>"; };
+		BDF02AEB1B17366200DD3C47 /* RecordingsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RecordingsViewController.h; sourceTree = "<group>"; };
+		BDF02AEC1B17366200DD3C47 /* RecordingsViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RecordingsViewController.mm; sourceTree = "<group>"; };
+		BDF02AEF1B17366200DD3C47 /* NetworkActivityIndicator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NetworkActivityIndicator.h; sourceTree = "<group>"; };
+		BDF02AF01B17366200DD3C47 /* NetworkActivityIndicator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = NetworkActivityIndicator.mm; sourceTree = "<group>"; };
+		BDF02AF61B17375000DD3C47 /* UserSettings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UserSettings.h; sourceTree = "<group>"; };
+		BDF02AF71B17375000DD3C47 /* UserSettings.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = UserSettings.mm; sourceTree = "<group>"; };
+		BDF02AF91B17462100DD3C47 /* RecordingInfo.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = RecordingInfo.xcdatamodel; sourceTree = "<group>"; };
+		BDF02AFB1B174C0400DD3C47 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		BDF2FFBB1A8E0F7D00364460 /* BRHRemoteDriver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BRHRemoteDriver.h; sourceTree = "<group>"; };
 		BDF2FFBC1A8E0F7E00364460 /* BRHRemoteDriver.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BRHRemoteDriver.m; sourceTree = "<group>"; };
 		BDFBF341187C55460080CC99 /* BRHHistogram.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BRHHistogram.h; sourceTree = "<group>"; };
@@ -231,6 +250,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BDF02AFC1B174C0400DD3C47 /* CoreData.framework in Frameworks */,
 				BD6EA1D11B0F610E001F34E0 /* Security.framework in Frameworks */,
 				BD6CF5ED1AFE5AD8004969F2 /* Accelerate.framework in Frameworks */,
 				BD6CF5E91AFD5123004969F2 /* libInAppSettingsKit.a in Frameworks */,
@@ -303,6 +323,7 @@
 		BDA7A4F31871AF60002F7780 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				BDF02AFB1B174C0400DD3C47 /* CoreData.framework */,
 				BD6EA1D01B0F610E001F34E0 /* Security.framework */,
 				BD6EA1CB1B0F60D3001F34E0 /* DropboxSDK.framework */,
 				BD6CF5EC1AFE5AD8004969F2 /* Accelerate.framework */,
@@ -324,7 +345,18 @@
 		BDA7A4FA1871AF60002F7780 /* NHTest */ = {
 			isa = PBXGroup;
 			children = (
-				BDF02AE51B17309500DD3C47 /* dbconfig.h */,
+				BDF02AF91B17462100DD3C47 /* RecordingInfo.xcdatamodel */,
+				BDF02AE71B17366200DD3C47 /* DropboxUploader.h */,
+				BDF02AE81B17366200DD3C47 /* DropboxUploader.mm */,
+				BDF02AE91B17366200DD3C47 /* RecordingInfo.h */,
+				BDF02AEA1B17366200DD3C47 /* RecordingInfo.mm */,
+				BDF02AEB1B17366200DD3C47 /* RecordingsViewController.h */,
+				BDF02AEC1B17366200DD3C47 /* RecordingsViewController.mm */,
+				BDF02AEF1B17366200DD3C47 /* NetworkActivityIndicator.h */,
+				BDF02AF01B17366200DD3C47 /* NetworkActivityIndicator.mm */,
+				BDF02AF61B17375000DD3C47 /* UserSettings.h */,
+				BDF02AF71B17375000DD3C47 /* UserSettings.mm */,
+				BDF02AE61B1735F400DD3C47 /* dbconfig.h */,
 				BDE3875018F827C9009E75CF /* Main_iPad.storyboard */,
 				BDE3875118F827C9009E75CF /* Main_iPhone.storyboard */,
 				BDE3875718F8288D009E75CF /* main.m */,
@@ -645,23 +677,29 @@
 				BDC0475419D0557300A14DE9 /* DDASLLogCapture.m in Sources */,
 				BDC0475E19D07D2400A14DE9 /* BRHCountBars.m in Sources */,
 				BDF2FFBD1A8E0F7E00364460 /* BRHRemoteDriver.m in Sources */,
+				BDF02AF81B17375000DD3C47 /* UserSettings.mm in Sources */,
 				BDC0475719D0557300A14DE9 /* DDLog.m in Sources */,
 				BDE3875818F8288D009E75CF /* main.m in Sources */,
 				BDB56F1F1A8B85E500706A44 /* BRHBackgroundManager.m in Sources */,
 				BD6CF5EF1AFECF7C004969F2 /* BRHOutstandingNotification.m in Sources */,
 				BDC0475819D0557300A14DE9 /* DDTTYLogger.m in Sources */,
 				BDC0475519D0557300A14DE9 /* DDASLLogger.m in Sources */,
+				BDF02AF31B17366200DD3C47 /* RecordingsViewController.mm in Sources */,
 				BDFBF34B187CA2280080CC99 /* BRHTimeFormatter.m in Sources */,
 				BD5FE31F18F94078006368C4 /* Reachability.m in Sources */,
 				BD6CF6061AFF6281004969F2 /* BRHBinFormatter.m in Sources */,
 				BDFBF348187C5A1F0080CC99 /* BRHLatencyValue.m in Sources */,
+				BDF02AF51B17366200DD3C47 /* NetworkActivityIndicator.mm in Sources */,
 				BD5FE39D18F97919006368C4 /* BRHMainViewController.m in Sources */,
 				BD55ED8C1B0DF56A00E70F1F /* BRHEventLog.m in Sources */,
 				BDC0475619D0557300A14DE9 /* DDFileLogger.m in Sources */,
 				BDC0475319D0557300A14DE9 /* DDAbstractDatabaseLogger.m in Sources */,
 				BDA7A5051871AF60002F7780 /* BRHAppDelegate.m in Sources */,
 				BDB56F1C1A8A0C6600706A44 /* BRHLatencyPlot.m in Sources */,
+				BDF02AF11B17366200DD3C47 /* DropboxUploader.mm in Sources */,
+				BDF02AFA1B17462100DD3C47 /* RecordingInfo.xcdatamodel in Sources */,
 				BDFF045719583E0200677A74 /* GCDAsyncSocket.m in Sources */,
+				BDF02AF21B17366200DD3C47 /* RecordingInfo.mm in Sources */,
 				BDFF045819583E0200677A74 /* GCDAsyncUdpSocket.m in Sources */,
 				BD3EC5511876CE87005AE4B8 /* BRHNotificationDriver.m in Sources */,
 			);
