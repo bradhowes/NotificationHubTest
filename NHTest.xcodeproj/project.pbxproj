@@ -155,7 +155,6 @@
 		BD6CF6051AFF6281004969F2 /* BRHBinFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BRHBinFormatter.m; sourceTree = "<group>"; };
 		BD6EA1CB1B0F60D3001F34E0 /* DropboxSDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DropboxSDK.framework; path = "../../Dropbox/Saves/dropbox-ios-sdk-1.3.13/DropboxSDK.framework"; sourceTree = "<group>"; };
 		BD6EA1D01B0F610E001F34E0 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
-		BD6EA1D21B0F6613001F34E0 /* dbconfig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = dbconfig.h; sourceTree = "<group>"; };
 		BDA7A4F11871AF60002F7780 /* NHTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NHTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BDA7A4F41871AF60002F7780 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		BDA7A4F61871AF60002F7780 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -209,6 +208,7 @@
 		BDE3877218F85127009E75CF /* apn-nhtest-prod.p12 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "apn-nhtest-prod.p12"; sourceTree = "<group>"; };
 		BDEA88121B0E53E9004BB6AB /* events@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "events@2x.png"; sourceTree = "<group>"; };
 		BDEA88131B0E53E9004BB6AB /* events.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = events.png; sourceTree = "<group>"; };
+		BDF02AE51B17309500DD3C47 /* dbconfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = dbconfig.h; path = ../dbconfig.h; sourceTree = "<group>"; };
 		BDF2FFBB1A8E0F7D00364460 /* BRHRemoteDriver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BRHRemoteDriver.h; sourceTree = "<group>"; };
 		BDF2FFBC1A8E0F7E00364460 /* BRHRemoteDriver.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BRHRemoteDriver.m; sourceTree = "<group>"; };
 		BDFBF341187C55460080CC99 /* BRHHistogram.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BRHHistogram.h; sourceTree = "<group>"; };
@@ -324,9 +324,9 @@
 		BDA7A4FA1871AF60002F7780 /* NHTest */ = {
 			isa = PBXGroup;
 			children = (
+				BDF02AE51B17309500DD3C47 /* dbconfig.h */,
 				BDE3875018F827C9009E75CF /* Main_iPad.storyboard */,
 				BDE3875118F827C9009E75CF /* Main_iPhone.storyboard */,
-				BD6EA1D21B0F6613001F34E0 /* dbconfig.h */,
 				BDE3875718F8288D009E75CF /* main.m */,
 				BDFF04F21958406000677A74 /* BRHAPNsClient.h */,
 				BDFF04F31958406000677A74 /* BRHAPNsClient.m */,
