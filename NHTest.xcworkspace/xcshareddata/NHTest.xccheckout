@@ -20,6 +20,10 @@
 		<string>https://github.com/bradhowes/NotificationHubTest.git</string>
 		<key>8B3D884E5CB77CFCF2CE65E14C999AAC1DC843A5</key>
 		<string>https://github.com/core-plot/core-plot.git</string>
+		<key>BC7E7927185E145C32F2469DDA2EBD796920D9BF</key>
+		<string>https://github.com/adonoho/DDGPreferences.git</string>
+		<key>F17C12D860420E85866F57474FF628886C65A3EA</key>
+		<string>https://github.com/facebook/KVOController.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
 	<string>NHTest.xcworkspace</string>
@@ -35,6 +39,10 @@
 		<string>..</string>
 		<key>8B3D884E5CB77CFCF2CE65E14C999AAC1DC843A5</key>
 		<string>../../src/iphone/core-plot</string>
+		<key>BC7E7927185E145C32F2469DDA2EBD796920D9BF</key>
+		<string>../../src/DDGPreferences</string>
+		<key>F17C12D860420E85866F57474FF628886C65A3EA</key>
+		<string>../../src/KVOController</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
 	<string>https://github.com/bradhowes/NotificationHubTest.git</string>
@@ -72,9 +80,25 @@
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.git</string>
 			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>BC7E7927185E145C32F2469DDA2EBD796920D9BF</string>
+			<key>IDESourceControlWCCName</key>
+			<string>DDGPreferences</string>
+		</dict>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
 			<string>1712FC0BC3C9AABD8B7B5376E310E93FBDB3BCFA</string>
 			<key>IDESourceControlWCCName</key>
 			<string>InAppSettingsKit</string>
+		</dict>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>F17C12D860420E85866F57474FF628886C65A3EA</string>
+			<key>IDESourceControlWCCName</key>
+			<string>KVOController</string>
 		</dict>
 		<dict>
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>

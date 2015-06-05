@@ -1,10 +1,7 @@
-//
 //  BRHAPNsClient.m
 //  NHTest
 //
-//  Created by Brad Howes on 6/23/14.
-//  Copyright (c) 2014 Brad Howes. All rights reserved.
-//
+//  Copyright (C) 2015 Brad Howes. All rights reserved.
 
 #import <Security/Security.h>
 #import "GCDAsyncSocket.h"
@@ -13,10 +10,20 @@
 #import "BRHLogger.h"
 #import "Reachability.h"
 
+/*!
+ * @brief Contents of an APNs push notification
+ */
 @interface BRHAPNsClientPayload : NSObject
 
-@property (nonatomic, strong) NSData *payload;
-@property (nonatomic, assign) NSInteger identifier;
+/*!
+ * @brief The payload of the notification. Must be valid JSON.
+ */
+@property (strong, nonatomic) NSData *payload;
+
+/*!
+ * @brief The unique identifier for the notification.
+ */
+@property (assign, nonatomic) NSInteger identifier;
 
 @end
 
@@ -24,40 +31,93 @@
 
 @end
 
+/*!
+ * @brief Private properties and methods for BRHAPNsClient class
+ */
 @interface BRHAPNsClient () <GCDAsyncSocketDelegate>
 
-@property (nonatomic, assign) SecIdentityRef identity;
-@property (nonatomic, strong) GCDAsyncSocket *socket;
-@property (nonatomic, strong) BRHAPNsClientPayload *cache;
-@property (nonatomic, copy) NSData *token;
-@property (nonatomic, strong) Reachability *reachability;
+/*!
+ * @brief Reference to the certificate to use when communicating with APNs
+ */
+@property (assign, nonatomic) SecIdentityRef identity;
+/*!
+ * @brief Socket connected to APNs server
+ */
+@property (strong, nonatomic) GCDAsyncSocket *socket;
+/*!
+ * @brief The notification payload awaiting delivery.
+ */
+@property (strong, nonatomic) BRHAPNsClientPayload *cache;
+@property (assign, nonatomic) BOOL socketReady;
+/*!
+ * @brief The device token to send push notifications to
+ */
+@property (copy, nonatomic) NSData *deviceToken;
+/*!
+ * @brief Network reachability detector.
+ */
+@property (strong, nonatomic) Reachability *reachability;
 
+/*!
+ * @brief Send out any cached notification. Called after connection is reestablished with APNs.
+ */
 - (void)sendCachedNotification;
+
+/*!
+ * @brief Notification that the network state has changed
+ *
+ * @param notification contents of the notification
+ */
 - (void)reachabilityChanged:(NSNotification *)notification;
-- (NSData*)makePushPayloadFormat1For:(NSString*)payload identifier:(NSInteger)identifier;
-- (NSData*)makePushPayloadFormat2For:(NSString*)payload identifier:(NSInteger)identifier;
-- (void)retrySocketOpen:(NSTimer*)timer;
+
+/*!
+ * @brief Create a format 1 payload for APNs
+ *
+ * @param payload the JSON payload to send
+ * @param identifier the unique identifier for the push notification
+ *
+ * @return binary payload that conforms to APNs Format 1
+ */
+- (NSData *)makePushPayloadFormat1For:(NSString *)payload identifier:(NSInteger)identifier;
+
+/*!
+ * @brief Create a format 2 payload for APNs
+ *
+ * @param payload the JSON payload to send
+ * @param identifier the unique identifier for the push notification
+ *
+ * @return binary payload that conforms to APNs Format 2
+ */
+- (NSData *)makePushPayloadFormat2For:(NSString *)payload identifier:(NSInteger)identifier;
+
+/*!
+ * @brief Timer callback that attempts to establish a new APNs connection
+ *
+ * @param timer the timer that fired
+ */
+- (void)retrySocketOpen:(NSTimer *)timer;
 
 @end
 
 @implementation BRHAPNsClient
 
-+ (NSString*)host:(BOOL)inSandbox
++ (NSString *)host:(BOOL)inSandbox
 {
     return inSandbox ? @"gateway.sandbox.push.apple.com" : @"gateway.push.apple.com";
 }
 
-- (id)initWithIdentity:(SecIdentityRef)theIdentity token:(NSData*)theToken sandbox:(BOOL)theSandbox
+- (instancetype)initWithIdentity:(SecIdentityRef)theIdentity deviceToken:(NSData *)deviceToken sandbox:(BOOL)theSandbox
 {
 	if (self = [super init]) {
-        self.identity = theIdentity;
-        self.token = theToken;
-        self.sandbox = theSandbox;
-        self.socket = nil;
-        self.cache = nil;
-        self.reachability = [Reachability reachabilityForInternetConnection];
+        _identity = theIdentity;
+        _deviceToken = deviceToken;
+        _sandbox = theSandbox;
+        _socket = nil;
+        _cache = nil;
+        _socketReady = NO;
+        _reachability = [Reachability reachabilityForInternetConnection];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reachabilityChanged:) name:kReachabilityChangedNotification object:nil];
-        [self.reachability startNotifier];
+        [_reachability startNotifier];
     }
 
 	return self;
@@ -66,23 +126,23 @@
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 
-    if (self.reachability) {
-        [self.reachability stopNotifier];
-        self.reachability = nil;
+    if (_reachability) {
+        [_reachability stopNotifier];
+        _reachability = nil;
     }
 
-    if (self.socket) {
-        [self.socket disconnect];
-        self.socket = nil;
+    if (_socket) {
+        [_socket disconnect];
+        _socket = nil;
     }
-    
+
     if (_identity != NULL) {
         CFRelease(_identity);
     }
 }
 
-- (void)pushPayload:(NSString*)payload identifier:(NSInteger)identifier {
-    NSData* data = [self makePushPayloadFormat2For:payload identifier:identifier];
+- (void)pushPayload:(NSString *)payload identifier:(NSInteger)identifier {
+    NSData *data = [self makePushPayloadFormat2For:payload identifier:identifier];
     self.cache = [BRHAPNsClientPayload new];
     self.cache.payload = data;
     self.cache.identifier = identifier;
@@ -91,7 +151,16 @@
 
 - (void)sendCachedNotification
 {
-    if (self.cache && ! self.socket) {
+    if (! self.cache) return;
+
+    if (self.socketReady) {
+        [self.socket writeData:self.cache.payload withTimeout:2.0 tag:self.cache.identifier];
+        // !!!: The write could fail and we would then drop this. Perhaps wait to clear after write success?
+        self.cache = nil;
+        return;
+    }
+
+    if (! self.socket) {
 
         self.socket = [[GCDAsyncSocket alloc] init];
         [self.socket setDelegate:self delegateQueue:dispatch_get_main_queue()];
@@ -101,6 +170,7 @@
         [self.socket connectToHost:host onPort:2195 error:&error];
         if (error) {
             [BRHLogger add:@"failed to create APNs connection: %@", [error description]];
+            self.socketReady = NO;
             self.socket = nil;
             return;
         }
@@ -133,7 +203,7 @@
     }
 }
 
-- (NSData*)makePushPayloadFormat1For:(NSString*)payload identifier:(NSInteger)identifier {
+- (NSData *)makePushPayloadFormat1For:(NSString *)payload identifier:(NSInteger)identifier {
 
     // Format: |COMMAND|ID|EXPIRY|TOKENLEN|TOKEN|PAYLOADLEN|PAYLOAD| */
     NSMutableData *data = [NSMutableData data];
@@ -155,9 +225,9 @@
     [data appendBytes:&tokenLength length:sizeof(uint16_t)];
     
     // token
-    [data appendData:self.token];
+    [data appendData:self.deviceToken];
     
-    NSData* payloadData = [payload dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *payloadData = [payload dataUsingEncoding:NSUTF8StringEncoding];
     
     // payload length, network order
     uint16_t payloadLength = htons([payloadData length]);
@@ -169,7 +239,7 @@
     return data;
 }
 
-- (NSData*)makePushPayloadFormat2For:(NSString*)payload identifier:(NSInteger)identifier {
+- (NSData *)makePushPayloadFormat2For:(NSString *)payload identifier:(NSInteger)identifier {
     
     NSMutableData *frame = [NSMutableData data];
     uint8_t itemId = 1;
@@ -185,14 +255,14 @@
     
     itemLength = htons(32);
     [frame appendBytes:&itemLength length:sizeof(itemLength)];
-    [frame appendData:self.token];
+    [frame appendData:self.deviceToken];
     
     // item 2 - payload
     ++itemId;
     [frame appendBytes:&itemId length:sizeof(itemId)];
 
     // payload length, network order
-    NSData* payloadData = [payload dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *payloadData = [payload dataUsingEncoding:NSUTF8StringEncoding];
     itemLength = htons([payloadData length]);
     [frame appendBytes:&itemLength length:sizeof(itemLength)];
     [frame appendData:payloadData];
@@ -221,7 +291,7 @@
     [frame appendBytes:&priority length:sizeof(priority)];
 
     // Build push payload - |2|SIZE|FRAME
-    NSMutableData* data = [NSMutableData data];
+    NSMutableData *data = [NSMutableData data];
     uint8_t command = 2;
     [data appendBytes:&command length:sizeof(command)];
     uint32_t frameLength = htonl([frame length]);
@@ -235,11 +305,8 @@
 
 - (void)socketDidSecure:(GCDAsyncSocket *)sock {
     [BRHLogger add:@"APNs connection established"];
-    if (self.cache != nil) {
-        [self.socket writeData:self.cache.payload withTimeout:2.0 tag:self.cache.identifier];
-        self.cache = nil;
-    }
-
+    self.socketReady = YES;
+    [self sendCachedNotification];
     [self.socket readDataToLength:6 withTimeout:10.0 tag:-1];
 }
 
@@ -248,14 +315,12 @@
     [self.delegate sentNotification:tag];
 }
 
-- (NSTimeInterval)socket:(GCDAsyncSocket *)sock shouldTimeoutReadWithTag:(long)tag
-                 elapsed:(NSTimeInterval)elapsed
-               bytesDone:(NSUInteger)length
+- (NSTimeInterval)socket:(GCDAsyncSocket *)sock shouldTimeoutReadWithTag:(long)tag elapsed:(NSTimeInterval)elapsed bytesDone:(NSUInteger)length
 {
-    // Nothing from APNs so shutdown the connection
-    [self.socket disconnect];
-    self.socket = nil;
-    return 0.0;
+    // [BRHLogger add:@"socket timeout while reading"];
+    // [self.socket disconnect];
+    // self.socket = nil;
+    return 10.0;
 }
 
 - (void)socket:(GCDAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag
@@ -309,7 +374,7 @@
     [BRHLogger add:@"APNs response: %d %d %@", (int)status, identifier, desc];
 }
 
-- (void)retrySocketOpen:(NSTimer*)timer
+- (void)retrySocketOpen:(NSTimer *)timer
 {
     [self sendCachedNotification];
 }
@@ -325,6 +390,7 @@
     }
 
     self.socket = nil;
+    self.socketReady = NO;
     if (self.cache) {
         [NSTimer scheduledTimerWithTimeInterval:5.0 target:self selector:@selector(retrySocketOpen:) userInfo:nil repeats:NO];
     }

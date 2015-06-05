@@ -1,20 +1,18 @@
+// BRHHistogram.h
+// NHTest
 //
-//  BRHHistogram.h
-//  NHTest
-//
-//  Created by Brad Howes on 1/7/14.
-//  Copyright (c) 2014 Brad Howes. All rights reserved.
-//
+// Copyright (C) 2015 Brad Howes. All rights reserved.
 
 #import <Foundation/Foundation.h>
 
-@interface BRHHistogram : NSObject
+@interface BRHHistogram : NSObject <NSCoding>
 
-+ (instancetype)histogramWithSize:(NSUInteger)size;
+@property (assign, nonatomic) NSUInteger lastBin;
+@property (readonly, nonatomic) NSNumber *maxCount;
 
-- (instancetype)initWithSize:(NSUInteger)size;
++ (instancetype)histogramWithLastBin:(NSUInteger)lastBin;
 
-- (NSUInteger)count;
+- (instancetype)initWithLastBin:(NSUInteger)lastBin;
 
 - (NSArray *)bins;
 
@@ -27,7 +25,5 @@
 - (void)addValues:(NSArray *)array;
 
 - (void)clear;
-
-- (NSUInteger)max;
 
 @end

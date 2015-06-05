@@ -1,48 +1,51 @@
+// BRHBinFormatter.m
+// NHTest
 //
-//  BRHBinFormatter.m
-//  NotificationHubTest
-//
-//  Created by Brad Howes on 1/7/14.
-//  Copyright (c) 2014 Brad Howes. All rights reserved.
-//
+// Copyright (C) 2015 Brad Howes. All rights reserved.
 
 #import "BRHBinFormatter.h"
 
+/*!
+ * @brief Private properties of BRHBinFormatter
+ */
 @interface BRHBinFormatter ()
-@property (nonatomic, assign) NSUInteger maxBins;
-@property (nonatomic, strong) NSString* maxBinLabel;
+
+/*!
+ * @brief The index of the last bin in the histogram
+ */
+@property (assign, nonatomic) NSUInteger lastBin;
+/*!
+ * @brief The label to use for the last bin
+ */
+@property (copy, nonatomic) NSString *lastBinLabel;
 @end
 
 @implementation BRHBinFormatter
 
-+ (BRHBinFormatter*)binFormatterWithMaxBins:(NSUInteger)maxBins
++ (BRHBinFormatter *)binFormatterWithLastBin:(NSUInteger)lastBin
 {
-    BRHBinFormatter* obj = [[BRHBinFormatter alloc] initWithMaxBins:maxBins];
+    BRHBinFormatter *obj = [[BRHBinFormatter alloc] initWithLastBin:lastBin];
     return obj;
 }
 
-- (id)initWithMaxBins:(NSUInteger)maxBins
+- (instancetype)initWithLastBin:(NSUInteger)lastBin
 {
     if ((self = [super init]) != nil) {
-        self.maxBins = maxBins;
-        self.maxBinLabel = [NSString stringWithFormat:@"%ld+", (long)maxBins];
+        _lastBin = lastBin;
+        _lastBinLabel = [NSString stringWithFormat:@"%ld+", (long)lastBin];
     }
 
     return self;
 }
 
-/** Format a elapsed time value into HH:MM:SS format
- * @param obj the object to convert. Expects an object that responds to "doubleValue" method, like NSNumber
- * @return NSString representation of the given values
- */
 - (NSString *)stringForObjectValue:(id)obj
 {
     NSInteger value = [obj integerValue];
     if (value == 0) {
         return @"<1";
     }
-    else if (value == self.maxBins - 1) {
-        return self.maxBinLabel;
+    else if (value == self.lastBin) {
+        return self.lastBinLabel;
     }
     else {
         return [NSString stringWithFormat:@"%ld", (long)value];

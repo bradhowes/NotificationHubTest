@@ -9,16 +9,12 @@
 #import "BRHSettingsViewController.h"
 #import "BRHAppDelegate.h"
 #import "BRHNotificationDriver.h"
-
-@interface BRHSettingsViewController ()
-
-@end
+#import "BRHUserSettings.h"
 
 @implementation BRHSettingsViewController
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+- (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
-
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         self.delegate = self;
@@ -27,30 +23,27 @@
     return self;
 }
 
-- (void)viewDidLoad
+- (void)viewWillAppear:(BOOL)animated
 {
-    [super viewDidLoad];
-    // Do any additional setup after loading the view.
+    [BRHUserSettings userSettings].blockingNotifications = YES;
 }
 
-- (void)viewDidAppear:(BOOL)animated
-{
-    BRHAppDelegate *delegate = [[UIApplication sharedApplication] delegate];
-    [delegate.notificationDriver editingSettings:true];
-    [super viewDidAppear:animated];
-}
+- (IBAction)dismiss:(id)sender {
 
-- (void)didReceiveMemoryWarning
-{
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
-
-- (IBAction)dismiss:(id)sender
-{
-    BRHAppDelegate *delegate = [[UIApplication sharedApplication] delegate];
-    [delegate.notificationDriver editingSettings:false];
+    // NOTE: order here is a bit magical. The key is to get the latest values into NSUserDefaults and then
+    // flag the changes with KVO updates.
+    //
     [self dismissViewControllerAnimated:YES completion:nil];
+    BRHUserSettings *settings = [BRHUserSettings userSettings];
+    settings.blockingNotifications = NO;
+
+    // This is supposed to update settings from InAppSettingsKit view
+    //
+    [super dismiss:sender];
+    
+    // But this seems to do the trick.
+    //
+    [settings readPreferences];
 }
 
 @end

@@ -1,36 +1,37 @@
+// BRHMainController.h
+// NHTest
 //
-//  BRHMainViewController.h
-//
-//  Created by Brad Howes on 12/21/13.
-//  Copyright (c) 2013 Brad Howes. All rights reserved.
-//
+// Copyright (C) 2015 Brad Howes. All rights reserved.
 
 #import <UIKit/UIKit.h>
 
-#import "CorePlot-CocoaTouch.h"
-
-@class BRHCountBars;
-@class BRHLatencyPlot;
+@class BRHDropboxUploader;
+@class BRHLatencyHistogramPlot;
+@class BRHLatencyByTimePlot;
+@class BRHRecordingsViewController;
+@class BRHRunData;
 
 @interface BRHMainViewController : UIViewController
 
-@property (nonatomic, strong) IBOutlet UIToolbar *toolbar;
-@property (nonatomic, strong) IBOutlet UIBarButtonItem *playButton;
-@property (nonatomic, strong) IBOutlet UIBarButtonItem *stopButton;
-@property (nonatomic, strong) IBOutlet UIBarButtonItem *settingsButton;
-@property (nonatomic, strong) IBOutlet UIBarButtonItem *shareButton;
+@property (strong, nonatomic) IBOutlet UIToolbar *toolbar;
+@property (strong, nonatomic) IBOutlet UIBarButtonItem *playButton;
+@property (strong, nonatomic) IBOutlet UIBarButtonItem *stopButton;
+@property (strong, nonatomic) IBOutlet UIBarButtonItem *recordingsButton;
+@property (strong, nonatomic) IBOutlet UIBarButtonItem *settingsButton;
 
-@property (nonatomic, strong) IBOutlet BRHLatencyPlot *latencyPlot;
-@property (nonatomic, strong) IBOutlet BRHCountBars *countBars;
-@property (nonatomic, strong) IBOutlet UITextView *events;
-@property (nonatomic, strong) IBOutlet UITextView *log;
-@property (nonatomic, strong) NSURL *runDirectory;
-@property (strong, nonatomic) IBOutlet NSLayoutConstraint *logVerticalConstraint;
-@property (strong, nonatomic) IBOutlet NSLayoutConstraint *eventsVerticalConstraint;
+@property (strong, nonatomic) IBOutlet BRHLatencyByTimePlot *latencyPlot;
+@property (strong, nonatomic) IBOutlet BRHLatencyHistogramPlot *countBars;
+@property (strong, nonatomic) IBOutlet UITextView *logView;
+@property (strong, nonatomic) IBOutlet UITextView *eventsView;
+@property (strong, nonatomic) IBOutlet UIView *recordingsView;
+@property (strong, nonatomic) BRHRecordingsViewController *recordingsViewController;
+@property (strong, nonatomic) BRHDropboxUploader *dropboxUploader;
 
 - (IBAction)startStop:(id)sender;
 - (IBAction)showHideLogView:(id)sender;
 - (IBAction)showHideEventsView:(id)sender;
-- (IBAction)share:(id)sender;
+- (IBAction)showHideRecordingsView:(id)sender;
+
+- (void)setRunData:(BRHRunData *)runData;
 
 @end

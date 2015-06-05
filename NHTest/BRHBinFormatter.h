@@ -1,17 +1,32 @@
+// BRHBinFormatter.h
+// NHTest
 //
-//  BRHBinFormatter.h
-//  NotificationHubTest
-//
-//  Created by Brad Howes on 1/7/14.
-//  Copyright (c) 2014 Brad Howes. All rights reserved.
-//
+// Copyright (C) 2015 Brad Howes. All rights reserved.
 
 #import <Foundation/Foundation.h>
 
+/*!
+ * @brief Number formatter used by the histogram plots to render the bin names.
+ */
 @interface BRHBinFormatter : NSNumberFormatter
 
-+ (BRHBinFormatter*)binFormatterWithMaxBins:(NSUInteger)maxBins;
-- (id)initWithMaxBins:(NSUInteger)maxBins;
+/*!
+ * @brief Class method to creat a new BRHBinFormatter object
+ *
+ * @param lastBin the value of the last bin in the histogram (basically histogram size - 1)
+ *
+ * @return new BRHBinFormatter instance
+ */
++ (BRHBinFormatter *)binFormatterWithLastBin:(NSUInteger)lastBin;
+
+/*!
+ * @brief Initializer for BRHBinFormatter objects
+ *
+ * @param lastBin the value of the last bin in the histogram (basically histogram size - 1)
+ *
+ * @return initialized BRHBinFormatter instance
+ */
+- (instancetype)initWithLastBin:(NSUInteger)lastBin;
 
 @end
 

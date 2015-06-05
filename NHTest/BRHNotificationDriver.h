@@ -1,43 +1,50 @@
+// BRHNotificationDriver.h
+// NHTest
 //
-//  BRHNotificationDriver.h
-//  NotificationHubTest
-//
-//  Created by Brad Howes on 1/3/14.
-//  Copyright (c) 2014 Brad Howes. All rights reserved.
-//
+// Copyright (C) 2015 Brad Howes. All rights reserved.
 
 #import <Foundation/Foundation.h>
 
-extern NSString *BRHNotificationDriverReceivedNotification;
-extern NSString *BRHNotificationDriverRunningStateChanged;
+@class BRHLatencySample;
 
-@class BRHHistogram;
-@class BRHLatencyValue;
-@class BRHRemoteDriver;
+typedef void (^BRHNotificationDriverFetchCompletionBlock)(BOOL success, BOOL hasData);
 
-typedef void (^BRHNotificationDriverFetchCompletionHandler)(BOOL success, NSString* msg);
-typedef void (^BRHNotificationDriverUpdateCompletionHandler)(BOOL success, BOOL updated);
-
+/*!
+ * @brief Base class for drivers that generate notifications for tests.
+ */
 @interface BRHNotificationDriver : NSObject
 
-@property (nonatomic, assign) BOOL sim;
-@property (nonatomic, strong) NSData *deviceToken;
-@property (nonatomic, strong) NSMutableArray *latencies;
-@property (nonatomic, strong) BRHHistogram *bins;
-@property (nonatomic, strong) NSDate *startTime;
-@property (nonatomic, strong) BRHRemoteDriver* remoteDriver;
-@property (nonatomic, assign) NSNumber* emitInterval;
-@property (nonatomic, readonly, getter=isRunning) BOOL running;
+/*!
+ * @brief APNs device token for this device.
+ */
+@property (strong, nonatomic) NSData *deviceToken;
 
-- (void)reset;
-- (void)start;
-- (void)stop;
+/*!
+ * @brief The number of seconds between push notifications sent to the device
+ */
+@property (strong, nonatomic) NSNumber *emitInterval;
 
-- (BRHLatencyValue *)min;
-- (BRHLatencyValue *)max;
+@property (strong, nonatomic) NSNumber *lastIdentifier;
 
-- (void)emitNotification;
-- (void)received:(NSNumber *)identifier timeOfArrival:(NSDate *)timeOfArrival contents:(NSDictionary *)contents;
-- (void)editingSettings:(BOOL)state;
+/*!
+ * @brief Start the driver and begin recording notification arrivals.
+ */
+- (BOOL)startEmitting:(NSNumber *)emitInterval;
+
+/*!
+ * @brief Stop the driver.
+ */
+- (void)stopEmitting;
+
+- (BRHLatencySample *)receivedNotification:(NSDictionary *)userInfo at:(NSDate *)when
+      fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler;
+
+- (void)calculateLatency:(BRHLatencySample *)sample;
+
+- (void)fetchUpdate:(NSDictionary *)notification fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler;
+
+- (void)updateWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler;
+
+- (void)handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)())completionHandler;
 
 @end

@@ -6,23 +6,11 @@
 //  Copyright (c) 2015 Brad Howes. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
+#import "BRHNotificationDriver.h"
 
-typedef void (^BRHRemoteDriverFetchCompletionBlock)(BOOL success, BOOL hasData);
+@interface BRHRemoteDriver : BRHNotificationDriver
 
-@interface BRHRemoteDriver : NSObject
-
-@property (nonatomic, assign) double serverWhen;
-@property (nonatomic, assign) double deviceOffset;
-
-- (id)initWithURL:(NSURL*)url deviceToken:(NSString*)deviceToken;
-- (void)postRegistration;
-- (void)deleteRegistration;
-
-- (void)fetchMessage:(NSInteger)msgId withCompletionHandler:(BRHRemoteDriverFetchCompletionBlock)completionHandler;
-
-- (void)updateWithCompletionHandler:(BRHRemoteDriverFetchCompletionBlock)completionHandler;
-
-- (void)handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)())completionHandler;
+@property (assign, nonatomic) double serverWhen;
+@property (assign, nonatomic) double deviceServerDelta;
 
 @end
