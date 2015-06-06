@@ -423,21 +423,19 @@ static double const kPlotSymbolSize = 8.0;
     NSArray *latencies = self.dataSource;
 
     if (latencies.count > 0) {
+        dminy = 1e9;
         CPTXYGraph *theGraph = (CPTXYGraph *)self.hostedGraph;
         CPTXYPlotSpace *plotSpace = (CPTXYPlotSpace *)theGraph.defaultPlotSpace;
 
-        double pos = round(plotSpace.xRange.locationDouble);
-        double end = plotSpace.xRange.endDouble;
-        if (pos < 0.0) pos = 0.0;
-
-        while (pos < latencies.count) {
-            BRHLatencySample *sample = [latencies objectAtIndex:pos];
-            pos += 1;
-            if (sample.identifier.intValue > end) break;
+        NSUInteger xMin = MAX(0, floor(plotSpace.xRange.locationDouble));
+        NSUInteger xMax = MIN(latencies.count - 1, plotSpace.xRange.endDouble);
+        while (xMin <= xMax) {
+            BRHLatencySample *sample = [latencies objectAtIndex:xMin++];
             if (sample.latency.doubleValue > dmaxy) {
                 dmaxy = sample.latency.doubleValue;
             }
-            else if (dminy == 0.0 || sample.latency.doubleValue < dminy) {
+
+            if (sample.latency.doubleValue < dminy) {
                 dminy = sample.latency.doubleValue;
             }
         }

@@ -110,7 +110,7 @@
     self.notificationSequenceId += 1;
 
     [app.delegate application:app didReceiveRemoteNotification:@{@"id": identifier,
-                                                                 @"when":[NSNumber numberWithDouble:[[NSDate date] timeIntervalSince1970]]}
+                                                                 @"when":[NSNumber numberWithDouble:[[NSDate date] timeIntervalSince1970] - [self ramp]]}
        fetchCompletionHandler:^(UIBackgroundFetchResult result) {
            [BRHLogger add:@"fetchCompletionHandler: %lu", (unsigned long)result];
        }];

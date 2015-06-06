@@ -242,25 +242,42 @@ static void* kKVOContext = &kKVOContext;
     [self.driver stopEmitting];
     [self.runData stop];
 
-    NSURL *runDataArchive = [self.recordingInfo.folderURL URLByAppendingPathComponent:@"runData.archive"];
-    NSData *archiveData = [NSKeyedArchiver archivedDataWithRootObject:self.runData];
-    NSLog(@"archiveData size: %lu", (unsigned long)archiveData.length);
+#if 0
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Save the run?" message:@""
+                                                            preferredStyle:UIAlertControllerStyleActionSheet];
 
-    NSError *error;
-    if (![archiveData writeToURL:runDataArchive options:0 error:&error]) {
-        NSLog(@"failed to write archive: %@", error.description);
-    }
+    [alert addAction:[UIAlertAction actionWithTitle:@"Save" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+#endif
+        
+        NSURL *runDataArchive = [self.recordingInfo.folderURL URLByAppendingPathComponent:@"runData.archive"];
+        NSData *archiveData = [NSKeyedArchiver archivedDataWithRootObject:self.runData];
+        NSLog(@"archiveData size: %lu", (unsigned long)archiveData.length);
+        
+        NSError *error;
+        if (![archiveData writeToURL:runDataArchive options:0 error:&error]) {
+            NSLog(@"failed to write archive: %@", error.description);
+        }
+        
+        [self.recordingInfo updateSize];
+        [self saveContext];
 
-    [self.recordingInfo updateSize];
-    [self saveContext];
+        self.recordingInfo.recording = NO;
+        [self selectRecording:self.recordingInfo];
+        
+        if (self.mainViewController.dropboxUploader) {
+            self.mainViewController.dropboxUploader.uploadingFile = self.recordingInfo;
+            self.recordingInfo = nil;
+            [self.mainViewController setRunData:self.runData];
+        }
+#if 0
+    }]];
 
-    self.recordingInfo.recording = NO;
-    [self selectRecording:self.recordingInfo];
-    
-    if (self.mainViewController.dropboxUploader) {
-        self.mainViewController.dropboxUploader.uploadingFile = self.recordingInfo;
+    [alert addAction:[UIAlertAction actionWithTitle:@"Discard" style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action) {
         self.recordingInfo = nil;
-    }
+    }]];
+
+    [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:alert animated:YES completion:nil];
+#endif
 }
 
 - (void)selectRecording:(BRHRecordingInfo *)recordingInfo
