@@ -35,4 +35,7 @@ Settings text fields enter the laptop's host name (eg *foobar.local*) and the po
 green start arrow should establish connectivity between NHTest and the server if everything is correct.
 
 ![driver](https://raw.githubusercontent.com/bradhowes/NotificationHubTest/master/Images/driver.png)
+
+Of course you can run the remote service anywhere, including on [Cloud9](http://c9.io/):
+
 ![remote](https://raw.githubusercontent.com/bradhowes/NotificationHubTest/master/Images/remote.png)
