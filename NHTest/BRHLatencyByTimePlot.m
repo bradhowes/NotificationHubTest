@@ -14,23 +14,25 @@ static double const kPlotSymbolSize = 8.0;
 
 @interface BRHLatencyByTimePlot () <CPTPlotDataSource, CPTPlotSpaceDelegate>
 
-@property (strong, nonatomic) NSArray *dataSource;
+@property (strong, nonatomic) BRHRunData *dataSource;
 @property (strong, nonatomic) CPTPlotSpaceAnnotation *annotation;
 @property (assign, nonatomic) NSUInteger annotationIndex;
 
+- (void)updateTitle;
 - (void)makePlot;
-- (void)handleTap:(UITapGestureRecognizer *)recognizer;
-- (void)update:(NSNotification *)notification;
+- (NSUInteger)calculatePlotWidth;
+- (NSTimeInterval)xValueFor:(BRHLatencySample *)sample;
+- (NSUInteger)findPointFor:(NSTimeInterval )when;
+- (CPTPlotRange *)findMinMaxInRange:(CPTPlotRange *)range;
 - (void)updateBounds;
-- (void)updateTitle:(NSString *)title emitInterval:(NSInteger)emitInterval;
-- (CPTPlotRange *)getYRangeInViewRange;
-
+- (void)update:(NSNotification *)notification;
+- (void)handleTap:(UITapGestureRecognizer *)recognizer;
 
 @end
 
 @implementation BRHLatencyByTimePlot
 
-- (void)useDataSource:(NSArray *)dataSource title:(NSString *)title emitInterval:(NSNumber *)emitInterval
+- (void)useDataSource:(BRHRunData *)dataSource
 {
     if (self.annotation != nil) {
         [self.hostedGraph.plotAreaFrame.plotArea removeAnnotation:self.annotation];
@@ -46,23 +48,22 @@ static double const kPlotSymbolSize = 8.0;
         [self redraw];
     }
 
-    [self updateTitle:title emitInterval:emitInterval.integerValue];
+    [self updateTitle];
 
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(update:) name:BRHRunDataNewDataNotification object:nil];
 }
 
 - (void)dealloc
 {
-    BRHUserSettings *settings = [BRHUserSettings userSettings];
-    [settings removeObserver:self forKeyPath:@"emitIntervalSetting"];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-- (void)updateTitle:(NSString *)title emitInterval:(NSInteger)emitInterval
+- (void)updateTitle
 {
     CPTXYGraph *graph = (CPTXYGraph *)self.hostedGraph;
     CPTXYAxisSet *axisSet = (CPTXYAxisSet *)graph.axisSet;
     CPTXYAxis *x = axisSet.xAxis;
-    x.title = [NSString stringWithFormat:@"%@ - %lds Intervals", title, (long)emitInterval];
+    x.title = [NSString stringWithFormat:@"%@ - %lds Intervals", self.dataSource.name, (long)self.dataSource.emitInterval.integerValue];
 }
 
 - (void)makePlot
@@ -120,6 +121,7 @@ static double const kPlotSymbolSize = 8.0;
     //
     x.titleTextStyle = titleTextStyle;
     x.titleOffset = 18.0;
+    x.preferredNumberOfMajorTicks = 10;
 
     x.axisLineStyle = nil;
     x.axisConstraints = [CPTConstraints constraintWithLowerOffset:0.0];     // Keep the X axis from moving up/down when scrolling
@@ -127,10 +129,10 @@ static double const kPlotSymbolSize = 8.0;
     x.labelingPolicy = CPTAxisLabelingPolicyAutomatic;
     x.labelTextStyle = labelTextStyle;
     x.labelOffset = -4.0;
-    NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
-    [formatter setMaximumFractionDigits:2];
-    x.labelFormatter = formatter;
 
+    BRHTimeFormatter *formatter = [BRHTimeFormatter new];
+    x.labelFormatter = formatter;
+    
     x.tickDirection = CPTSignNegative;
     x.majorTickLineStyle = tickLineStyle;
     x.majorTickLength = 5.0;
@@ -248,25 +250,8 @@ static double const kPlotSymbolSize = 8.0;
 
     recognizer.numberOfTouchesRequired = 1;
     recognizer.numberOfTapsRequired = 2;
+
     [self addGestureRecognizer:recognizer];
-
-#if 0
-    int counter = 0;
-    NSMutableArray *ds = (NSMutableArray *)self.dataSource;
-    for (int i = 0; i < 30; ++i) {
-        for (int j = 0; j < 55; ++j) {
-            BRHLatencyValue *stat = [BRHLatencyValue new];
-            stat.identifier = [NSNumber numberWithInt:counter++];
-            stat.when = [NSNumber numberWithDouble:counter];
-            stat.value = [NSNumber numberWithDouble:(sin(j/55.0*3.14159) + 1.0) * i * 0.1];
-            stat.average = [NSNumber numberWithDouble:2.5];
-            stat.median = [NSNumber numberWithDouble:1.4];
-            [ds addObject:stat];
-        }
-    }
-
-//    [self updateBounds];
-#endif
 }
 
 - (void)layoutSubviews
@@ -275,23 +260,18 @@ static double const kPlotSymbolSize = 8.0;
     [self updateBounds];
 }
 
-- (int)calculatePlotWidth
-{
-    float w = self.hostedGraph.frame.size.width;
-    return floor(w / (kPlotSymbolSize * 1.5));
-}
-
-- (void)handleTap:(UITapGestureRecognizer *)sender
-{
-    self.hostedGraph.legend.hidden = ! self.hostedGraph.legend.hidden;
-}
-
 - (void)redraw
 {
     [self.hostedGraph.allPlots enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL* stop) {
         [obj setDataNeedsReloading];
     }];
     [self updateBounds];
+}
+
+- (NSUInteger)calculatePlotWidth
+{
+    float w = self.hostedGraph.frame.size.width;
+    return floor(w / (kPlotSymbolSize * 1.5));
 }
 
 - (void)renderPDF:(CGContextRef)pdfContext
@@ -314,41 +294,93 @@ static double const kPlotSymbolSize = 8.0;
     plotSpace.yRange = savedYRange;
 }
 
+- (NSTimeInterval)xValueFor:(BRHLatencySample *)sample
+{
+    return [sample.emissionTime timeIntervalSinceDate:_dataSource.startTime];
+}
+
+- (NSUInteger)findPointFor:(NSTimeInterval )when
+{
+    BRHLatencySample *tmp = [BRHLatencySample new];
+    tmp.emissionTime = [_dataSource.startTime dateByAddingTimeInterval:when];
+    NSRange range = NSMakeRange(0, _dataSource.samples.count);
+    NSUInteger index = [_dataSource.samples indexOfObject:tmp inSortedRange:range options:NSBinarySearchingInsertionIndex usingComparator:^NSComparisonResult(id obj1, id obj2) {
+        BRHLatencySample *sample1 = obj1;
+        BRHLatencySample *sample2 = obj2;
+        return [sample1.emissionTime compare:sample2.emissionTime];
+    }];
+    
+    return index;
+}
+
+- (CPTPlotRange *)findMinMaxInRange:(CPTPlotRange *)range
+{
+    if (_dataSource.samples.count == 0) {
+        return nil;
+    }
+
+    NSTimeInterval minLatency = 1e9;
+    NSTimeInterval maxLatency = 0.0;
+
+    NSUInteger x0 = [self findPointFor:range.locationDouble];
+    NSUInteger x1 = [self findPointFor:range.endDouble];
+
+    if (x1 - x0 < 2) {
+        return nil;
+    }
+
+    while (x0 < x1) {
+        NSTimeInterval latency = ((BRHLatencySample *)_dataSource.samples[x0++]).latency.doubleValue;
+        if (latency < minLatency) minLatency = latency;
+        if (latency > maxLatency) maxLatency = latency;
+    }
+    
+    minLatency = ceil(10.0 * (minLatency - 0.5)) / 10.0;
+    maxLatency = floor(10.0 * (maxLatency + 0.5)) / 10.0;
+
+    return [CPTPlotRange plotRangeWithLocation:CPTDecimalFromDouble(minLatency) length:CPTDecimalFromDouble(maxLatency - minLatency)];
+}
+
 - (void)updateBounds
 {
-    int visiblePoints = [self calculatePlotWidth];
+    NSUInteger visiblePoints = [self calculatePlotWidth];
+    NSTimeInterval emitInterval = _dataSource.emitInterval.integerValue;
 
-    NSArray *plotData = self.dataSource;
-    NSInteger xMin = 0;
-    NSInteger xMax = 0;
-    CPTPlotRange *yRange = [self getYRangeInViewRange];
+    NSArray *plotData = _dataSource.samples;
+    NSTimeInterval xMin = 0.0;
+    NSTimeInterval xMax = (visiblePoints - 1) * emitInterval;
 
-    if (plotData.count == 0) {
-        xMax = visiblePoints - 1;
-    }
-    else {
+    if (plotData.count) {
         BRHLatencySample *tmp = [plotData lastObject];
-        xMax = tmp.identifier.integerValue;
-        if (xMax < visiblePoints) xMax = visiblePoints - 1;
-        xMin = xMax - visiblePoints + 1;
-        if (xMin < 0) xMin = 0;
+        NSTimeInterval xPos = [self xValueFor:tmp];
+        if (xPos > xMax) {
+            xMin = xPos - xMax;
+            xMax = xPos;
+        }
     }
 
-    NSDecimal xMin1 = CPTDecimalFromDouble(0.0 - 0.5);
-    NSDecimal xMax1 = CPTDecimalFromDouble(xMax + 1.0);
+    NSDecimal xMin1 = CPTDecimalFromDouble(0.0 - emitInterval / 2.0 );
+    NSDecimal xMax1 = CPTDecimalFromDouble(xMax + emitInterval);
 
     CPTXYGraph *graph = (CPTXYGraph *)self.hostedGraph;
     CPTXYPlotSpace *plotSpace = (CPTXYPlotSpace *)graph.defaultPlotSpace;
 
     plotSpace.globalXRange = [CPTPlotRange plotRangeWithLocation:xMin1 length:xMax1];
-    
-    if (xMax < visiblePoints || xMax < plotSpace.xRange.endDouble + 2) {
-        plotSpace.xRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromDouble(xMin - 0.5) length:CPTDecimalFromDouble(visiblePoints)];
+
+    if (xMin == 0.0) {
+        plotSpace.xRange = [CPTPlotRange plotRangeWithLocation:xMin1
+                                                        length:CPTDecimalFromDouble(xMax - xMin + emitInterval)];
+        
     }
-    else {
-        plotSpace.xRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromInteger(xMin) length:CPTDecimalFromInteger(xMax-xMin + 1)];
+    else if (xMax - plotSpace.xRange.endDouble < 2 * emitInterval) {
+        plotSpace.xRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromDouble(xMin)
+                                                        length:CPTDecimalFromDouble(xMax - xMin + emitInterval)];
     }
 
+    CPTPlotRange *yRange = [self findMinMaxInRange:plotSpace.xRange];
+    if (! yRange) {
+        yRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromDouble(0.0) length:CPTDecimalFromDouble(1.0)];
+    }
     plotSpace.globalYRange = yRange;
     plotSpace.yRange = yRange;
 
@@ -373,10 +405,10 @@ static double const kPlotSymbolSize = 8.0;
 
     // Add a new value to the plots, causing them to fetch a new value from the data source
     //
-    NSArray *plotData = self.dataSource;
-    NSUInteger numLatencies = plotData.count;
+    NSNumber *newSampleIndex = notification.userInfo[@"newSampleIndex"];
+    NSNumber *newSampleCount = notification.userInfo[@"newSampleCount"];
     for (CPTPlot* plot in [theGraph allPlots]) {
-        [plot insertDataAtIndex:numLatencies - 1 numberOfRecords:1];
+        [plot insertDataAtIndex:newSampleIndex.integerValue numberOfRecords:newSampleCount.integerValue];
     }
 
     [self updateBounds];
@@ -386,28 +418,28 @@ static double const kPlotSymbolSize = 8.0;
 
 - (NSUInteger)numberOfRecordsForPlot:(CPTPlot *)plot
 {
-    return self.dataSource.count;
+    return self.dataSource.samples.count;
 }
 
 -(NSNumber *)numberForPlot:(CPTPlot *)plot field:(NSUInteger)fieldEnum recordIndex:(NSUInteger)index
 {
     NSNumber *num = [NSDecimalNumber zero];
     NSString *key = nil;
+    BRHLatencySample *sample;
     switch (fieldEnum) {
         case CPTScatterPlotFieldX:
-            key = @"identifier";
+            sample = _dataSource.samples[index];
+            num = [NSNumber numberWithDouble:[self xValueFor:sample]];
             break;
 
         case CPTScatterPlotFieldY:
+            sample = _dataSource.samples[index];
             key = (NSString *)plot.identifier;
+            num = [sample valueForKey:key];
             break;
-
+            
         default:
             break;
-    }
-        
-    if (key != nil && index < self.dataSource.count) {
-        num = [[self.dataSource objectAtIndex:index] valueForKey:key];
     }
 
     return num;
@@ -416,53 +448,6 @@ static double const kPlotSymbolSize = 8.0;
 #pragma mark -
 #pragma mark Plot Space Delegate Methods
 
-- (CPTPlotRange *)getYRangeInViewRange
-{
-    double dmaxy = 0.0;
-    double dminy = 0.0;
-    NSArray *latencies = self.dataSource;
-
-    if (latencies.count > 0) {
-        dminy = 1e9;
-        CPTXYGraph *theGraph = (CPTXYGraph *)self.hostedGraph;
-        CPTXYPlotSpace *plotSpace = (CPTXYPlotSpace *)theGraph.defaultPlotSpace;
-
-        NSUInteger xMin = MAX(0, floor(plotSpace.xRange.locationDouble));
-        NSUInteger xMax = MIN(latencies.count - 1, plotSpace.xRange.endDouble);
-        while (xMin <= xMax) {
-            BRHLatencySample *sample = [latencies objectAtIndex:xMin++];
-            if (sample.latency.doubleValue > dmaxy) {
-                dmaxy = sample.latency.doubleValue;
-            }
-
-            if (sample.latency.doubleValue < dminy) {
-                dminy = sample.latency.doubleValue;
-            }
-        }
-    }
-
-    dminy = ceil(10.0 * (dminy - 0.5)) / 10.0;
-    dmaxy = floor(10.0 * (dmaxy + 0.5)) / 10.0;
-
-    return [CPTPlotRange plotRangeWithLocation:CPTDecimalFromDouble(dminy) length:CPTDecimalFromDouble(dmaxy - dminy)];
-}
-
-- (void)updateYScale
-{
-    CPTPlotRange *yMinMax = [self getYRangeInViewRange];
-
-    CPTXYGraph *theGraph = (CPTXYGraph *)self.hostedGraph;
-    CPTXYPlotSpace *plotSpace = (CPTXYPlotSpace *)theGraph.defaultPlotSpace;
-    CPTXYAxisSet *axisSet = (CPTXYAxisSet *)theGraph.axisSet;
-    CPTXYAxis *x = axisSet.xAxis;
-    CPTXYAxis *y = axisSet.yAxis;
-
-    plotSpace.globalYRange = yMinMax;
-    plotSpace.yRange = yMinMax;
-    y.visibleAxisRange = yMinMax;
-    y.visibleRange = yMinMax;
-    x.gridLinesRange = yMinMax;
-}
 
 - (void)plotSpace:(CPTPlotSpace *)space didChangePlotRangeForCoordinate:(CPTCoordinate)coordinate
 {
@@ -470,28 +455,40 @@ static double const kPlotSymbolSize = 8.0;
         
         // Clear any annotation that is no longer visible
         //
+        CPTPlotRange *xRange = ((CPTXYPlotSpace *)space).xRange;
         if (self.annotation != nil) {
-            CPTPlotRange *range = ((CPTXYPlotSpace *)space).xRange;
-            BRHLatencySample *sample = [self.dataSource objectAtIndex:self.annotationIndex];
-            if (! [range containsNumber:sample.identifier]) {
+            BRHLatencySample *sample = _dataSource.samples[self.annotationIndex];
+            if (! [xRange containsNumber:sample.identifier]) {
                 CPTXYGraph *graph = (CPTXYGraph *)self.hostedGraph;
                 [graph.plotAreaFrame.plotArea removeAnnotation:self.annotation];
                 self.annotation = nil;
             }
         }
 
-        [self updateYScale];
+        CPTPlotRange *yRange = [self findMinMaxInRange:xRange];
+        if (yRange) {
+            CPTXYGraph *theGraph = (CPTXYGraph *)self.hostedGraph;
+            CPTXYPlotSpace *plotSpace = (CPTXYPlotSpace *)theGraph.defaultPlotSpace;
+            CPTXYAxisSet *axisSet = (CPTXYAxisSet *)theGraph.axisSet;
+            CPTXYAxis *x = axisSet.xAxis;
+            CPTXYAxis *y = axisSet.yAxis;
+
+            plotSpace.globalYRange = yRange;
+            plotSpace.yRange = yRange;
+            y.visibleAxisRange = yRange;
+            y.visibleRange = yRange;
+            x.gridLinesRange = yRange;
+        }
     }
 }
 
-#pragma mark -
-#pragma mark Plot Delegate Methods
+#pragma mark - Plot Delegate Methods
 
 -(void)scatterPlot:(CPTScatterPlot *)plot plotSymbolWasSelectedAtRecordIndex:(NSUInteger)index
 {
-    BRHLatencySample *sample = [self.dataSource objectAtIndex: index];
+    BRHLatencySample *sample = self.dataSource.samples[index];
     CPTXYGraph *graph = (CPTXYGraph *)self.hostedGraph;
-    
+
     if (self.annotation) {
         [graph.plotAreaFrame.plotArea removeAnnotation:self.annotation];
         self.annotation = nil;
@@ -530,6 +527,13 @@ static double const kPlotSymbolSize = 8.0;
 - (void)legend:(CPTLegend *)legend legendEntryForPlot:(CPTPlot *)plot wasSelectedAtIndex:(NSUInteger)idx
 {
     plot.hidden = ! plot.hidden;
+}
+
+#pragma mark - Tab Gesture Methods
+
+- (void)handleTap:(UITapGestureRecognizer *)sender
+{
+    self.hostedGraph.legend.hidden = ! self.hostedGraph.legend.hidden;
 }
 
 @end

@@ -14,6 +14,7 @@
 #import "BRHLogger.h"
 #import "BRHLoopNotificationDriver.h"
 #import "BRHMainViewController.h"
+#import "BRHLatencySample.h"
 #import "BRHNotificationDriver.h"
 #import "BRHRecordingInfo.h"
 #import "BRHRecordingsViewController.h"
@@ -201,7 +202,7 @@ static void* kKVOContext = &kKVOContext;
 
 #pragma mark - Run Management
 
-- (BRHRunData *)startRun
+- (void)startRun
 {
     self.running = YES;
     self.recordingInfo = [self makeRecordingInfo];
@@ -227,28 +228,23 @@ static void* kKVOContext = &kKVOContext;
     self.runData = [[BRHRunData alloc] initWithName:self.recordingInfo.name];
     [self.runData start];
 
-    if (! [self.driver startEmitting:[NSNumber numberWithInteger:settings.emitInterval]]) {
-        [BRHEventLog add:@"failed to start", nil];
-        self.recordingInfo = nil;
-        [self.mainViewController startStop:nil];
-    }
-
-    return self.runData;
+    [self.driver startEmitting:[NSNumber numberWithInteger:settings.emitInterval] completionBlock:^(BOOL isRunning) {
+        if (! isRunning) {
+            [BRHEventLog add:@"failed to start", nil];
+            self.recordingInfo = nil;
+            [self.mainViewController startStop:nil];
+        }
+        else {
+            [self.mainViewController setRunData:self.runData];
+        }
+    }];
 }
 
 - (void)stopRun
 {
     self.running = NO;
-    [self.driver stopEmitting];
     [self.runData stop];
-
-#if 0
-    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Save the run?" message:@""
-                                                            preferredStyle:UIAlertControllerStyleActionSheet];
-
-    [alert addAction:[UIAlertAction actionWithTitle:@"Save" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-#endif
-        
+    [self.driver stopEmitting:^{
         NSURL *runDataArchive = [self.recordingInfo.folderURL URLByAppendingPathComponent:@"runData.archive"];
         NSData *archiveData = [NSKeyedArchiver archivedDataWithRootObject:self.runData];
         NSLog(@"archiveData size: %lu", (unsigned long)archiveData.length);
@@ -260,24 +256,15 @@ static void* kKVOContext = &kKVOContext;
         
         [self.recordingInfo updateSize];
         [self saveContext];
-
+        
         self.recordingInfo.recording = NO;
         [self selectRecording:self.recordingInfo];
         
         if (self.mainViewController.dropboxUploader) {
             self.mainViewController.dropboxUploader.uploadingFile = self.recordingInfo;
             self.recordingInfo = nil;
-            [self.mainViewController setRunData:self.runData];
         }
-#if 0
-    }]];
-
-    [alert addAction:[UIAlertAction actionWithTitle:@"Discard" style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action) {
-        self.recordingInfo = nil;
-    }]];
-
-    [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:alert animated:YES completion:nil];
-#endif
+    }];
 }
 
 - (void)selectRecording:(BRHRecordingInfo *)recordingInfo
@@ -392,8 +379,18 @@ static void* kKVOContext = &kKVOContext;
 
 - (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error
 {
+    [BRHEventLog add:@"failedPushRegistration", nil];
     [BRHLogger add:@"failed to register notifications: %@", [error description]];
-    // !!!: post alert here
+
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Push Notifications"
+                                                                   message:@"Failed to register for push notifications."
+                                                            preferredStyle:UIAlertControllerStyleAlert];
+
+    [alert addAction:[UIAlertAction actionWithTitle:@"OK"
+                                              style:UIAlertActionStyleDefault
+                                            handler:^(UIAlertAction* action) {}]];
+    
+    [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:alert animated:YES completion:nil];
 }
 
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
@@ -404,9 +401,12 @@ static void* kKVOContext = &kKVOContext;
 
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
 {
+    [BRHLogger add:@"didReceiveRemoteNotification"];
     if (self.running) {
         BRHLatencySample *sample = [self.driver receivedNotification:userInfo at:[NSDate date] fetchCompletionHandler:completionHandler];
-        [self.runData recordLatency:sample];
+        if (sample) {
+            [self.runData recordLatency:sample];
+        }
     }
     else {
         completionHandler(UIBackgroundFetchResultNoData);
@@ -446,12 +446,12 @@ static void* kKVOContext = &kKVOContext;
 - (void)application:(UIApplication *)application performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
 {
     [BRHLogger add:@"performFetchWithCompletionHandler"];
-    [self.driver updateWithCompletionHandler:completionHandler];
+    [self.driver performFetchWithCompletionHandler:completionHandler];
 }
 
 - (void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)())completionHandler
 {
-    [BRHLogger add:@"handleEventsForBackgroundURLSession"];
+    [BRHLogger add:@"handleEventsForBackgroundURLSession - %@", identifier];
     [self.driver handleEventsForBackgroundURLSession:identifier completionHandler:completionHandler];
 }
 

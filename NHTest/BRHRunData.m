@@ -5,6 +5,7 @@
 
 #import <math.h>
 
+#import "BRHEventLog.h"
 #import "BRHHistogram.h"
 #import "BRHLatencySample.h"
 #import "BRHRunData.h"
@@ -29,13 +30,14 @@ NSString *BRHRunDataNewDataNotification = @"BRHRunDataNewDataNotification";
     if (self) {
         BRHUserSettings *settings = [BRHUserSettings userSettings];
         _name = name;
+        _startTime = nil;
         _bins = [BRHHistogram histogramWithLastBin:settings.maxHistogramBin];
+        _missing = [NSMutableArray arrayWithCapacity:10];
         _samples = [NSMutableArray arrayWithCapacity:1000];
         _orderedSamples = [NSMutableArray arrayWithCapacity:1000];
         _emitInterval = [NSNumber numberWithUnsignedInteger:settings.emitInterval];
         _running = NO;
 
-        [settings addObserver:self forKeyPath:@"emitInterval" options:NSKeyValueObservingOptionNew context:kKVOContext];
         [settings addObserver:self forKeyPath:@"maxHistogramBinSetting" options:NSKeyValueObservingOptionNew context:kKVOContext];
     }
 
@@ -49,10 +51,11 @@ NSString *BRHRunDataNewDataNotification = @"BRHRunDataNewDataNotification";
     }
 
     self.name = [decoder decodeObjectForKey:@"name"];
+    self.startTime = [decoder decodeObjectForKey:@"startTime"];
     self.bins = [decoder decodeObjectForKey:@"bins"];
+    self.missing = [decoder decodeObjectForKey:@"missing"];
     self.samples = [decoder decodeObjectForKey:@"samples"];
     self.emitInterval = [decoder decodeObjectForKey:@"emitInterval"];
-
     self.orderedSamples = nil;
     self.running = NO;
 
@@ -61,7 +64,9 @@ NSString *BRHRunDataNewDataNotification = @"BRHRunDataNewDataNotification";
 
 - (void)encodeWithCoder:(NSCoder *)encoder {
     [encoder encodeObject:self.name forKey:@"name"];
+    [encoder encodeObject:self.startTime forKey:@"startTime"];
     [encoder encodeObject:self.bins forKey:@"bins"];
+    [encoder encodeObject:self.samples forKey:@"missing"];
     [encoder encodeObject:self.samples forKey:@"samples"];
     [encoder encodeObject:self.emitInterval forKey:@"emitInterval"];
 }
@@ -85,12 +90,14 @@ NSString *BRHRunDataNewDataNotification = @"BRHRunDataNewDataNotification";
 - (void)start
 {
     self.running = YES;
+    self.startTime = [NSDate date];
 
     BRHUserSettings *settings = [BRHUserSettings userSettings];
     self.emitInterval = [NSNumber numberWithUnsignedInteger:settings.emitInterval];
     self.bins.lastBin = settings.maxHistogramBin;
 
     [self.bins clear];
+    [self.missing removeAllObjects];
     [self.samples removeAllObjects];
     [self.orderedSamples removeAllObjects];
 }
@@ -115,23 +122,41 @@ NSString *BRHRunDataNewDataNotification = @"BRHRunDataNewDataNotification";
     return self.orderedSamples[index];
 }
 
-- (BRHLatencySample *)sampleAtIndex:(NSUInteger )index
-{
-    return self.samples[index];
-}
-
 - (void)recordLatency:(BRHLatencySample *)sample
 {
-    // Calculate the average value using the previous average and the current value
-    //
-    NSUInteger numLatencies = self.orderedSamples.count;
-    BRHLatencySample *prev = numLatencies ? [self.samples lastObject] : nil;
+    NSUInteger numLatencies = self.samples.count;
+    NSUInteger missingCount = sample.identifier.integerValue - numLatencies;
+    BRHLatencySample *prev = [self.samples lastObject];
+    
+    if (numLatencies == 0) {
+        missingCount = 0;
+    }
+    else if (missingCount > 0) {
+        NSUInteger missingIdentifier = numLatencies;
+        NSDate *emissionTime = prev.emissionTime;
+
+        // Fill in missing notifications with bogus data
+        //
+        while (missingIdentifier < sample.identifier.integerValue) {
+            BRHLatencySample *missing = [BRHLatencySample new];
+            missing.identifier = [NSNumber numberWithInteger:missingIdentifier];
+            [BRHEventLog add:@"missingNotification", missing.identifier, nil];
+            missing.latency = [NSNumber numberWithDouble:0.0];
+            emissionTime = [emissionTime dateByAddingTimeInterval:self.emitInterval.integerValue];
+            missing.emissionTime = emissionTime;
+            missing.arrivalTime = nil;
+            [self.missing addObject:missing];
+            ++missingIdentifier;
+        }
+    }
+
+    double prevAverage = prev ? prev.average.doubleValue : 0.0;
     double latency = sample.latency.doubleValue;
-    sample.average = [NSNumber numberWithDouble:(latency + numLatencies * (prev ? prev.average.doubleValue : 0.0)) / (numLatencies + 1)];
+    sample.average = [NSNumber numberWithDouble:(latency + numLatencies * prevAverage) / (numLatencies + 1)];
 
     // Locate the proper position to insert the new value to keep the ordered array sorted
     //
-    NSRange range = NSMakeRange(0, numLatencies);
+    NSRange range = NSMakeRange(0, self.orderedSamples.count);
     NSUInteger index = [self.orderedSamples indexOfObject:sample inSortedRange:range options:NSBinarySearchingInsertionIndex usingComparator:^NSComparisonResult(id obj1, id obj2) {
         return [obj1 compare:obj2];
     }];
@@ -149,16 +174,20 @@ NSString *BRHRunDataNewDataNotification = @"BRHRunDataNewDataNotification";
     index = numLatencies / 2;
     double median = [self orderedSampleAtIndex:index].latency.doubleValue;
     if (numLatencies % 2 == 0) {
-        median = (median + [self orderedSampleAtIndex:index-1].latency.doubleValue) / 2.0;
+        median = (median + [self orderedSampleAtIndex:index - 1].latency.doubleValue) / 2.0;
     }
 
     sample.median = [NSNumber numberWithDouble:median];
-    
+
     // Alert interested parties that there is new data
     //
     [[NSNotificationCenter defaultCenter] postNotificationName:BRHRunDataNewDataNotification
                                                         object:self
-                                                      userInfo:@{@"value": sample, @"bin":[NSNumber numberWithUnsignedInteger:bin]}];
+                                                      userInfo:@{@"newSampleIndex": @(numLatencies - 1),
+                                                                 @"newSampleCount": @(1),
+                                                                 @"missingIndex": @(self.missing.count- 1),
+                                                                 @"missingCount": @(missingCount),
+                                                                 @"bin":@(bin)}];
 }
 
 @end

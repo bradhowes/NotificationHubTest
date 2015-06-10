@@ -158,14 +158,14 @@ static void* const kKVOContext = (void *)&kKVOContext;
 {
     [self showButton:self.stopButton];
     BRHAppDelegate *delegate = [UIApplication sharedApplication].delegate;
-    [self setRunData:[delegate startRun]];
+    [delegate startRun];
 }
 
 - (void)stop
 {
+    [self showButton:self.playButton];
     BRHAppDelegate *delegate = [UIApplication sharedApplication].delegate;
     [delegate stopRun];
-    [self showButton:self.playButton];
 }
 
 - (IBAction)startStop:(id)sender
@@ -181,8 +181,8 @@ static void* const kKVOContext = (void *)&kKVOContext;
 - (void)setRunData:(BRHRunData *)runData
 {
     if (runData) {
-        [self.latencyPlot useDataSource:runData.samples title:runData.name emitInterval:runData.emitInterval];
-        [self.countBars initialize:runData.bins];
+        [self.latencyPlot useDataSource:runData];
+        [self.countBars useDataSource:runData];
     }
 }
 

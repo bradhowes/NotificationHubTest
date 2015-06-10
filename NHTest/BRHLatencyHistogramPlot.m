@@ -26,7 +26,7 @@ static void* kKVOContext = &kKVOContext;
 
 @implementation BRHLatencyHistogramPlot
 
-- (void)initialize:(BRHHistogram *)dataSource
+- (void)useDataSource:(BRHRunData *)runData
 {
     if (self.annotation != nil) {
         [self.hostedGraph.plotAreaFrame.plotArea removeAnnotation:self.annotation];
@@ -34,10 +34,10 @@ static void* kKVOContext = &kKVOContext;
     }
 
     if (self.dataSource) {
-        [self.dataSource removeObserver:self forKeyPath:@"lastBin"];
+        [self.dataSource removeObserver:self forKeyPath:BRHHistogramLastBinKey];
     }
 
-    self.dataSource = dataSource;
+    self.dataSource = runData.bins;
 
     if (! self.hostedGraph) {
         [self makePlot];
@@ -46,7 +46,7 @@ static void* kKVOContext = &kKVOContext;
         [self redraw];
     }
 
-    [self.dataSource addObserver:self forKeyPath:@"lastBin" options:NSKeyValueObservingOptionNew context:kKVOContext];
+    [self.dataSource addObserver:self forKeyPath:BRHHistogramLastBinKey options:NSKeyValueObservingOptionNew context:kKVOContext];
 
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(update:) name:BRHRunDataNewDataNotification object:nil];
 }
@@ -54,7 +54,7 @@ static void* kKVOContext = &kKVOContext;
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
     if (context == kKVOContext) {
-        if ([keyPath isEqualToString:@"lastBin"] && self.dataSource.maxCount.integerValue == 0) {
+        if ([keyPath isEqualToString:BRHHistogramLastBinKey] && self.dataSource.maxBinCount.unsignedIntegerValue == 0) {
             [self updateBounds];
         }
     }
@@ -229,7 +229,7 @@ static void* kKVOContext = &kKVOContext;
     CPTXYAxis *y = axisSet.xAxis;
     y.gridLinesRange = [CPTMutablePlotRange plotRangeWithLocation:CPTDecimalFromInteger(-1) length:CPTDecimalFromInteger(lastBin + 1)];
 
-    NSUInteger max = floor((MAX(self.dataSource.maxCount.integerValue, 5) + 4) / 5) * 5;
+    NSUInteger max = floor((MAX(self.dataSource.maxBinCount.unsignedIntegerValue, 5) + 4) / 5) * 5;
     plotSpace.yRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromInteger(0) length:CPTDecimalFromInteger(max)];
 }
 

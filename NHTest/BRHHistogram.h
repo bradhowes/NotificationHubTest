@@ -5,10 +5,13 @@
 
 #import <Foundation/Foundation.h>
 
+extern NSString *BRHHistogramLastBinKey;
+extern NSString *BRHHistogramMaxBinCountKey;
+
 @interface BRHHistogram : NSObject <NSCoding>
 
 @property (assign, nonatomic) NSUInteger lastBin;
-@property (readonly, nonatomic) NSNumber *maxCount;
+@property (readonly, nonatomic) NSNumber *maxBinCount;
 
 + (instancetype)histogramWithLastBin:(NSUInteger)lastBin;
 

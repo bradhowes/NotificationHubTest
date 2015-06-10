@@ -23,7 +23,6 @@ def emitNotification(registration):
     registration.timer.start()
 
 class Registration(object):
-
     def __init__(self, deviceToken, interval):
         self.deviceToken = base64.b64decode(deviceToken)
         self.sequenceId = 0
@@ -39,6 +38,7 @@ def hello():
 
 @app.route('/register', methods = ['POST'])
 def register():
+    startTime = unixTime()
     gLog.info('register')
     data = request.json
 
@@ -55,27 +55,21 @@ def register():
     registration = Registration(deviceToken, interval)
     app.registrations[deviceToken] = registration
 
-    return ('', 200, {'x-when': unixTime()})
+    return ('', 200, {'x-startTime': startTime, 'x-endTime': unixTime()})
 
-@app.route('/log/<deviceToken>/<sequenceId>', methods = ['GET'])
-def log(deviceToken, sequenceId):
+@app.route('/fetch/<deviceToken>/<sequenceId>', methods = ['GET'])
+def fetch(deviceToken, sequenceId):
+    startTime = unixTime()
     gLog.info('log', sequenceId)
+
     data = request.json
-
-    deviceToken = data['deviceToken']
-
     registration = app.registrations.get(deviceToken)
-    if registration:
-        registration.timer.cancel()
-        registration.timer.join()
-        del app.registrations[deviceToken]
-    registration = Registration(deviceToken, interval)
-    app.registrations[deviceToken] = registration
 
-    return ('', 200, {'x-when': unixTime()})
+    return ('', 200, {'x-startTime': startTime, 'x-endTime': unixTime()})
 
 @app.route('/unregister', methods = ['POST'])
 def unregister():
+    startTime = unixTime()
     gLog.info()
     data = request.json
     deviceToken = data['deviceToken']

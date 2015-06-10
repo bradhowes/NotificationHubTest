@@ -132,7 +132,7 @@ static NSString *kRecordingInfoRecordingKey = @"recording";
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         dateFormatter = [[NSDateFormatter alloc] init];
-        [dateFormatter setDateFormat:@"yyyyMMDDHHMMSS"];
+        [dateFormatter setDateFormat:@"yyyy-MM-dd HH.mm.ss"];
     });
 
     return [dateFormatter stringFromDate:when];

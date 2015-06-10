@@ -126,19 +126,24 @@ extractIdentityAndTrust(CFDataRef inPKCS12Data, SecIdentityRef* outIdentity, Sec
 
 #pragma mark - BRHNotificationDriver Overrides
 
-- (BOOL)startEmitting:(NSNumber *)emitInterval
+- (void)startEmitting:(NSNumber *)emitInterval completionBlock:(BRHNotificationDriverStartCompletionBlock )completionBlock
 {
     [super startEmitting:emitInterval];
     [self.outstandingNotifications removeAllObjects];
-    if (! [self connect]) return NO;
+    if (! [self connect]) {
+        completionBlock(NO);
+        return;
+    }
+
     [self startEmitter];
-    return YES;
+    completionBlock(YES);
 }
 
-- (void)stopEmitting
+- (void)stopEmitting:(BRHNotificationDriverStopCompletionBlock )completionBlock
 {
     [super stopEmitting];
     [self stopEmitter];
+    completionBlock();
 }
 
 - (BRHLatencySample *)receivedNotification:(NSDictionary *)notification at:(NSDate *)when fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler

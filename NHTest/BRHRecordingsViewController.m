@@ -183,7 +183,7 @@
         self.deleteButton.title = @"Delete All";
     }
     else {
-        self.deleteButton.title = [NSString stringWithFormat:@"Delete (%d)", selectedRows.count];
+        self.deleteButton.title = [NSString stringWithFormat:@"Delete (%lu)", (unsigned long)selectedRows.count];
     }
 }
 

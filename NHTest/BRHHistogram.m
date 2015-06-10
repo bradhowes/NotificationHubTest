@@ -7,9 +7,9 @@
 #import "BRHLatencySample.h"
 
 @interface BRHHistogram ()
+
 @property (strong, nonatomic) NSMutableArray *bins;
-@property (assign, nonatomic) NSUInteger maxBin;
-@property (readwrite, strong, nonatomic) NSNumber *maxCount;
+@property (assign, readwrite, nonatomic) NSNumber *maxBinCount;
 
 - (void)makeBins:(NSUInteger)lastBin;
 
@@ -36,11 +36,18 @@
     if (! self) {
         return nil;
     }
-    
+
     _bins = [decoder decodeObjectForKey:@"bins"];
     _lastBin = _bins.count - 1;
-    _maxBin = 0;
-    _maxCount = nil;
+
+    _maxBinCount = [NSNumber numberWithInteger:0];
+
+    for (NSUInteger binIndex = 0; binIndex < _bins.count; ++binIndex) {
+        NSNumber *bin = _bins[binIndex];
+        if (bin.unsignedIntegerValue > _maxBinCount.unsignedIntegerValue) {
+            _maxBinCount = bin;
+        }
+    }
 
     return self;
 }
@@ -53,15 +60,16 @@
 {
     _lastBin = lastBin;
     _bins = [NSMutableArray arrayWithCapacity:lastBin];
+
     NSUInteger counter = _lastBin + 1;
     while (counter-- > 0) {
         [_bins addObject:[NSNumber numberWithInt:0]];
     }
-    _maxBin = 0;
-    _maxCount = 0;
+
+    _maxBinCount = [NSNumber numberWithInteger:0];
 }
 
-static NSString *BRHHistogramLastBinKey = @"lastBin";
+NSString *BRHHistogramLastBinKey = @"BRHHistogramLastBinKey";
 
 - (void)setLastBin:(NSUInteger)lastBin
 {
@@ -70,6 +78,13 @@ static NSString *BRHHistogramLastBinKey = @"lastBin";
         [self makeBins:lastBin];
         [self didChangeValueForKey:BRHHistogramLastBinKey];
     }
+}
+
+- (void)setMaxBinCount:(NSNumber *)maxBinCount
+{
+    [self willChangeValueForKey:BRHHistogramMaxBinCountKey];
+    _maxBinCount = maxBinCount;
+    [self didChangeValueForKey:BRHHistogramMaxBinCountKey];
 }
 
 - (NSArray *)bins
@@ -87,18 +102,18 @@ static NSString *BRHHistogramLastBinKey = @"lastBin";
     return MAX(MIN((NSInteger)floor(value), _lastBin), 0);
 }
 
+NSString *BRHHistogramMaxBinCountKey = @"BRHHistogramMaxBinCountKey";
+
 - (NSUInteger)addValue:(double)value
 {
-    NSUInteger bin = [self binIndexFor:value];
-    [_bins replaceObjectAtIndex:bin withObject:[NSNumber numberWithInteger:[[_bins objectAtIndex:bin] integerValue] + 1]];
-    if (bin == _maxBin || [[_bins objectAtIndex:_maxBin] integerValue] != [[_bins objectAtIndex:bin] integerValue]) {
-        _maxBin = bin;
-        [self willChangeValueForKey:@"maxCount"];
-        _maxCount = [_bins objectAtIndex:bin];
-        [self didChangeValueForKey:@"maxCount"];
+    NSUInteger binIndex = [self binIndexFor:value];
+    NSNumber *bin = _bins[binIndex];
+    bin = [NSNumber numberWithInteger:bin.unsignedIntegerValue + 1];
+    _bins[binIndex] = bin;
+    if (_maxBinCount.unsignedIntegerValue < bin.unsignedIntegerValue) {
+        self.maxBinCount = bin;
     }
-
-    return bin;
+    return binIndex;
 }
 
 - (void)addValues:(NSArray *)array
@@ -106,29 +121,29 @@ static NSString *BRHHistogramLastBinKey = @"lastBin";
     [array enumerateObjectsUsingBlock:^(id obj, NSUInteger index, BOOL* stop)
     {
         BRHLatencySample *sample = obj;
-        [self addValue:[sample.latency doubleValue]];
+        [self addValue:sample.latency.doubleValue];
     }];
 }
 
 - (void)clear
 {
-    _maxCount = 0;
     for (NSUInteger index = 0; index < _bins.count; ++index) {
-        [_bins replaceObjectAtIndex:index withObject:[NSNumber numberWithInt:0]];
+        [_bins replaceObjectAtIndex:index withObject:[NSNumber numberWithInteger:0]];
     }
+
+    self.maxBinCount = _bins[0];
 }
 
 - (NSUInteger)max
 {
-    NSNumber *found = nil;
-    
+    NSNumber *found = _bins[0];
     for (NSNumber* number in _bins) {
-        if (found == nil || [found compare:number] == NSOrderedAscending) {
+        if ([found compare:number] == NSOrderedAscending) {
             found = number;
         }
     }
-    
-    return found ? [found unsignedIntegerValue] : 0;
+
+    return found ? found.unsignedIntegerValue : 0;
 }
 
 @end

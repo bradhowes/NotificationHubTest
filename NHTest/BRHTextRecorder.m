@@ -62,12 +62,15 @@
 {
     [self.log appendString:line];
     if (self.textView) {
-        CGFloat fromBottom = self.textView.contentSize.height - self.textView.contentOffset.y - 2 * self.textView.bounds.size.height;
-        [self.textView.textStorage appendAttributedString:[[NSAttributedString alloc] initWithString:line attributes:self.textView.typingAttributes]];
-        if (fromBottom < 0 || self.scrollToEnd) {
-            self.scrollToEnd = YES;
-            [self.textView scrollRangeToVisible:NSMakeRange(self.textView.textStorage.length, 0)];
-        }
+        dispatch_queue_t q = dispatch_get_main_queue();
+        dispatch_async(q, ^() {
+            CGFloat fromBottom = self.textView.contentSize.height - self.textView.contentOffset.y - 2 * self.textView.bounds.size.height;
+            [self.textView.textStorage appendAttributedString:[[NSAttributedString alloc] initWithString:line attributes:self.textView.typingAttributes]];
+            if (fromBottom < 0 || self.scrollToEnd) {
+                self.scrollToEnd = YES;
+                [self.textView scrollRangeToVisible:NSMakeRange(self.textView.textStorage.length, 0)];
+            }
+        });
     }
 
     [self flushToDisk];

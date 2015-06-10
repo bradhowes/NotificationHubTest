@@ -7,7 +7,7 @@
 
 #import "CorePlot-CocoaTouch.h"
 
-@class BRHHistogram;
+@class BRHRunData;
 
 /*!
  A Core Plot bar chart with vertical bars that represents the contents of a histogram of arrival latencies with 1-second bins.
@@ -19,7 +19,7 @@
  *
  * @param driver the experiment driver that contains the data to plot
  */
-- (void)initialize:(BRHHistogram *)dataSource;
+- (void)useDataSource:(BRHRunData *)runData;
 
 /*!
  * @brief Generate the plot as a PDF image

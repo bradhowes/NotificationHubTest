@@ -7,11 +7,11 @@
 
 #import "CorePlot-CocoaTouch.h"
 
-@class BRHNotificationDriver;
+@class BRHRunData;
 
 @interface BRHLatencyByTimePlot : CPTGraphHostingView
 
-- (void)useDataSource:(NSArray *)dataSource title:(NSString *)title emitInterval:(NSNumber *)emitInterval;
+- (void)useDataSource:(BRHRunData *)dataSource;
 
 - (void)renderPDF:(CGContextRef)pdfContext;
 

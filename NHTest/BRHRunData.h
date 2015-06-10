@@ -15,7 +15,12 @@ extern NSString *BRHRunDataNewDataNotification;
  */
 @interface BRHRunData : NSObject <NSCoding>
 
+@property (strong, nonatomic) NSDate *startTime;
+
 @property (strong, nonatomic) NSString *name;
+
+@property (strong, nonatomic) NSMutableArray *missing;
+
 /*!
  * @brief Array of BRHLatencyValue objects for received push notifications.
  */

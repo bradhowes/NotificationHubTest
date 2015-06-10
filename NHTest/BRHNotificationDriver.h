@@ -7,7 +7,8 @@
 
 @class BRHLatencySample;
 
-typedef void (^BRHNotificationDriverFetchCompletionBlock)(BOOL success, BOOL hasData);
+typedef void (^BRHNotificationDriverStartCompletionBlock)(BOOL isRunning);
+typedef void (^BRHNotificationDriverStopCompletionBlock)();
 
 /*!
  * @brief Base class for drivers that generate notifications for tests.
@@ -26,24 +27,28 @@ typedef void (^BRHNotificationDriverFetchCompletionBlock)(BOOL success, BOOL has
 
 @property (strong, nonatomic) NSNumber *lastIdentifier;
 
+- (void)startEmitting:(NSNumber *)emitInterval;
+
 /*!
  * @brief Start the driver and begin recording notification arrivals.
  */
-- (BOOL)startEmitting:(NSNumber *)emitInterval;
+- (void)startEmitting:(NSNumber *)emitInterval completionBlock:(BRHNotificationDriverStartCompletionBlock )completionBlock;
 
 /*!
  * @brief Stop the driver.
  */
 - (void)stopEmitting;
 
+- (void)stopEmitting:(BRHNotificationDriverStopCompletionBlock )completionBlock;
+
 - (BRHLatencySample *)receivedNotification:(NSDictionary *)userInfo at:(NSDate *)when
       fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler;
 
-- (void)calculateLatency:(BRHLatencySample *)sample;
+- (NSTimeInterval)calculateLatency:(BRHLatencySample *)sample;
 
 - (void)fetchUpdate:(NSDictionary *)notification fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler;
 
-- (void)updateWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler;
+- (void)performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler;
 
 - (void)handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)())completionHandler;
 

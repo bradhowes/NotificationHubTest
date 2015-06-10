@@ -21,18 +21,29 @@
     return self;
 }
 
-- (BOOL)startEmitting:(NSNumber *)emitInterval
+- (void)startEmitting:(NSNumber *)emitInterval
 {
     [BRHLogger add:@"driver starting"];
     [BRHEventLog add:@"driverStart", emitInterval, nil];
     self.emitInterval = emitInterval;
-    return YES;
+}
+
+- (void)startEmitting:(NSNumber *)emitInterval completionBlock:(BRHNotificationDriverStartCompletionBlock)completionBlock
+{
+    [self startEmitting:emitInterval];
+    completionBlock(YES);
 }
 
 - (void)stopEmitting
 {
     [BRHLogger add:@"driver stopping"];
     [BRHEventLog add:@"driverStop",nil];
+}
+
+- (void)stopEmitting:(BRHNotificationDriverStopCompletionBlock )completionBlock
+{
+    [self stopEmitting];
+    completionBlock(YES);
 }
 
 - (BRHLatencySample *)receivedNotification:(NSDictionary *)notification at:(NSDate *)when fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
@@ -52,7 +63,7 @@
     sample.emissionTime = [NSDate dateWithTimeIntervalSince1970:emissionTime.doubleValue];
     sample.arrivalTime = when;
 
-    [self calculateLatency:sample];
+    sample.latency = [NSNumber numberWithDouble:[self calculateLatency:sample]];
     [BRHLogger add:@"latency: %@", sample.latency];
     [BRHEventLog add:@"receivedNotification",sample.identifier, sample.emissionTime, sample.arrivalTime, sample.latency, nil];
     [self fetchUpdate:notification fetchCompletionHandler:completionHandler];
@@ -66,12 +77,12 @@
     completionHandler(UIBackgroundFetchResultNoData);
 }
 
-- (void)calculateLatency:(BRHLatencySample *)sample
+- (NSTimeInterval)calculateLatency:(BRHLatencySample *)sample
 {
-    sample.latency = [NSNumber numberWithDouble:[sample.arrivalTime timeIntervalSinceDate:sample.emissionTime]];
+    return [sample.arrivalTime timeIntervalSinceDate:sample.emissionTime];
 }
 
-- (void)updateWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
+- (void)performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
 {
     completionHandler(UIBackgroundFetchResultNoData);
 }

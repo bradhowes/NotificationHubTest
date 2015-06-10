@@ -10,7 +10,6 @@
 
 @interface BRHRemoteDriver : BRHNotificationDriver
 
-@property (assign, nonatomic) double serverWhen;
 @property (assign, nonatomic) double deviceServerDelta;
 
 @end

@@ -27,7 +27,7 @@
 
 @property (strong, readonly, nonatomic) NSManagedObjectContext *managedObjectContext;
 
-- (BRHRunData *)startRun;
+- (void)startRun;
 
 - (void)stopRun;
 

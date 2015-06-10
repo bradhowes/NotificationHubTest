@@ -140,8 +140,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		09C378E4BD6E0EF44B41D35C /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
-		6CAFB0C7CF25563F9495E701 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
 		BD10D8C61B1DD0A300F2707F /* BRHTextRecorder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BRHTextRecorder.m; sourceTree = "<group>"; };
 		BD10D8C81B1DD0B100F2707F /* BRHTextRecorder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BRHTextRecorder.h; sourceTree = "<group>"; };
 		BD128B671875806300307B0C /* CorePlot-CocoaTouch.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "CorePlot-CocoaTouch.xcodeproj"; path = "../../src/iphone/core-plot/framework/CorePlot-CocoaTouch.xcodeproj"; sourceTree = "<group>"; };
@@ -268,7 +266,7 @@
 				BD5EE9B41874BCED00A55A13 /* QuartzCore.framework in Frameworks */,
 				BDA7A4F71871AF60002F7780 /* CoreGraphics.framework in Frameworks */,
 				BDA7A4F91871AF60002F7780 /* UIKit.framework in Frameworks */,
-				BDA7A4F51871AF60002F7780 /* Foundation.framework in Frameworks */,
+				BDA7A4F51871AF60002F7780 /* Foundation.framework in Frameworks */
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -378,8 +376,7 @@
 				BDB5D47218F93E49007B0C23 /* Vendor */,
 				BDA7A51F1871AF60002F7780 /* NotificationHubTestTests */,
 				BDA7A4F31871AF60002F7780 /* Frameworks */,
-				BDA7A4F21871AF60002F7780 /* Products */,
-				D51CF1D40962BD3DD5AF2338 /* Pods */,
+				BDA7A4F21871AF60002F7780 /* Products */
 			);
 			sourceTree = "<group>";
 		};
@@ -409,7 +406,7 @@
 				BDA7A4F41871AF60002F7780 /* Foundation.framework */,
 				BDA7A4F61871AF60002F7780 /* CoreGraphics.framework */,
 				BDA7A4F81871AF60002F7780 /* UIKit.framework */,
-				BDA7A5191871AF60002F7780 /* XCTest.framework */,
+				BDA7A5191871AF60002F7780 /* XCTest.framework */
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -516,15 +513,6 @@
 				BD5FE31E18F94078006368C4 /* Reachability.m */,
 			);
 			name = Reachability;
-			sourceTree = "<group>";
-		};
-		D51CF1D40962BD3DD5AF2338 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				6CAFB0C7CF25563F9495E701 /* Pods.debug.xcconfig */,
-				09C378E4BD6E0EF44B41D35C /* Pods.release.xcconfig */,
-			);
-			name = Pods;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
