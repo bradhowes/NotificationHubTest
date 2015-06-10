@@ -58,25 +58,12 @@
     return self;
 }
 
-- (void)viewWillAppear:(BOOL)animated
-{
-    BRHUserSettings *settings = [BRHUserSettings userSettings];
-    //settings.blockingNotifications = YES;
-    
-    NSLog(@"dropboxLinkButtonTextSetting - %@", settings.dropboxLinkButtonTextSetting);
-    NSLog(@"dropboxLinkButtonTextSetting - %@", [[NSUserDefaults standardUserDefaults] objectForKey:@"dropboxLinkButtonTextSetting"]);
-    
-    [super viewWillAppear:animated];
-}
-
 - (IBAction)dismiss:(id)sender {
 
     // NOTE: order here is a bit magical. The key is to get the latest values into NSUserDefaults and then
     // flag the changes with KVO updates.
     //
     [self dismissViewControllerAnimated:YES completion:nil];
-    BRHUserSettings *settings = [BRHUserSettings userSettings];
-    settings.blockingNotifications = NO;
 
     // This is supposed to update settings from InAppSettingsKit view
     //
@@ -84,33 +71,33 @@
     
     // But this seems to do the trick.
     //
-    [settings readPreferences];
+    [[BRHUserSettings userSettings] readPreferences];
 }
 
 - (void)settingsViewController:(id)sender buttonTappedForSpecifier:(IASKSpecifier *)specifier
 {
     NSLog(@"buttonTappedForSpecifier - %@", specifier.key);
-    if ([specifier.key isEqualToString:@"dropboxLinkButtonTextSetting"]) {
-        BRHUserSettings *settings = [BRHUserSettings userSettings];
-        if (settings.useDropbox) {
-            NSString *msg = @"Are you sure you want to unlink from Dropbox?";
-            UIAlertController *alert = [UIAlertController alertControllerWithTitle:msg message:nil preferredStyle:UIAlertControllerStyleActionSheet];
-            
-            UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
-            }];
-            
-            UIAlertAction *unlinkAction = [UIAlertAction actionWithTitle:@"Unlink" style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action) {
-                settings.useDropbox = NO;
-                [self.tableView reloadData];
-            }];
-            [alert addAction:cancelAction];
-            [alert addAction:unlinkAction];
-            [self presentViewController:alert animated:YES completion:nil];
-        }
-        else {
-            settings.useDropbox = YES;
+    if (! [specifier.key isEqualToString:@"dropboxLinkButtonTextSetting"]) return;
+
+    BRHUserSettings *settings = [BRHUserSettings userSettings];
+    if (settings.useDropbox) {
+        NSString *msg = @"Are you sure you want to unlink from Dropbox?";
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:msg message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+        
+        UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
+        }];
+        
+        UIAlertAction *unlinkAction = [UIAlertAction actionWithTitle:@"Unlink" style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action) {
+            settings.useDropbox = NO;
             [self.tableView reloadData];
-        }
+        }];
+        [alert addAction:cancelAction];
+        [alert addAction:unlinkAction];
+        [self presentViewController:alert animated:YES completion:nil];
+    }
+    else {
+        settings.useDropbox = YES;
+        [self.tableView reloadData];
     }
 }
 
