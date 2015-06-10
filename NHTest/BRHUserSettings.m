@@ -18,6 +18,16 @@
     return singleton;
 }
 
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        [self setUseDropbox:_useDropbox];
+    }
+    
+    return self;
+}
+
 - (void)setDefaultPreferences
 {
     self.notificationDriver = @"loop";
@@ -29,8 +39,8 @@
     self.apnsDevCertPassword = @"";
     self.apnsProdCertFileName = @"apn-nhtest-prod.p12";
     self.apnsProdCertPassword = @"";
-    
-    self.useDropbox = YES;
+
+    self.useDropbox = NO;
 
     self.maxHistogramBin = 30;
     self.emitInterval = 15;
@@ -51,6 +61,14 @@
     self.emitIntervalSetting = [NSString stringWithFormat:@"%lu", (unsigned long)emitInterval];
 }
 
+- (void)setUseDropbox:(BOOL)useDropbox
+{
+    _useDropbox = useDropbox;
+    
+    // !!! Need this to cause IASK to update the button value.
+    //[[NSUserDefaults standardUserDefaults] setObject:self.dropboxLinkButtonTextSetting forKey:@"dropboxLinkButtonTextSetting"];
+}
+
 - (NSUInteger)remoteServerPort
 {
     return self.remoteServerPortSetting.integerValue;
@@ -69,6 +87,11 @@
 - (NSURL *)remoteServerURL
 {
     return [NSURL URLWithString:[NSString stringWithFormat:@"http://%@:%lu", self.remoteServerName, (unsigned long)self.remoteServerPort]];
+}
+
+- (NSString *)dropboxLinkButtonTextSetting
+{
+    return _useDropbox ? @"Unlink from Dropbox" : @"Link to Dropbox";
 }
 
 @end

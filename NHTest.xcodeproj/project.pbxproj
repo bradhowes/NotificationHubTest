@@ -59,6 +59,7 @@
 		BDC5D7EF1950FFBE00D64B50 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BDC5D7EE1950FFBE00D64B50 /* CFNetwork.framework */; };
 		BDC5D7F11950FFC800D64B50 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BDC5D7F01950FFC800D64B50 /* CoreLocation.framework */; };
 		BDC5D7F31950FFD400D64B50 /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = BDC5D7F21950FFD400D64B50 /* libxml2.dylib */; };
+		BDDBC7EB1B281AE500EDFDC2 /* dropbox.png in Resources */ = {isa = PBXBuildFile; fileRef = BDDBC7EA1B281AE500EDFDC2 /* dropbox.png */; };
 		BDE3875318F827C9009E75CF /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BDE3875118F827C9009E75CF /* Main.storyboard */; };
 		BDE3875818F8288D009E75CF /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = BDE3875718F8288D009E75CF /* main.m */; };
 		BDE3876418F82A2E009E75CF /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = BDE3876318F82A2E009E75CF /* Settings.bundle */; };
@@ -213,6 +214,7 @@
 		BDC5D7EE1950FFBE00D64B50 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		BDC5D7F01950FFC800D64B50 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		BDC5D7F21950FFD400D64B50 /* libxml2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.dylib; path = usr/lib/libxml2.dylib; sourceTree = SDKROOT; };
+		BDDBC7EA1B281AE500EDFDC2 /* dropbox.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = dropbox.png; sourceTree = "<group>"; };
 		BDE3875118F827C9009E75CF /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		BDE3875718F8288D009E75CF /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		BDE3876318F82A2E009E75CF /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
@@ -266,7 +268,7 @@
 				BD5EE9B41874BCED00A55A13 /* QuartzCore.framework in Frameworks */,
 				BDA7A4F71871AF60002F7780 /* CoreGraphics.framework in Frameworks */,
 				BDA7A4F91871AF60002F7780 /* UIKit.framework in Frameworks */,
-				BDA7A4F51871AF60002F7780 /* Foundation.framework in Frameworks */
+				BDA7A4F51871AF60002F7780 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -345,8 +347,6 @@
 				BDFBF347187C5A1F0080CC99 /* BRHLatencySample.m */,
 				BD2481341B1DEFAF00A3EF5E /* BRHRunData.h */,
 				BD2481351B1DF0B700A3EF5E /* BRHRunData.m */,
-				BDF02AF61B17375000DD3C47 /* BRHUserSettings.h */,
-				BDF02AF71B17375000DD3C47 /* BRHUserSettings.m */,
 			);
 			name = "Run Data";
 			sourceTree = "<group>";
@@ -376,7 +376,7 @@
 				BDB5D47218F93E49007B0C23 /* Vendor */,
 				BDA7A51F1871AF60002F7780 /* NotificationHubTestTests */,
 				BDA7A4F31871AF60002F7780 /* Frameworks */,
-				BDA7A4F21871AF60002F7780 /* Products */
+				BDA7A4F21871AF60002F7780 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
@@ -406,7 +406,7 @@
 				BDA7A4F41871AF60002F7780 /* Foundation.framework */,
 				BDA7A4F61871AF60002F7780 /* CoreGraphics.framework */,
 				BDA7A4F81871AF60002F7780 /* UIKit.framework */,
-				BDA7A5191871AF60002F7780 /* XCTest.framework */
+				BDA7A5191871AF60002F7780 /* XCTest.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -416,24 +416,16 @@
 			children = (
 				BDE3875118F827C9009E75CF /* Main.storyboard */,
 				BDF02AF91B17462100DD3C47 /* BRHRecordingInfo.xcdatamodel */,
+				BDDBC7E31B2816A800EDFDC2 /* Settings */,
 				BD24813D1B1F168B00A3EF5E /* Logging */,
 				BD24813F1B1F171400A3EF5E /* Notification Drivers */,
 				BD24813E1B1F16E100A3EF5E /* Plots */,
+				BDDBC7E91B2816EB00EDFDC2 /* Recordings */,
 				BD2481401B1F176E00A3EF5E /* Run Data */,
 				BDA7A5031871AF60002F7780 /* BRHAppDelegate.h */,
 				BDA7A5041871AF60002F7780 /* BRHAppDelegate.m */,
-				BDF02AE71B17366200DD3C47 /* BRHDropboxUploader.h */,
-				BDF02AE81B17366200DD3C47 /* BRHDropboxUploader.m */,
 				BDA7A50C1871AF60002F7780 /* BRHMainViewController.h */,
 				BDA7A50D1871AF60002F7780 /* BRHMainViewController.m */,
-				BDF02AEF1B17366200DD3C47 /* BRHNetworkActivityIndicator.h */,
-				BDF02AF01B17366200DD3C47 /* BRHNetworkActivityIndicator.m */,
-				BDF02AE91B17366200DD3C47 /* BRHRecordingInfo.h */,
-				BDF02AEA1B17366200DD3C47 /* BRHRecordingInfo.m */,
-				BDF02AEB1B17366200DD3C47 /* BRHRecordingsViewController.h */,
-				BDF02AEC1B17366200DD3C47 /* BRHRecordingsViewController.m */,
-				BD5FE39A18F95695006368C4 /* BRHSettingsViewController.h */,
-				BD5FE39B18F95695006368C4 /* BRHSettingsViewController.m */,
 				BDA7A5121871AF60002F7780 /* Images.xcassets */,
 				BDA7A4FB1871AF60002F7780 /* Supporting Files */,
 			);
@@ -443,6 +435,7 @@
 		BDA7A4FB1871AF60002F7780 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				BDDBC7EA1B281AE500EDFDC2 /* dropbox.png */,
 				BDF02AE61B1735F400DD3C47 /* dbconfig.h */,
 				BDE3875718F8288D009E75CF /* main.m */,
 				BDE3876318F82A2E009E75CF /* Settings.bundle */,
@@ -513,6 +506,32 @@
 				BD5FE31E18F94078006368C4 /* Reachability.m */,
 			);
 			name = Reachability;
+			sourceTree = "<group>";
+		};
+		BDDBC7E31B2816A800EDFDC2 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				BD5FE39A18F95695006368C4 /* BRHSettingsViewController.h */,
+				BD5FE39B18F95695006368C4 /* BRHSettingsViewController.m */,
+				BDF02AF61B17375000DD3C47 /* BRHUserSettings.h */,
+				BDF02AF71B17375000DD3C47 /* BRHUserSettings.m */,
+			);
+			name = Settings;
+			sourceTree = "<group>";
+		};
+		BDDBC7E91B2816EB00EDFDC2 /* Recordings */ = {
+			isa = PBXGroup;
+			children = (
+				BDF02AE71B17366200DD3C47 /* BRHDropboxUploader.h */,
+				BDF02AE81B17366200DD3C47 /* BRHDropboxUploader.m */,
+				BDF02AEF1B17366200DD3C47 /* BRHNetworkActivityIndicator.h */,
+				BDF02AF01B17366200DD3C47 /* BRHNetworkActivityIndicator.m */,
+				BDF02AE91B17366200DD3C47 /* BRHRecordingInfo.h */,
+				BDF02AEA1B17366200DD3C47 /* BRHRecordingInfo.m */,
+				BDF02AEB1B17366200DD3C47 /* BRHRecordingsViewController.h */,
+				BDF02AEC1B17366200DD3C47 /* BRHRecordingsViewController.m */,
+			);
+			name = Recordings;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -671,6 +690,7 @@
 				BDE3875318F827C9009E75CF /* Main.storyboard in Resources */,
 				BDEA88151B0E53E9004BB6AB /* events.png in Resources */,
 				BDEA88141B0E53E9004BB6AB /* events@2x.png in Resources */,
+				BDDBC7EB1B281AE500EDFDC2 /* dropbox.png in Resources */,
 				BD6585B41875FA15008D1BA7 /* trash-75.png in Resources */,
 				BD5FE39918F94F50006368C4 /* settings.opacity in Resources */,
 				BD6585B31875FA15008D1BA7 /* trash-50.png in Resources */,

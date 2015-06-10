@@ -35,4 +35,6 @@
 
 - (void)selectRecording:(BRHRecordingInfo *)recordingInfo;
 
+- (void)enableDropbox:(BOOL)value;
+
 @end

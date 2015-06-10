@@ -41,7 +41,6 @@ static void* kKVOContext = &kKVOContext;
 
 - (NSURL *)applicationDocumentsDirectory;
 - (void)setupDropbox;
-- (void)linkDropbox;
 - (void)saveContext;
 
 @end
@@ -64,31 +63,92 @@ static void* kKVOContext = &kKVOContext;
     }
 }
 
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
+{
+    if (context == kKVOContext) {
+        if ([keyPath isEqualToString:@"useDropbox"]) {
+            NSNumber *newValue = change[NSKeyValueChangeNewKey];
+            NSLog(@"useDropbox changed - %@", newValue);
+            [self enableDropbox:newValue.boolValue];
+        }
+    }
+    else {
+        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+    }
+}
+
 #pragma mark - Dropbox Linking
 
 - (void)setupDropbox
 {
-    self.session = [[DBSession alloc] initWithAppKey:DROPBOX_APP_KEY appSecret:DROPBOX_APP_SECRET root:kDBRootAppFolder];
-    [DBSession setSharedSession:self.session];
-    self.session.delegate = self;
-    
-    BRHUserSettings *settings = [BRHUserSettings userSettings];
-    [settings addObserver:self forKeyPath:@"useDropBox" options:NSKeyValueObservingOptionNew context:kKVOContext];
-    if (settings.useDropbox) {
-        [self linkDropbox];
-    }
-}
+    NSLog(@"setupDropbox");
 
-- (void)linkDropbox
-{
-    if (! [self.session isLinked]) {
-        [self.session linkFromController:self.window.rootViewController];
+    if (! self.session) {
+        self.session = [[DBSession alloc] initWithAppKey:DROPBOX_APP_KEY appSecret:DROPBOX_APP_SECRET root:kDBRootAppFolder];
+        [DBSession setSharedSession:self.session];
+        self.session.delegate = self;
+    }
+
+    BRHUserSettings *settings = [BRHUserSettings userSettings];
+
+    if (settings.useDropbox && ! self.session.isLinked) {
+        NSString *title = @"Link to Dropbox?";
+        NSString *msg = @"Do you wish to link this app with your Dropbox for storage?";
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:title message:msg preferredStyle:UIAlertControllerStyleActionSheet];
+
+        UIAlertAction *linkAction = [UIAlertAction actionWithTitle:@"Link" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+            [self enableDropbox:YES];
+        }];
+
+        UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
+            settings.useDropbox = NO;
+        }];
+
+        [alert addAction:cancelAction];
+        [alert addAction:linkAction];
+        [self.window.rootViewController presentViewController:alert animated:YES completion:nil];
+    }
+    else if (! settings.useDropbox && self.session.isLinked) {
+        
+        // User must have toggled off the "Use Dropbox" setting in the Settings app. Honor it.
+        //
+        [self enableDropbox:NO];
+
+        NSString *title = @"Unlinked";
+        NSString *msg = @"This app is no longer linked to your Dropbox.";
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:title message:msg preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *okAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+            ;
+        }];
+        
+        [alert addAction:okAction];
+        [self.window.rootViewController presentViewController:alert animated:YES completion:nil];
     }
     else {
-        self.mainViewController.dropboxUploader = [BRHDropboxUploader new];
+        [self enableDropbox:settings.useDropbox];
     }
 }
 
+- (void)enableDropbox:(BOOL)value
+{
+    NSLog(@"enableDropbox - %d", value);
+    if (value) {
+        if (! self.session.isLinked) {
+            NSLog(@"not linked - showing link request");
+            [self.session linkFromController:self.window.rootViewController];
+        }
+        else if (! self.mainViewController.dropboxUploader){
+            NSLog(@"linked - creating BRHDropboxUploader");
+            self.mainViewController.dropboxUploader = [BRHDropboxUploader new];
+        }
+    }
+    else {
+        if (self.session.isLinked) {
+            [self.session unlinkAll];
+        }
+        self.mainViewController.dropboxUploader = nil;
+    }
+}
 
 #pragma mark - DBSessionDelegate methods
 
@@ -335,8 +395,6 @@ static void* kKVOContext = &kKVOContext;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reachabilityChanged:) name:kReachabilityChangedNotification object:nil];
     [self.reachability startNotifier];
 
-    [self setupDropbox];
-
     [application setStatusBarStyle:UIStatusBarStyleLightContent];
     [application setMinimumBackgroundFetchInterval:UIApplicationBackgroundFetchIntervalMinimum];
     
@@ -347,29 +405,12 @@ static void* kKVOContext = &kKVOContext;
     return YES;
 }
 
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
-{
-    if (context == kKVOContext) {
-        if ([keyPath isEqualToString:@"useDropbox"]) {
-            if (((NSNumber *)change[NSKeyValueChangeNewKey]).boolValue) {
-                [self linkDropbox];
-            }
-            else if (self.mainViewController.dropboxUploader) {
-                self.mainViewController.dropboxUploader = nil;
-            }
-        }
-    }
-    else {
-        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
-    }
-}
-
 - (BOOL)application:(UIApplication *)app openURL:(NSURL *)url sourceApplication:(NSString *)source annotation:(id)annotation
 {
     if ([[DBSession sharedSession] handleOpenURL:url]) {
         if ([[DBSession sharedSession] isLinked]) {
-            NSLog(@"App linked successfully!");
-            [self linkDropbox];
+            NSLog(@"Dropbox linked!");
+            [self enableDropbox:YES];
         }
         return YES;
     }
@@ -415,22 +456,31 @@ static void* kKVOContext = &kKVOContext;
 
 - (void)applicationWillResignActive:(UIApplication *)application
 {
+    NSLog(@"applicationWillResignActive");
     [BRHEventLog add:@"resignActive", nil];
+    [[BRHUserSettings userSettings] removeObserver:self forKeyPath:@"useDropbox" context:kKVOContext];
+    NSLog(@"disabled KVO for useDropbox");
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application
 {
+    NSLog(@"applicationDidEnterBackground");
     [BRHEventLog add:@"didEnterBackground", nil];
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application
 {
+    NSLog(@"applicationWillEnterForeground");
     [BRHEventLog add:@"willEnterForeground", nil];
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
+    NSLog(@"applicationDidBecomeActive");
     [BRHEventLog add:@"didBecomeActive", nil];
+    [self setupDropbox];
+    [[BRHUserSettings userSettings] addObserver:self forKeyPath:@"useDropbox" options:NSKeyValueObservingOptionNew context:kKVOContext];
+    NSLog(@"enabled KVO for useDropbox");
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application
@@ -446,7 +496,14 @@ static void* kKVOContext = &kKVOContext;
 - (void)application:(UIApplication *)application performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
 {
     [BRHLogger add:@"performFetchWithCompletionHandler"];
-    [self.driver performFetchWithCompletionHandler:completionHandler];
+    if (self.driver) {
+        [self.driver performFetchWithCompletionHandler:completionHandler];
+    }
+    else {
+        
+        // Stale notification coming in as we are starting up. Just ignore it.
+        completionHandler(UIBackgroundFetchResultFailed);
+    }
 }
 
 - (void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)())completionHandler

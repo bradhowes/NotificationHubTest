@@ -11,21 +11,62 @@
 #import "BRHNotificationDriver.h"
 #import "BRHUserSettings.h"
 
+@interface SettingsStore : IASKAbstractSettingsStore
+
+@property (strong, nonatomic) BRHUserSettings *settings;
+
+@end
+
+@implementation SettingsStore
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        _settings = [BRHUserSettings userSettings];
+    }
+    
+    return self;
+}
+
+- (void)setObject:(id)value forKey:(NSString *)key
+{
+    [_settings setValue:value forKey:key];
+}
+
+- (id)objectForKey:(NSString *)key {
+    id obj = [_settings valueForKey:key];
+    return obj;
+}
+
+- (BOOL)synchronize {
+    [_settings writePreferences];
+    return YES;
+}
+
+@end
 @implementation BRHSettingsViewController
 
-- (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+- (instancetype)initWithCoder:(NSCoder *)aDecoder
 {
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    NSLog(@"BRHSettingsViewController initWithCoder");
+    self = [super initWithCoder:aDecoder];
     if (self) {
         self.delegate = self;
-        // Custom initialization
+        self.settingsStore = [SettingsStore new];
     }
     return self;
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
-    [BRHUserSettings userSettings].blockingNotifications = YES;
+    BRHUserSettings *settings = [BRHUserSettings userSettings];
+    //settings.blockingNotifications = YES;
+    
+    NSLog(@"dropboxLinkButtonTextSetting - %@", settings.dropboxLinkButtonTextSetting);
+    NSLog(@"dropboxLinkButtonTextSetting - %@", [[NSUserDefaults standardUserDefaults] objectForKey:@"dropboxLinkButtonTextSetting"]);
+    
+    [super viewWillAppear:animated];
 }
 
 - (IBAction)dismiss:(id)sender {
@@ -44,6 +85,43 @@
     // But this seems to do the trick.
     //
     [settings readPreferences];
+}
+
+- (void)settingsViewController:(id)sender buttonTappedForSpecifier:(IASKSpecifier *)specifier
+{
+    NSLog(@"buttonTappedForSpecifier - %@", specifier.key);
+    if ([specifier.key isEqualToString:@"dropboxLinkButtonTextSetting"]) {
+        BRHUserSettings *settings = [BRHUserSettings userSettings];
+        if (settings.useDropbox) {
+            NSString *msg = @"Are you sure you want to unlink from Dropbox?";
+            UIAlertController *alert = [UIAlertController alertControllerWithTitle:msg message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+            
+            UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
+            }];
+            
+            UIAlertAction *unlinkAction = [UIAlertAction actionWithTitle:@"Unlink" style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action) {
+                settings.useDropbox = NO;
+                [self.tableView reloadData];
+            }];
+            [alert addAction:cancelAction];
+            [alert addAction:unlinkAction];
+            [self presentViewController:alert animated:YES completion:nil];
+        }
+        else {
+            settings.useDropbox = YES;
+            [self.tableView reloadData];
+        }
+    }
+}
+
+- (void)settingsViewController:(id<IASKViewController>)settingsViewController mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error
+{
+    ;
+}
+
+- (void)settingsViewControllerDidEnd:(IASKAppSettingsViewController *)sender
+{
+    NSLog(@"settingsViewControllerDidEnd");
 }
 
 @end

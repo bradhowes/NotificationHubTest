@@ -6,6 +6,7 @@
 #import <Foundation/Foundation.h>
 
 #import "DDGPreferences.h"
+#import "InAppSettingsKit/IASKSettingsStore.h"
 
 @interface BRHUserSettings : DDGPreferences <DDGPreferences>
 
@@ -39,5 +40,7 @@
 - (NSUInteger)emitInterval;
 
 - (NSURL *)remoteServerURL;
+
+- (NSString *)dropboxLinkButtonTextSetting;
 
 @end

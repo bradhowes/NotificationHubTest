@@ -14,7 +14,7 @@
 #import "BRHRecordingsViewController.h"
 #import "BRHUserSettings.h"
 
-@interface BRHRecordingsViewController () <NSFetchedResultsControllerDelegate, BRHDropboxUploaderMonitor, UIActionSheetDelegate>
+@interface BRHRecordingsViewController () <NSFetchedResultsControllerDelegate, BRHDropboxUploaderMonitor>
 
 @property (strong, nonatomic) IBOutlet UIBarButtonItem *editButton;
 @property (strong, nonatomic) IBOutlet UIBarButtonItem *cancelButton;
@@ -95,9 +95,24 @@
     [self updateButtonsToMatchTableState];
 }
 
-- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
+- (IBAction)deleteAction:(id)sender
 {
-    if (buttonIndex == 0) {
+    NSString *msg;
+    if (([[self.tableView indexPathsForSelectedRows] count] == 1)) {
+        msg = @"Are you sure you want to remove this item?";
+    }
+    else {
+        msg = @"Are you sure you want to remove these items?";
+    }
+
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:msg message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        [self.tableView setEditing:NO animated:YES];
+        [self updateButtonsToMatchTableState];
+    }];
+
+    UIAlertAction *deleteAction = [UIAlertAction actionWithTitle:@"Delete" style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action) {
         NSArray *selectedRows = [self.tableView indexPathsForSelectedRows];
         BOOL deleteSpecificRows = selectedRows.count > 0;
         if (deleteSpecificRows) {
@@ -122,32 +137,14 @@
                 }
             }
         }
-    }
 
-    [self.tableView setEditing:NO animated:YES];
-    [self updateButtonsToMatchTableState];
-}
+        [self.tableView setEditing:NO animated:YES];
+        [self updateButtonsToMatchTableState];
+    }];
 
-- (IBAction)deleteAction:(id)sender
-{
-    NSString *actionTitle;
-    if (([[self.tableView indexPathsForSelectedRows] count] == 1)) {
-        actionTitle = @"Are you sure you want to remove this item?";
-    }
-    else {
-        actionTitle = @"Are you sure you want to remove these items?";
-    }
-
-    NSString *cancelTitle = @"Cancel";
-    NSString *okTitle = @"OK";
-    UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:actionTitle
-                                                             delegate:self
-                                                    cancelButtonTitle:cancelTitle
-                                               destructiveButtonTitle:okTitle
-                                                    otherButtonTitles:nil];
-    
-    actionSheet.actionSheetStyle = UIActionSheetStyleDefault;
-    [actionSheet showInView:self.view];
+    [alert addAction:cancelAction];
+    [alert addAction:deleteAction];
+    [self presentViewController:alert animated:YES completion:nil];
 }
 
 - (void)updateButtonsToMatchTableState

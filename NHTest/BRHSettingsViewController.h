@@ -10,7 +10,7 @@
 
 #import "InAppSettingsKit/IASKAppSettingsViewController.h"
 
-@interface BRHSettingsViewController : IASKAppSettingsViewController
+@interface BRHSettingsViewController : IASKAppSettingsViewController <IASKSettingsDelegate>
 
 - (IBAction)dismiss:(id)sender;
 
