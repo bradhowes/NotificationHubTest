@@ -7,6 +7,16 @@
 
 extern NSString *BRHRunDataNewDataNotification;
 
+@interface BRHRunDataNotificationInfo : NSObject
+
+@property (assign, nonatomic) NSUInteger sampleIndex;
+@property (assign, nonatomic) NSUInteger sampleCount;
+@property (assign, nonatomic) NSUInteger missingIndex;
+@property (assign, nonatomic) NSUInteger missingCount;
+@property (assign, nonatomic) NSUInteger binIndex;
+
+@end
+
 @class BRHHistogram;
 @class BRHLatencySample;
 

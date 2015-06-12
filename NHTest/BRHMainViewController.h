@@ -6,8 +6,8 @@
 #import <UIKit/UIKit.h>
 
 @class BRHDropboxUploader;
-@class BRHLatencyHistogramPlot;
-@class BRHLatencyByTimePlot;
+@class BRHLatencyHistogramGraph;
+@class BRHLatencyByTimeGraph;
 @class BRHRecordingsViewController;
 @class BRHRunData;
 
@@ -19,8 +19,8 @@
 @property (strong, nonatomic) IBOutlet UIBarButtonItem *recordingsButton;
 @property (strong, nonatomic) IBOutlet UIBarButtonItem *settingsButton;
 
-@property (strong, nonatomic) IBOutlet BRHLatencyByTimePlot *latencyPlot;
-@property (strong, nonatomic) IBOutlet BRHLatencyHistogramPlot *countBars;
+@property (strong, nonatomic) IBOutlet BRHLatencyByTimeGraph *latencyPlot;
+@property (strong, nonatomic) IBOutlet BRHLatencyHistogramGraph *countBars;
 @property (strong, nonatomic) IBOutlet UITextView *logView;
 @property (strong, nonatomic) IBOutlet UITextView *eventsView;
 @property (strong, nonatomic) IBOutlet UIView *recordingsView;

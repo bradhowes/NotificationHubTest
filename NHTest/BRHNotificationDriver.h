@@ -11,26 +11,41 @@ typedef void (^BRHNotificationDriverStartCompletionBlock)(BOOL isRunning);
 typedef void (^BRHNotificationDriverStopCompletionBlock)();
 
 /*!
- * @brief Base class for drivers that generate notifications for tests.
+ @brief Base class for drivers that generate notifications for tests.
  */
 @interface BRHNotificationDriver : NSObject
 
 /*!
- * @brief APNs device token for this device.
+ @brief APNs device token for this device.
  */
 @property (strong, nonatomic) NSData *deviceToken;
 
 /*!
- * @brief The number of seconds between push notifications sent to the device
+ @brief The number of seconds between push notifications sent to the device
  */
 @property (strong, nonatomic) NSNumber *emitInterval;
 
+/*!
+ @brief The last notification identifier that was emitted. Used for detecting duplicate notifications.
+ */
 @property (strong, nonatomic) NSNumber *lastIdentifier;
 
+/*!
+ @brief Start the driver and start receiving notifications. 
+ 
+ Derived classes should invoke this from their startEmitting:completionBlock: method.
+ 
+ @param emitInterval the number of seconds between notifications
+ */
 - (void)startEmitting:(NSNumber *)emitInterval;
 
 /*!
- * @brief Start the driver and begin recording notification arrivals.
+ @brief Start the driver and start receiving notifications.
+ 
+ @note derived classes must define this
+ 
+ @param emitInterval the number of seconds between notifications
+ @param completionBlock the block to invoke when the starting is complete
  */
 - (void)startEmitting:(NSNumber *)emitInterval completionBlock:(BRHNotificationDriverStartCompletionBlock )completionBlock;
 

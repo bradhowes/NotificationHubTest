@@ -94,7 +94,7 @@ static void* kKVOContext = &kKVOContext;
     if (settings.useDropbox && ! self.session.isLinked) {
         NSString *title = @"Link to Dropbox?";
         NSString *msg = @"Do you wish to link this app with your Dropbox for storage?";
-        UIAlertController *alert = [UIAlertController alertControllerWithTitle:title message:msg preferredStyle:UIAlertControllerStyleActionSheet];
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:title message:msg preferredStyle:UIAlertControllerStyleAlert];
 
         UIAlertAction *linkAction = [UIAlertAction actionWithTitle:@"Link" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
             [self enableDropbox:YES];
@@ -264,12 +264,6 @@ static void* kKVOContext = &kKVOContext;
 
 - (void)startRun
 {
-    self.running = YES;
-    self.recordingInfo = [self makeRecordingInfo];
-
-    [BRHLogger sharedInstance].logPath = self.recordingInfo.folderURL;
-    [BRHEventLog sharedInstance].logPath = self.recordingInfo.folderURL;
-
     BRHUserSettings *settings = [BRHUserSettings userSettings];
     NSString *driverTag = settings.notificationDriver;
 
@@ -284,10 +278,6 @@ static void* kKVOContext = &kKVOContext;
     }
 
     self.driver.deviceToken = self.deviceToken;
-
-    self.runData = [[BRHRunData alloc] initWithName:self.recordingInfo.name];
-    [self.runData start];
-
     [self.driver startEmitting:[NSNumber numberWithInteger:settings.emitInterval] completionBlock:^(BOOL isRunning) {
         if (! isRunning) {
             [BRHEventLog add:@"failed to start", nil];
@@ -295,6 +285,15 @@ static void* kKVOContext = &kKVOContext;
             [self.mainViewController startStop:nil];
         }
         else {
+            self.running = YES;
+
+            self.recordingInfo = [self makeRecordingInfo];
+            self.runData = [[BRHRunData alloc] initWithName:self.recordingInfo.name];
+            [self.runData start];
+
+            [BRHLogger sharedInstance].logPath = self.recordingInfo.folderURL;
+            [BRHEventLog sharedInstance].logPath = self.recordingInfo.folderURL;
+            
             [self.mainViewController setRunData:self.runData];
         }
     }];
@@ -302,6 +301,8 @@ static void* kKVOContext = &kKVOContext;
 
 - (void)stopRun
 {
+    if (! self.running) return;
+
     self.running = NO;
     [self.runData stop];
     [self.driver stopEmitting:^{
@@ -430,8 +431,9 @@ static void* kKVOContext = &kKVOContext;
     [alert addAction:[UIAlertAction actionWithTitle:@"OK"
                                               style:UIAlertActionStyleDefault
                                             handler:^(UIAlertAction* action) {}]];
-    
+#if ! TARGET_IPHONE_SIMULATOR
     [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:alert animated:YES completion:nil];
+#endif
 }
 
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken

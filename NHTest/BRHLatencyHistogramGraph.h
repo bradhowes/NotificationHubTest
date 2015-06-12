@@ -12,14 +12,9 @@
 /*!
  A Core Plot bar chart with vertical bars that represents the contents of a histogram of arrival latencies with 1-second bins.
  */
-@interface BRHLatencyHistogramPlot : CPTGraphHostingView
+@interface BRHLatencyHistogramGraph : CPTGraphHostingView
 
-/*!
- * @brief Create the plot.
- *
- * @param driver the experiment driver that contains the data to plot
- */
-- (void)useDataSource:(BRHRunData *)runData;
+@property (strong, nonatomic) BRHRunData *runData;
 
 /*!
  * @brief Generate the plot as a PDF image
@@ -27,6 +22,8 @@
  * @param pdfContext the PDF context to render in
  */
 - (void)renderPDF:(CGContextRef)pdfContext;
+
+- (void)update:(NSNotification *)notification;
 
 - (void)redraw;
 

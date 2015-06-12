@@ -12,15 +12,25 @@
 
 static const NSTimeInterval BRHLoopNotificationDriverOutstandingTimeToLive = 120.0;
 
+/*!
+ @brief Load a certificate and extract the public/private keys from it
+ 
+ @param inPKCS12Data the raw certificate data
+ @param outIdentity the certificate identity
+ @param outTrust the certificate trust chain
+ @param keyPassword the password to use to decrypt the certificate
+ 
+ @return the value from SecPKCS12Import -- if non-zero then there was an error
+ */
 static OSStatus
 extractIdentityAndTrust(CFDataRef inPKCS12Data, SecIdentityRef* outIdentity, SecTrustRef* outTrust, CFStringRef keyPassword)
 {
     OSStatus securityError = errSecSuccess;
     
-    const void* keys[] = { kSecImportExportPassphrase };
-    const void* values[] = { keyPassword };
+    const void* keys[] = {kSecImportExportPassphrase};
+    const void* values[] = {keyPassword};
     CFDictionaryRef optionsDictionary = CFDictionaryCreate(NULL, keys, values, (keyPassword ? 1 : 0), NULL, NULL);
-    
+
     CFArrayRef items = NULL;
     securityError = SecPKCS12Import(inPKCS12Data, optionsDictionary, &items);
     
@@ -40,6 +50,12 @@ extractIdentityAndTrust(CFDataRef inPKCS12Data, SecIdentityRef* outIdentity, Sec
     return securityError;
 }
 
+/*!
+ @brief Private interface for the BRHLoopNotificationDriver.
+ 
+ Manages connectivity to APNs via a BRHAPNsClient instance and a timer to periodically fire off a notification request
+ to APNs.
+ */
 @interface BRHLoopNotificationDriver () <BRHAPNsClientDelegate>
 
 @property (strong, nonatomic) BRHAPNsClient *apns;
@@ -48,15 +64,45 @@ extractIdentityAndTrust(CFDataRef inPKCS12Data, SecIdentityRef* outIdentity, Sec
 @property (strong, nonatomic) NSMutableDictionary *outstandingNotifications;
 @property (strong, nonatomic) NSTimer *emitter;
 
+/*!
+ @brief Establish connectivity to APN using the appropriate certificate and password.
+ 
+ @return YES if certificate/password pair is valid
+ */
 - (BOOL)connect;
+
+/*!
+ @brief Start the internal timer for generating notifications requests to APNs
+ */
 - (void)startEmitter;
+
+/*!
+ @brief Stop the internal timer for generating notifications requests to APNs
+ */
 - (void)stopEmitter;
+
+/*!
+ @brief Locate a BRHLatencySample object with a given identifier
+ 
+ Each notification request creates a BRHLatencySample that holds the unique identifier of the notification request and
+ the time when the notification was asked for.
+
+ @param identifier the unique identifier to look for
+ 
+ @return the found BRHLatencySample or nil
+ */
 - (BRHLatencySample *)findOutstandingNotification:(NSNumber *)identifier;
 
 /*!
- * @brief Send out a push notification from the device to itself
+ @brief Send out a push notification from the device to itself
  */
 - (void)emitNotification;
+
+/*!
+ @brief Callback invoked by an NSTimer when it fires.
+ 
+ @param timer the NSTimer instance that fired
+ */
 - (void)emitterFired:(NSTimer *)timer;
 
 @end
@@ -187,7 +233,7 @@ extractIdentityAndTrust(CFDataRef inPKCS12Data, SecIdentityRef* outIdentity, Sec
     __block BRHLatencySample *found = nil;
     
     // Iterate over a copy of the outstanding notifications container so that we can remove items from the original.
-    // Remove the found entry as well as any that have expired.
+    // Remove the found entry as well as those that have expired.
     //
     [[self.outstandingNotifications copy] enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
         BRHLatencySample *sample = obj;
@@ -200,7 +246,7 @@ extractIdentityAndTrust(CFDataRef inPKCS12Data, SecIdentityRef* outIdentity, Sec
             [BRHEventLog add:@"expiredNotification", sample.identifier, sample.emissionTime, nil];
         }
     }];
-    
+
     return found;
 }
 

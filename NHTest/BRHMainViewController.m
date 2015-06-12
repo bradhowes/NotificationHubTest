@@ -4,10 +4,10 @@
 // Copyright (C) 2015 Brad Howes. All rights reserved.
 
 #import "BRHAppDelegate.h"
-#import "BRHLatencyHistogramPlot.h"
+#import "BRHLatencyHistogramGraph.h"
 #import "BRHEventLog.h"
 #import "BRHHistogram.h"
-#import "BRHLatencyByTimePlot.h"
+#import "BRHLatencyByTimeGraph.h"
 #import "BRHLogger.h"
 #import "BRHMainViewController.h"
 #import "BRHNotificationDriver.h"
@@ -33,18 +33,19 @@ static void* const kKVOContext = (void *)&kKVOContext;
 {
     [super viewDidLoad];
 
+    // Attach widgets to the text loggers
+    //
     [BRHLogger sharedInstance].textView = self.logView;
     [BRHEventLog sharedInstance].textView = self.eventsView;
 
     self.playButton.enabled = YES;
     self.stopButton.enabled = NO;
-
     self.logView.hidden = YES;
     self.eventsView.hidden = YES;
     self.recordingsView.hidden = YES;
     self.lowerView = nil;
 
-    // Remove the "Stop" button
+    // Remove the "Stop" button so that there in only a "Play" one shown
     //
     NSMutableArray *items = [self.toolbar.items mutableCopy];
     [items removeObjectAtIndex:1];
@@ -66,7 +67,6 @@ static void* const kKVOContext = (void *)&kKVOContext;
         BRHAppDelegate *delegate = [UIApplication sharedApplication].delegate;
         self.recordingsViewController.managedObjectContext = delegate.managedObjectContext;
         self.recordingsViewController.buttonItem = self.recordingsButton;
-        
         if (self.dropboxUploader) {
             self.recordingsViewController.dropboxUploader = self.dropboxUploader;
         }
@@ -75,6 +75,8 @@ static void* const kKVOContext = (void *)&kKVOContext;
 
 - (void)animateLowerView:(UIView *)view
 {
+    // Locate the constraints that we will use to swipe in the given view
+    //
     NSLayoutConstraint *top = nil;
     NSLayoutConstraint *bottom = nil;
     for (NSLayoutConstraint* each in self.view.constraints) {
@@ -87,23 +89,30 @@ static void* const kKVOContext = (void *)&kKVOContext;
             }
         }
     }
-    
+
     UIBarButtonItem *button = [self.toolbar.items objectAtIndex:view.tag];
 
     if (view.hidden) {
 
-        if (self.lowerView != nil) [self animateLowerView:self.lowerView];
+        // Revealing a new view by sliding it up into place. If there is another view already there,
+        // slide it down first.
+        //
+        if (self.lowerView) {
+            [self animateLowerView:self.lowerView];
+        }
+
         self.lowerView = view;
 
-        // [view scrollRangeToVisible:NSMakeRange(view.textStorage.length, 0)];
         button.tintColor = [UIColor cyanColor];
 
+        // Set the starting position for the constaints. These will go to zero in an animation, causing the view to
+        // slide into view.
+        //
         bottom.constant = view.frame.size.height;
         top.constant = view.frame.size.height;
         [self.view layoutIfNeeded];
 
         view.hidden = NO;
-
         top.constant = 0;
         bottom.constant = 0;
         [UIView animateWithDuration:0.3f animations:^{
@@ -113,6 +122,9 @@ static void* const kKVOContext = (void *)&kKVOContext;
         }];
     }
     else {
+        
+        // Slide down an existing view.
+        //
         button.tintColor = nil;
         self.lowerView = nil;
 
@@ -120,6 +132,8 @@ static void* const kKVOContext = (void *)&kKVOContext;
         bottom.constant = 0;
         [self.view layoutIfNeeded];
 
+        // Set the final constraint position for the animation.
+        //
         bottom.constant = view.frame.size.height;
         top.constant = view.frame.size.height;
         [UIView animateWithDuration:0.3f animations:^{
@@ -181,8 +195,8 @@ static void* const kKVOContext = (void *)&kKVOContext;
 - (void)setRunData:(BRHRunData *)runData
 {
     if (runData) {
-        [self.latencyPlot useDataSource:runData];
-        [self.countBars useDataSource:runData];
+        self.latencyPlot.runData = runData;
+        self.countBars.runData = runData;
     }
 }
 

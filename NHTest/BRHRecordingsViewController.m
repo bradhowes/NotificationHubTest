@@ -107,7 +107,7 @@
 
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:msg message:nil preferredStyle:UIAlertControllerStyleActionSheet];
 
-    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
         [self.tableView setEditing:NO animated:YES];
         [self updateButtonsToMatchTableState];
     }];
@@ -144,6 +144,15 @@
 
     [alert addAction:cancelAction];
     [alert addAction:deleteAction];
+
+    UIPopoverPresentationController *popover = alert.popoverPresentationController;
+    if (popover) {
+        UIView *button = [self.navigationItem.leftBarButtonItem valueForKey:@"view"];
+        popover.sourceView = button;
+        popover.sourceRect = button.bounds;
+        popover.permittedArrowDirections = UIPopoverArrowDirectionAny;
+    }
+
     [self presentViewController:alert animated:YES completion:nil];
 }
 

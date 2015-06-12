@@ -9,6 +9,11 @@
 /* Begin PBXBuildFile section */
 		BD10D8C71B1DD0A300F2707F /* BRHTextRecorder.m in Sources */ = {isa = PBXBuildFile; fileRef = BD10D8C61B1DD0A300F2707F /* BRHTextRecorder.m */; };
 		BD128B71187580A500307B0C /* libCorePlot-CocoaTouch.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BD128B6E1875806300307B0C /* libCorePlot-CocoaTouch.a */; };
+		BD130FD21B2986E3004B052C /* BRHLatencyByTimeGraphLatencyPlot.m in Sources */ = {isa = PBXBuildFile; fileRef = BD130FD11B2986E3004B052C /* BRHLatencyByTimeGraphLatencyPlot.m */; };
+		BD130FDA1B298FC5004B052C /* BRHLatencyByTimeGraphAveragePlot.m in Sources */ = {isa = PBXBuildFile; fileRef = BD130FD91B298FC5004B052C /* BRHLatencyByTimeGraphAveragePlot.m */; };
+		BD130FDD1B299063004B052C /* BRHLatencyByTimeGraphMissingPlot.m in Sources */ = {isa = PBXBuildFile; fileRef = BD130FDC1B299063004B052C /* BRHLatencyByTimeGraphMissingPlot.m */; };
+		BD130FE11B29B6A6004B052C /* BRHLatencyByTimeGraphMedianPlot.m in Sources */ = {isa = PBXBuildFile; fileRef = BD130FE01B29B6A6004B052C /* BRHLatencyByTimeGraphMedianPlot.m */; };
+		BD130FE41B29C710004B052C /* BRHLatencyByTimeGraphPlot.m in Sources */ = {isa = PBXBuildFile; fileRef = BD130FE31B29C710004B052C /* BRHLatencyByTimeGraphPlot.m */; };
 		BD2481361B1DF0B700A3EF5E /* BRHRunData.m in Sources */ = {isa = PBXBuildFile; fileRef = BD2481351B1DF0B700A3EF5E /* BRHRunData.m */; };
 		BD2481381B1E210F00A3EF5E /* BRHSimDriver.m in Sources */ = {isa = PBXBuildFile; fileRef = BD2481371B1E210F00A3EF5E /* BRHSimDriver.m */; };
 		BD24813A1B1E213900A3EF5E /* BRHLoopNotificationDriver.m in Sources */ = {isa = PBXBuildFile; fileRef = BD2481391B1E213900A3EF5E /* BRHLoopNotificationDriver.m */; };
@@ -51,8 +56,8 @@
 		BDA7A5241871AF60002F7780 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = BDA7A5221871AF60002F7780 /* InfoPlist.strings */; };
 		BDA7A5261871AF60002F7780 /* NotificationHubTestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = BDA7A5251871AF60002F7780 /* NotificationHubTestTests.m */; };
 		BDA7A5641871B141002F7780 /* glyphicons_195_circle_info.png in Resources */ = {isa = PBXBuildFile; fileRef = BDA7A5621871B141002F7780 /* glyphicons_195_circle_info.png */; };
-		BDB56F1C1A8A0C6600706A44 /* BRHLatencyByTimePlot.m in Sources */ = {isa = PBXBuildFile; fileRef = BDC0475919D072C500A14DE9 /* BRHLatencyByTimePlot.m */; };
-		BDC0475E19D07D2400A14DE9 /* BRHLatencyHistogramPlot.m in Sources */ = {isa = PBXBuildFile; fileRef = BDC0475D19D07D2400A14DE9 /* BRHLatencyHistogramPlot.m */; };
+		BDB56F1C1A8A0C6600706A44 /* BRHLatencyByTimeGraph.m in Sources */ = {isa = PBXBuildFile; fileRef = BDC0475919D072C500A14DE9 /* BRHLatencyByTimeGraph.m */; };
+		BDC0475E19D07D2400A14DE9 /* BRHLatencyHistogramGraph.m in Sources */ = {isa = PBXBuildFile; fileRef = BDC0475D19D07D2400A14DE9 /* BRHLatencyHistogramGraph.m */; };
 		BDC5D7E91950FF8A00D64B50 /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BDC5D7E81950FF8A00D64B50 /* AdSupport.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		BDC5D7EB1950FFA500D64B50 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BDC5D7EA1950FFA500D64B50 /* SystemConfiguration.framework */; };
 		BDC5D7ED1950FFB100D64B50 /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BDC5D7EC1950FFB100D64B50 /* CoreTelephony.framework */; };
@@ -144,6 +149,16 @@
 		BD10D8C61B1DD0A300F2707F /* BRHTextRecorder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BRHTextRecorder.m; sourceTree = "<group>"; };
 		BD10D8C81B1DD0B100F2707F /* BRHTextRecorder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BRHTextRecorder.h; sourceTree = "<group>"; };
 		BD128B671875806300307B0C /* CorePlot-CocoaTouch.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "CorePlot-CocoaTouch.xcodeproj"; path = "../../src/iphone/core-plot/framework/CorePlot-CocoaTouch.xcodeproj"; sourceTree = "<group>"; };
+		BD130FD11B2986E3004B052C /* BRHLatencyByTimeGraphLatencyPlot.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BRHLatencyByTimeGraphLatencyPlot.m; sourceTree = "<group>"; };
+		BD130FD81B2986F0004B052C /* BRHLatencyByTimeGraphLatencyPlot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BRHLatencyByTimeGraphLatencyPlot.h; sourceTree = "<group>"; };
+		BD130FD91B298FC5004B052C /* BRHLatencyByTimeGraphAveragePlot.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BRHLatencyByTimeGraphAveragePlot.m; sourceTree = "<group>"; };
+		BD130FDB1B298FE6004B052C /* BRHLatencyByTimeGraphAveragePlot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BRHLatencyByTimeGraphAveragePlot.h; sourceTree = "<group>"; };
+		BD130FDC1B299063004B052C /* BRHLatencyByTimeGraphMissingPlot.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BRHLatencyByTimeGraphMissingPlot.m; sourceTree = "<group>"; };
+		BD130FDE1B29921E004B052C /* BRHLatencyByTimeGraphMissingPlot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BRHLatencyByTimeGraphMissingPlot.h; sourceTree = "<group>"; };
+		BD130FDF1B29B696004B052C /* BRHLatencyByTimeGraphMedianPlot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BRHLatencyByTimeGraphMedianPlot.h; sourceTree = "<group>"; };
+		BD130FE01B29B6A6004B052C /* BRHLatencyByTimeGraphMedianPlot.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BRHLatencyByTimeGraphMedianPlot.m; sourceTree = "<group>"; };
+		BD130FE21B29C6CC004B052C /* BRHLatencyByTimeGraphPlot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BRHLatencyByTimeGraphPlot.h; sourceTree = "<group>"; };
+		BD130FE31B29C710004B052C /* BRHLatencyByTimeGraphPlot.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BRHLatencyByTimeGraphPlot.m; sourceTree = "<group>"; };
 		BD2481341B1DEFAF00A3EF5E /* BRHRunData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BRHRunData.h; sourceTree = "<group>"; };
 		BD2481351B1DF0B700A3EF5E /* BRHRunData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BRHRunData.m; sourceTree = "<group>"; };
 		BD2481371B1E210F00A3EF5E /* BRHSimDriver.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BRHSimDriver.m; sourceTree = "<group>"; };
@@ -204,10 +219,10 @@
 		BDA7A5231871AF60002F7780 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		BDA7A5251871AF60002F7780 /* NotificationHubTestTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NotificationHubTestTests.m; sourceTree = "<group>"; };
 		BDA7A5621871B141002F7780 /* glyphicons_195_circle_info.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = glyphicons_195_circle_info.png; path = NHTest/glyphicons_195_circle_info.png; sourceTree = SOURCE_ROOT; };
-		BDC0475919D072C500A14DE9 /* BRHLatencyByTimePlot.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = BRHLatencyByTimePlot.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
-		BDC0475B19D0732500A14DE9 /* BRHLatencyByTimePlot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BRHLatencyByTimePlot.h; sourceTree = "<group>"; };
-		BDC0475C19D07D1700A14DE9 /* BRHLatencyHistogramPlot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = BRHLatencyHistogramPlot.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		BDC0475D19D07D2400A14DE9 /* BRHLatencyHistogramPlot.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = BRHLatencyHistogramPlot.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		BDC0475919D072C500A14DE9 /* BRHLatencyByTimeGraph.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = BRHLatencyByTimeGraph.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		BDC0475B19D0732500A14DE9 /* BRHLatencyByTimeGraph.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BRHLatencyByTimeGraph.h; sourceTree = "<group>"; };
+		BDC0475C19D07D1700A14DE9 /* BRHLatencyHistogramGraph.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = BRHLatencyHistogramGraph.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		BDC0475D19D07D2400A14DE9 /* BRHLatencyHistogramGraph.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = BRHLatencyHistogramGraph.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		BDC5D7E81950FF8A00D64B50 /* AdSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AdSupport.framework; path = System/Library/Frameworks/AdSupport.framework; sourceTree = SDKROOT; };
 		BDC5D7EA1950FFA500D64B50 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		BDC5D7EC1950FFB100D64B50 /* CoreTelephony.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreTelephony.framework; path = System/Library/Frameworks/CoreTelephony.framework; sourceTree = SDKROOT; };
@@ -311,10 +326,20 @@
 			children = (
 				BD6CF6001AFF6273004969F2 /* BRHBinFormatter.h */,
 				BD6CF6051AFF6281004969F2 /* BRHBinFormatter.m */,
-				BDC0475B19D0732500A14DE9 /* BRHLatencyByTimePlot.h */,
-				BDC0475919D072C500A14DE9 /* BRHLatencyByTimePlot.m */,
-				BDC0475C19D07D1700A14DE9 /* BRHLatencyHistogramPlot.h */,
-				BDC0475D19D07D2400A14DE9 /* BRHLatencyHistogramPlot.m */,
+				BDC0475B19D0732500A14DE9 /* BRHLatencyByTimeGraph.h */,
+				BDC0475919D072C500A14DE9 /* BRHLatencyByTimeGraph.m */,
+				BD130FE21B29C6CC004B052C /* BRHLatencyByTimeGraphPlot.h */,
+				BD130FE31B29C710004B052C /* BRHLatencyByTimeGraphPlot.m */,
+				BD130FDB1B298FE6004B052C /* BRHLatencyByTimeGraphAveragePlot.h */,
+				BD130FD91B298FC5004B052C /* BRHLatencyByTimeGraphAveragePlot.m */,
+				BD130FD81B2986F0004B052C /* BRHLatencyByTimeGraphLatencyPlot.h */,
+				BD130FD11B2986E3004B052C /* BRHLatencyByTimeGraphLatencyPlot.m */,
+				BD130FDF1B29B696004B052C /* BRHLatencyByTimeGraphMedianPlot.h */,
+				BD130FE01B29B6A6004B052C /* BRHLatencyByTimeGraphMedianPlot.m */,
+				BD130FDE1B29921E004B052C /* BRHLatencyByTimeGraphMissingPlot.h */,
+				BD130FDC1B299063004B052C /* BRHLatencyByTimeGraphMissingPlot.m */,
+				BDC0475C19D07D1700A14DE9 /* BRHLatencyHistogramGraph.h */,
+				BDC0475D19D07D2400A14DE9 /* BRHLatencyHistogramGraph.m */,
 				BDFBF349187CA2280080CC99 /* BRHTimeFormatter.h */,
 				BDFBF34A187CA2280080CC99 /* BRHTimeFormatter.m */,
 			);
@@ -718,26 +743,31 @@
 				BDFF04F41958406000677A74 /* BRHAPNsClient.m in Sources */,
 				BD5FE39C18F95695006368C4 /* BRHSettingsViewController.m in Sources */,
 				BDFBF343187C55460080CC99 /* BRHHistogram.m in Sources */,
-				BDC0475E19D07D2400A14DE9 /* BRHLatencyHistogramPlot.m in Sources */,
+				BDC0475E19D07D2400A14DE9 /* BRHLatencyHistogramGraph.m in Sources */,
 				BDF2FFBD1A8E0F7E00364460 /* BRHRemoteDriver.m in Sources */,
 				BDF02AF81B17375000DD3C47 /* BRHUserSettings.m in Sources */,
 				BDE3875818F8288D009E75CF /* main.m in Sources */,
 				BDF02AF31B17366200DD3C47 /* BRHRecordingsViewController.m in Sources */,
 				BD10D8C71B1DD0A300F2707F /* BRHTextRecorder.m in Sources */,
+				BD130FE41B29C710004B052C /* BRHLatencyByTimeGraphPlot.m in Sources */,
 				BDFBF34B187CA2280080CC99 /* BRHTimeFormatter.m in Sources */,
 				BD5FE31F18F94078006368C4 /* Reachability.m in Sources */,
 				BD6CF6061AFF6281004969F2 /* BRHBinFormatter.m in Sources */,
 				BD24813A1B1E213900A3EF5E /* BRHLoopNotificationDriver.m in Sources */,
+				BD130FDD1B299063004B052C /* BRHLatencyByTimeGraphMissingPlot.m in Sources */,
+				BD130FE11B29B6A6004B052C /* BRHLatencyByTimeGraphMedianPlot.m in Sources */,
 				BD4FC24F1B1C662B00C6634F /* GCDAsyncSocket.m in Sources */,
 				BD4FC25A1B1CA21100C6634F /* DDGPreferences.m in Sources */,
+				BD130FD21B2986E3004B052C /* BRHLatencyByTimeGraphLatencyPlot.m in Sources */,
 				BD4FC2131B1B57B600C6634F /* UIBarButtonItem+Badge.m in Sources */,
 				BDFBF348187C5A1F0080CC99 /* BRHLatencySample.m in Sources */,
 				BDF02AF51B17366200DD3C47 /* BRHNetworkActivityIndicator.m in Sources */,
 				BD5FE39D18F97919006368C4 /* BRHMainViewController.m in Sources */,
 				BD55ED8C1B0DF56A00E70F1F /* BRHEventLog.m in Sources */,
 				BDA7A5051871AF60002F7780 /* BRHAppDelegate.m in Sources */,
-				BDB56F1C1A8A0C6600706A44 /* BRHLatencyByTimePlot.m in Sources */,
+				BDB56F1C1A8A0C6600706A44 /* BRHLatencyByTimeGraph.m in Sources */,
 				BDF02AF11B17366200DD3C47 /* BRHDropboxUploader.m in Sources */,
+				BD130FDA1B298FC5004B052C /* BRHLatencyByTimeGraphAveragePlot.m in Sources */,
 				BDF02AFA1B17462100DD3C47 /* BRHRecordingInfo.xcdatamodel in Sources */,
 				BD2481361B1DF0B700A3EF5E /* BRHRunData.m in Sources */,
 				BDF02AF21B17366200DD3C47 /* BRHRecordingInfo.m in Sources */,

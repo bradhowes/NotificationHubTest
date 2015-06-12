@@ -45,9 +45,14 @@
     completionBlock(YES);
 }
 
+- (double)randomValue
+{
+    return arc4random() / (double)UINT32_MAX;
+}
+
 - (NSTimeInterval)calculateLatency:(BRHLatencySample *)sample
 {
-    return (double)arc4random() / (double)UINT32_MAX * 5.0 + 0.12345;;
+    return self.randomValue * 5.0 + 0.12345;;
 }
 
 - (void)stopEmitting:(BRHNotificationDriverStopCompletionBlock )completionBlock
@@ -78,6 +83,11 @@
 
     self.notificationSequenceId += 1;
     self.emissionTime += self.emitInterval.integerValue;
+
+    if (self.randomValue < 0.2) {
+        NSLog(@"creating missing notification");
+        return;
+    }
 
     [app.delegate application:app didReceiveRemoteNotification:notification fetchCompletionHandler:^(UIBackgroundFetchResult result) {
         [BRHLogger add:@"fetchCompletionHandler: %lu", (unsigned long)result];

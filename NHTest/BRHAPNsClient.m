@@ -11,17 +11,17 @@
 #import "Reachability.h"
 
 /*!
- * @brief Contents of an APNs push notification
+ @brief Contents of an APNs push notification
  */
 @interface BRHAPNsClientPayload : NSObject
 
 /*!
- * @brief The payload of the notification. Must be valid JSON.
+ @brief The payload of the notification. Must be valid JSON.
  */
 @property (strong, nonatomic) NSData *payload;
 
 /*!
- * @brief The unique identifier for the notification.
+ @brief The unique identifier for the notification.
  */
 @property (assign, nonatomic) NSInteger identifier;
 
@@ -32,68 +32,71 @@
 @end
 
 /*!
- * @brief Private properties and methods for BRHAPNsClient class
+ @brief Private properties and methods for BRHAPNsClient class
  */
 @interface BRHAPNsClient () <GCDAsyncSocketDelegate>
 
 /*!
- * @brief Reference to the certificate to use when communicating with APNs
+ @brief Reference to the certificate to use when communicating with APNs
  */
 @property (assign, nonatomic) SecIdentityRef identity;
 /*!
- * @brief Socket connected to APNs server
+ @brief Socket connected to APNs server
  */
 @property (strong, nonatomic) GCDAsyncSocket *socket;
 /*!
- * @brief The notification payload awaiting delivery.
+ @brief The notification payload awaiting delivery.
  */
 @property (strong, nonatomic) BRHAPNsClientPayload *cache;
+/*!
+ @brief YES if the socket is available to use
+ */
 @property (assign, nonatomic) BOOL socketReady;
 /*!
- * @brief The device token to send push notifications to
+ @brief The device token to send push notifications to
  */
 @property (copy, nonatomic) NSData *deviceToken;
 /*!
- * @brief Network reachability detector.
+ @brief Network reachability detector.
  */
 @property (strong, nonatomic) Reachability *reachability;
 
 /*!
- * @brief Send out any cached notification. Called after connection is reestablished with APNs.
+ @brief Send out any cached notification. Called after connection is reestablished with APNs.
  */
 - (void)sendCachedNotification;
 
 /*!
- * @brief Notification that the network state has changed
- *
- * @param notification contents of the notification
+ @brief Notification that the network state has changed
+ 
+ @param notification contents of the notification
  */
 - (void)reachabilityChanged:(NSNotification *)notification;
 
 /*!
- * @brief Create a format 1 payload for APNs
- *
- * @param payload the JSON payload to send
- * @param identifier the unique identifier for the push notification
- *
- * @return binary payload that conforms to APNs Format 1
+ @brief Create a format 1 payload for APNs
+ 
+ @param payload the JSON payload to send
+ @param identifier the unique identifier for the push notification
+ 
+ @return binary payload that conforms to APNs Format 1
  */
 - (NSData *)makePushPayloadFormat1For:(NSString *)payload identifier:(NSInteger)identifier;
 
 /*!
- * @brief Create a format 2 payload for APNs
- *
- * @param payload the JSON payload to send
- * @param identifier the unique identifier for the push notification
- *
- * @return binary payload that conforms to APNs Format 2
+ @brief Create a format 2 payload for APNs
+ 
+ @param payload the JSON payload to send
+ @param identifier the unique identifier for the push notification
+ 
+ @return binary payload that conforms to APNs Format 2
  */
 - (NSData *)makePushPayloadFormat2For:(NSString *)payload identifier:(NSInteger)identifier;
 
 /*!
- * @brief Timer callback that attempts to establish a new APNs connection
- *
- * @param timer the timer that fired
+ @brief Timer callback that attempts to establish a new APNs connection
+ 
+ @param timer the timer that fired
  */
 - (void)retrySocketOpen:(NSTimer *)timer;
 
@@ -108,7 +111,7 @@
 
 - (instancetype)initWithIdentity:(SecIdentityRef)theIdentity deviceToken:(NSData *)deviceToken sandbox:(BOOL)theSandbox
 {
-	if (self = [super init]) {
+    if (self = [super init]) {
         _identity = theIdentity;
         _deviceToken = deviceToken;
         _sandbox = theSandbox;
@@ -119,23 +122,23 @@
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reachabilityChanged:) name:kReachabilityChangedNotification object:nil];
         [_reachability startNotifier];
     }
-
-	return self;
+    
+    return self;
 }
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-
+    
     if (_reachability) {
         [_reachability stopNotifier];
         _reachability = nil;
     }
-
+    
     if (_socket) {
         [_socket disconnect];
         _socket = nil;
     }
-
+    
     if (_identity != NULL) {
         CFRelease(_identity);
     }
@@ -152,19 +155,19 @@
 - (void)sendCachedNotification
 {
     if (! self.cache) return;
-
+    
     if (self.socketReady) {
         [self.socket writeData:self.cache.payload withTimeout:2.0 tag:self.cache.identifier];
         // !!!: The write could fail and we would then drop this. Perhaps wait to clear after write success?
         self.cache = nil;
         return;
     }
-
+    
     if (! self.socket) {
-
+        
         self.socket = [[GCDAsyncSocket alloc] init];
         [self.socket setDelegate:self delegateQueue:dispatch_get_main_queue()];
-
+        
         NSString *host = [BRHAPNsClient host:_sandbox];
         NSError *error;
         [self.socket connectToHost:host onPort:2195 error:&error];
@@ -174,11 +177,11 @@
             self.socket = nil;
             return;
         }
-
+        
         NSMutableDictionary *options = [NSMutableDictionary dictionary];
         [options setObject:@[(__bridge id)_identity] forKey:(NSString *)kCFStreamSSLCertificates];
         [options setObject:host forKey:(NSString *)kCFStreamSSLPeerName];
-
+        
         [self.socket startTLS:options];
     }
 }
@@ -190,12 +193,12 @@
         case NotReachable:
             [BRHLogger add:@"no network available"];
             break;
-
+            
         case ReachableViaWiFi:
             [BRHLogger add:@"reachable via WIFI"];
             [self sendCachedNotification];
             break;
-
+            
         case ReachableViaWWAN:
             [BRHLogger add:@"reachable via mobile network"];
             [self sendCachedNotification];
@@ -204,7 +207,7 @@
 }
 
 - (NSData *)makePushPayloadFormat1For:(NSString *)payload identifier:(NSInteger)identifier {
-
+    
     // Format: |COMMAND|ID|EXPIRY|TOKENLEN|TOKEN|PAYLOADLEN|PAYLOAD| */
     NSMutableData *data = [NSMutableData data];
     
@@ -245,11 +248,11 @@
     uint8_t itemId = 1;
     uint16_t itemLength = 0;
     uint8_t priority = 10;
-
+    
     if ([payload rangeOfString:@"content-available:"].location != NSNotFound) {
         priority = 5;
     }
-
+    
     // item 1 - token
     [frame appendBytes:&itemId length:sizeof(itemId)];
     
@@ -260,13 +263,13 @@
     // item 2 - payload
     ++itemId;
     [frame appendBytes:&itemId length:sizeof(itemId)];
-
+    
     // payload length, network order
     NSData *payloadData = [payload dataUsingEncoding:NSUTF8StringEncoding];
     itemLength = htons([payloadData length]);
     [frame appendBytes:&itemLength length:sizeof(itemLength)];
     [frame appendData:payloadData];
-
+    
     // item 3 - notification identifier
     ++itemId;
     [frame appendBytes:&itemId length:sizeof(itemId)];
@@ -282,14 +285,14 @@
     itemLength = htons(sizeof(expiry));
     [frame appendBytes:&itemLength length:sizeof(itemLength)];
     [frame appendBytes:&expiry length:sizeof(expiry)];
-
+    
     // item 5 - priority
     ++itemId;
     [frame appendBytes:&itemId length:sizeof(itemId)];
     itemLength = htons(sizeof(priority));
     [frame appendBytes:&itemLength length:sizeof(itemLength)];
     [frame appendBytes:&priority length:sizeof(priority)];
-
+    
     // Build push payload - |2|SIZE|FRAME
     NSMutableData *data = [NSMutableData data];
     uint8_t command = 2;
@@ -297,7 +300,7 @@
     uint32_t frameLength = htonl([frame length]);
     [data appendBytes:&frameLength length:sizeof(frameLength)];
     [data appendData:frame];
-
+    
     return data;
 }
 
@@ -317,23 +320,20 @@
 
 - (NSTimeInterval)socket:(GCDAsyncSocket *)sock shouldTimeoutReadWithTag:(long)tag elapsed:(NSTimeInterval)elapsed bytesDone:(NSUInteger)length
 {
-    // [BRHLogger add:@"socket timeout while reading"];
-    // [self.socket disconnect];
-    // self.socket = nil;
     return 10.0;
 }
 
 - (void)socket:(GCDAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag
 {
-	if (tag != -1) return;
+    if (tag != -1) return;
     
     uint8_t status;
-	uint32_t identifier;
+    uint32_t identifier;
     
-	[data getBytes:&status range:NSMakeRange(1, 1)];
-	[data getBytes:&identifier range:NSMakeRange(2, 4)];
+    [data getBytes:&status range:NSMakeRange(1, 1)];
+    [data getBytes:&identifier range:NSMakeRange(2, 4)];
     
-	NSString *desc;
+    NSString *desc;
     // http://developer.apple.com/library/mac/#documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/Chapters/CommunicatingWIthAPS.html#//apple_ref/doc/uid/TP40008194-CH101-SW1
     switch (status) {
         case 0:
@@ -370,7 +370,7 @@
             desc = @"None (unknown)";
             break;
     }
-
+    
     [BRHLogger add:@"APNs response: %d %d %@", (int)status, identifier, desc];
 }
 
@@ -378,7 +378,6 @@
 {
     [self sendCachedNotification];
 }
-
 
 - (void)socketDidDisconnect:(GCDAsyncSocket *)sock withError:(NSError *)err
 {
@@ -388,7 +387,7 @@
     else {
         [BRHLogger add:@"APNs connection closed"];
     }
-
+    
     self.socket = nil;
     self.socketReady = NO;
     if (self.cache) {

@@ -10,8 +10,9 @@
 
 #import "InAppSettingsKit/IASKAppSettingsViewController.h"
 
+/*!
+ * @brief Adaptation of the IASKAppSettingsViewController that shows setting values from our BRHUSerSettings instance.
+ */
 @interface BRHSettingsViewController : IASKAppSettingsViewController <IASKSettingsDelegate>
-
-- (IBAction)dismiss:(id)sender;
 
 @end

@@ -6,18 +6,19 @@
 #import "BRHBinFormatter.h"
 
 /*!
- * @brief Private properties of BRHBinFormatter
+ @brief Private properties of BRHBinFormatter
  */
 @interface BRHBinFormatter ()
 
 /*!
- * @brief The index of the last bin in the histogram
+ @brief The index of the last bin in the histogram
  */
 @property (assign, nonatomic) NSUInteger lastBin;
 /*!
- * @brief The label to use for the last bin
+ @brief The label to use for the last bin
  */
 @property (copy, nonatomic) NSString *lastBinLabel;
+
 @end
 
 @implementation BRHBinFormatter
@@ -38,6 +39,13 @@
     return self;
 }
 
+/*!
+ @brief  Override of NSNumber method. Generates the label for a bin.
+ 
+ @param obj NSNumber object holding the index of the bin to label
+ 
+ @return NSString label for the bin
+ */
 - (NSString *)stringForObjectValue:(id)obj
 {
     NSInteger value = [obj integerValue];

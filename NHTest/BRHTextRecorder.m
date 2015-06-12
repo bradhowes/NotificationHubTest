@@ -31,7 +31,7 @@
         _dateTimeFormatter = [NSDateFormatter new];
         [_dateTimeFormatter setDateFormat:@"HH:mm:ss.SSSSSS"];
         _scrollToEnd = YES;
-
+        _saveInterval = 5.0;
         [self setLogPath:nil];
     }
 
@@ -131,7 +131,7 @@
 - (void)flushToDisk
 {
     if (self.flushTimer == nil) {
-        self.flushTimer = [NSTimer scheduledTimerWithTimeInterval:5.0f target:self selector:@selector(writeLog:) userInfo:nil repeats:NO];
+        self.flushTimer = [NSTimer scheduledTimerWithTimeInterval:_saveInterval target:self selector:@selector(writeLog:) userInfo:nil repeats:NO];
     }
 }
 

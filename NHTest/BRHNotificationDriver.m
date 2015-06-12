@@ -30,8 +30,7 @@
 
 - (void)startEmitting:(NSNumber *)emitInterval completionBlock:(BRHNotificationDriverStartCompletionBlock)completionBlock
 {
-    [self startEmitting:emitInterval];
-    completionBlock(YES);
+    [self doesNotRecognizeSelector:_cmd];
 }
 
 - (void)stopEmitting

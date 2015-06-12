@@ -4,57 +4,44 @@
 // Copyright (C) 2015 Brad Howes. All rights reserved.
 
 #import "BRHBinFormatter.h"
-#import "BRHLatencyHistogramPlot.h"
+#import "BRHLatencyHistogramGraph.h"
 #import "BRHHistogram.h"
 #import "BRHLogger.h"
 #import "BRHRunData.h"
 
-static NSString* const kHistogramPlot = @"Histogram";
 static void* kKVOContext = &kKVOContext;
 
-@interface BRHLatencyHistogramPlot () <CPTPlotDataSource, CPTBarPlotDelegate>
+@interface BRHLatencyHistogramGraph () <CPTPlotDataSource, CPTBarPlotDelegate>
 
-@property (strong, nonatomic) BRHHistogram *dataSource;
-@property (strong, nonatomic) CPTPlotSpaceAnnotation *annotation;
-@property (assign, nonatomic) NSUInteger annotationIndex;
-
-- (void)makePlot;
-- (void)update:(NSNotification *)notification;
+- (void)makeGraph;
 - (void)updateBounds;
 
 @end
 
-@implementation BRHLatencyHistogramPlot
+@implementation BRHLatencyHistogramGraph
 
-- (void)useDataSource:(BRHRunData *)runData
+- (void)setRunData:(BRHRunData *)runData
 {
-    if (self.annotation != nil) {
-        [self.hostedGraph.plotAreaFrame.plotArea removeAnnotation:self.annotation];
-        self.annotation = nil;
+    if (_runData) {
+        [_runData removeObserver:self forKeyPath:BRHHistogramLastBinKey];
     }
 
-    if (self.dataSource) {
-        [self.dataSource removeObserver:self forKeyPath:BRHHistogramLastBinKey];
-    }
-
-    self.dataSource = runData.bins;
+    _runData = runData;
+    [self.runData addObserver:self forKeyPath:BRHHistogramLastBinKey options:NSKeyValueObservingOptionNew context:kKVOContext];
 
     if (! self.hostedGraph) {
-        [self makePlot];
+        [self makeGraph];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(update:) name:BRHRunDataNewDataNotification object:nil];
     }
     else {
         [self redraw];
     }
-
-    [self.dataSource addObserver:self forKeyPath:BRHHistogramLastBinKey options:NSKeyValueObservingOptionNew context:kKVOContext];
-
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(update:) name:BRHRunDataNewDataNotification object:nil];
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
     if (context == kKVOContext) {
-        if ([keyPath isEqualToString:BRHHistogramLastBinKey] && self.dataSource.maxBinCount.unsignedIntegerValue == 0) {
+        if ([keyPath isEqualToString:BRHHistogramLastBinKey] && _runData.bins.maxBinCount.unsignedIntegerValue == 0) {
             [self updateBounds];
         }
     }
@@ -63,7 +50,7 @@ static void* kKVOContext = &kKVOContext;
     }
 }
 
-- (void)makePlot
+- (void)makeGraph
 {
     CPTXYGraph *graph = [[CPTXYGraph alloc] initWithFrame:CGRectZero];
     self.hostedGraph = graph;
@@ -103,7 +90,6 @@ static void* kKVOContext = &kKVOContext;
     titleStyle.fontSize = 11.0f;
     
     CPTXYPlotSpace *plotSpace = (CPTXYPlotSpace *)graph.defaultPlotSpace;
-    plotSpace.identifier = kHistogramPlot;
     plotSpace.allowsUserInteraction = NO;
 
     CPTXYAxisSet *axisSet = (CPTXYAxisSet *)graph.axisSet;
@@ -156,7 +142,7 @@ static void* kKVOContext = &kKVOContext;
 
     CPTBarPlot *plot = [CPTBarPlot tubularBarPlotWithColor:[CPTColor cyanColor] horizontalBars:NO];
     //plot.barWidth = CPTDecimalFromFloat(0.7);
-    plot.identifier = kHistogramPlot;
+
     plot.dataSource = self;
     plot.delegate = self;
     [graph addPlot:plot toPlotSpace:plotSpace];
@@ -165,27 +151,27 @@ static void* kKVOContext = &kKVOContext;
 
 #if 0
     for (int z = 0; z < 13; ++z)
-        [self.dataSource addValue:0.5];
+        [self.runData addValue:0.5];
 
-    [self.dataSource addValue:1];
-    [self.dataSource addValue:1];
-    [self.dataSource addValue:1];
+    [self.runData addValue:1];
+    [self.runData addValue:1];
+    [self.runData addValue:1];
 
-    [self.dataSource addValue:2];
-    [self.dataSource addValue:2];
-    [self.dataSource addValue:2];
-    [self.dataSource addValue:2];
-    [self.dataSource addValue:2];
+    [self.runData addValue:2];
+    [self.runData addValue:2];
+    [self.runData addValue:2];
+    [self.runData addValue:2];
+    [self.runData addValue:2];
 
-    [self.dataSource addValue:28];
-    [self.dataSource addValue:29];
-    [self.dataSource addValue:30];
-    [self.dataSource addValue:30];
-    [self.dataSource addValue:31];
-    [self.dataSource addValue:32];
-    [self.dataSource addValue:33];
-    [self.dataSource addValue:34];
-    [self.dataSource addValue:35];
+    [self.runData addValue:28];
+    [self.runData addValue:29];
+    [self.runData addValue:30];
+    [self.runData addValue:30];
+    [self.runData addValue:31];
+    [self.runData addValue:32];
+    [self.runData addValue:33];
+    [self.runData addValue:34];
+    [self.runData addValue:35];
 
     // [plotSpace scaleToFitPlots: graph.allPlots];
     [self updateBounds];
@@ -217,7 +203,7 @@ static void* kKVOContext = &kKVOContext;
 
 - (void)updateBounds
 {
-    NSUInteger lastBin = self.dataSource.lastBin;
+    NSUInteger lastBin = _runData.bins.lastBin;
     CPTXYPlotSpace *plotSpace = (CPTXYPlotSpace *)self.hostedGraph.defaultPlotSpace;
     plotSpace.globalXRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromInteger(-1) length:CPTDecimalFromInteger(lastBin + 1)];
     plotSpace.xRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromInteger(-1) length:CPTDecimalFromInteger(lastBin + 1)];
@@ -229,21 +215,14 @@ static void* kKVOContext = &kKVOContext;
     CPTXYAxis *y = axisSet.xAxis;
     y.gridLinesRange = [CPTMutablePlotRange plotRangeWithLocation:CPTDecimalFromInteger(-1) length:CPTDecimalFromInteger(lastBin + 1)];
 
-    NSUInteger max = floor((MAX(self.dataSource.maxBinCount.unsignedIntegerValue, 5) + 4) / 5) * 5;
+    NSUInteger max = floor((MAX(_runData.bins.maxBinCount.unsignedIntegerValue, 5) + 4) / 5) * 5;
     plotSpace.yRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromInteger(0) length:CPTDecimalFromInteger(max)];
 }
 
 - (void)update:(NSNotification *)notification
 {
-    NSUInteger bin = [notification.userInfo[@"bin"] unsignedIntegerValue];
-    [self.hostedGraph.allPlots[0] reloadDataInIndexRange:NSMakeRange(bin, 1)];
-
-    if (self.annotation != nil && self.annotationIndex == bin) {
-        CPTTextLayer *textLayer = (CPTTextLayer *)self.annotation.contentLayer;
-        NSUInteger count = [self.dataSource binAtIndex:bin].unsignedIntegerValue;
-        textLayer.text = [NSString stringWithFormat:@"%ld", (unsigned long)count];
-    }
-    
+    BRHRunDataNotificationInfo *info = notification.userInfo[@"info"];
+    [self.hostedGraph.allPlots[0] reloadDataInIndexRange:NSMakeRange(info.binIndex, 1)];
     [self updateBounds];
 }
 
@@ -251,27 +230,25 @@ static void* kKVOContext = &kKVOContext;
 
 - (NSUInteger)numberOfRecordsForPlot:(CPTPlot *)plot
 {
-    return self.dataSource.lastBin + 1;
+    return _runData.bins.lastBin + 1;
 }
 
 -(NSNumber *)numberForPlot:(CPTPlot *)plot field:(NSUInteger)fieldEnum recordIndex:(NSUInteger)index
 {
-    NSNumber *num = [NSDecimalNumber zero];
-
     switch (fieldEnum) {
         case CPTBarPlotFieldBarLocation:
-            num = [NSNumber numberWithUnsignedInteger:index];
+            return [NSNumber numberWithUnsignedInteger:index];
             break;
 
         case CPTBarPlotFieldBarTip:
-            num = [self.dataSource binAtIndex:index];
+            return [_runData.bins binAtIndex:index];
             break;
-                
+
         default:
             break;
     }
     
-    return num;
+    return nil;
 }
 
 #pragma mark -
@@ -280,39 +257,6 @@ static void* kKVOContext = &kKVOContext;
 -(BOOL)plotSpace:(CPTPlotSpace *)space shouldScaleBy:(CGFloat)interactionScale aboutPoint:(CGPoint)interactionPoint
 {
     return NO;
-}
-
-#pragma mark -
-#pragma mark Plot Delegate Methods
-
-- (void)barPlot:(CPTBarPlot *)plot barWasSelectedAtRecordIndex:(NSUInteger)index
-{
-    if (self.annotation != nil) {
-        [self.hostedGraph.plotAreaFrame.plotArea removeAnnotation:self.annotation];
-        self.annotation = nil;
-        if (index == self.annotationIndex) {
-            return;
-        }
-    }
-    
-    self.annotationIndex = index;
-    
-    // Setup a style for the annotation
-    CPTMutableTextStyle *hitAnnotationTextStyle = [CPTMutableTextStyle textStyle];
-    hitAnnotationTextStyle.color    = [CPTColor whiteColor];
-    hitAnnotationTextStyle.fontSize = 16.0;
-    hitAnnotationTextStyle.fontName = @"Helvetica-Bold";
-    
-    CPTTextLayer *textLayer = [[CPTTextLayer alloc] initWithText:[NSString stringWithFormat:@"%ld", (long)[[self.dataSource binAtIndex:index] integerValue]] style:hitAnnotationTextStyle];
-    NSNumber *x = [NSNumber numberWithInteger:index];
-    NSNumber *y = [NSNumber numberWithInteger:0];
-    NSArray *anchorPoint = [NSArray arrayWithObjects:x, y, nil];
-    
-    self.annotation = [[CPTPlotSpaceAnnotation alloc] initWithPlotSpace:plot.plotSpace anchorPlotPoint:anchorPoint];
-    self.annotation.contentLayer = textLayer;
-    self.annotation.displacement = CGPointMake(-0.5, 10.0);
-    
-    [self.hostedGraph.plotAreaFrame.plotArea addAnnotation:self.annotation];
 }
 
 @end
