@@ -29,7 +29,6 @@ static double const kPlotSymbolSize = 8.0;
 {
     CPTScatterPlot *plot = [[CPTScatterPlot alloc] init];
     plot.identifier = @"Missing";
-    plot.delegate = self;
     plot.dataSource = self;
     plot.cachePrecision = CPTPlotCachePrecisionDouble;
     plot.dataLineStyle = nil;

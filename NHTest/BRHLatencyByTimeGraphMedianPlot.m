@@ -26,7 +26,6 @@
 {
     CPTScatterPlot *plot = [[CPTScatterPlot alloc] init];
     plot.identifier = @"Median";
-    plot.delegate = self;
     plot.dataSource = self;
 
     plot.cachePrecision = CPTPlotCachePrecisionDouble;

@@ -16,7 +16,7 @@
 
 static double const kPlotSymbolSize = 8.0;
 
-@interface BRHLatencyByTimeGraph () <CPTPlotSpaceDelegate>
+@interface BRHLatencyByTimeGraph () <CPTPlotSpaceDelegate, CPTLegendDelegate>
 
 @property (strong, nonatomic) NSMutableArray *plots;
 
@@ -89,6 +89,7 @@ static double const kPlotSymbolSize = 8.0;
     legend.cornerRadius = 5.0;
     legend.swatchSize = CGSizeMake(25.0, 25.0);
     legend.numberOfRows = 1;
+    legend.delegate = self;
 
     // Create a 2-tap gesture recognizer to show/hide the legend
     //
@@ -182,7 +183,6 @@ static double const kPlotSymbolSize = 8.0;
     //
     x.titleTextStyle = titleTextStyle;
     x.titleOffset = 18.0;
-    x.preferredNumberOfMajorTicks = 10;
 
     x.axisLineStyle = nil;
     x.axisConstraints = [CPTConstraints constraintWithLowerOffset:0.0];     // Keep the X axis from moving up/down when scrolling
@@ -415,6 +415,13 @@ static double const kPlotSymbolSize = 8.0;
 - (void)handleTap:(UITapGestureRecognizer *)sender
 {
     self.hostedGraph.legend.hidden = ! self.hostedGraph.legend.hidden;
+}
+
+#pragma mark - Legend Delegate Methods
+
+- (void)legend:(CPTLegend *)legend legendEntryForPlot:(CPTPlot *)plot wasSelectedAtIndex:(NSUInteger)idx
+{
+    plot.hidden = ! plot.hidden;
 }
 
 @end

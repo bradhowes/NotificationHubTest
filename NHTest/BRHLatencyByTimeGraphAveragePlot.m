@@ -26,7 +26,6 @@
 {
     CPTScatterPlot *plot = [[CPTScatterPlot alloc] init];
     plot.identifier = @"Average";
-    plot.delegate = self;
     plot.dataSource = self;
     plot.cachePrecision = CPTPlotCachePrecisionDouble;
     plot.dataLineStyle = nil;

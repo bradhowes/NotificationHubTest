@@ -31,6 +31,7 @@
 {
     if (! _plot) {
         _plot = [self makePlot];
+        _plot.delegate = self;
     }
 
     return _plot;
@@ -86,13 +87,6 @@
     }
 
     return nil;
-}
-
-#pragma mark - Plot Delegate Methods
-
-- (void)legend:(CPTLegend *)legend legendEntryForPlot:(CPTPlot *)plot wasSelectedAtIndex:(NSUInteger)idx
-{
-    plot.hidden = ! plot.hidden;
 }
 
 @end
