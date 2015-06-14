@@ -14,16 +14,13 @@
 
 @property (strong, nonatomic) Reachability *serverReachability;
 @property (strong, nonatomic) DBRestClient *restClient;
-@property (assign, nonatomic) BOOL warnedUser;
-@property (strong, nonatomic) BRHNetworkActivityIndicator *networkActivityIndicator;
 @property (assign, nonatomic) CGFloat totalProgress;
+@property (assign, nonatomic) BOOL networkActivityIndicator;
 
 - (void)startReachabilityService:(NSTimer *)timer;
 - (void)networkReachabilityChanged:(BOOL)active;
 - (void)startRestClient;
-- (void)warnNetworkAvailable;
 - (void)stopRestClient;
-- (void)warnNetworkUnavailable;
 - (void)readyToUpload;
 
 @end
@@ -33,10 +30,8 @@
 - (instancetype)init
 {
     if (self = [super init]) {
-        _warnedUser = NO;
         _monitor = nil;
         _uploadingFile = nil;
-        _networkActivityIndicator = nil;
         _totalProgress = 0.0;
 
         [NSTimer scheduledTimerWithTimeInterval:3.0 target:self selector:@selector(startReachabilityService:)
@@ -44,6 +39,11 @@
     }
 
     return self;
+}
+
+- (void)setNetworkActivityIndicator:(BOOL)onOrOff
+{
+    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:onOrOff];
 }
 
 #pragma mark - Network Reachability Detection
@@ -63,7 +63,6 @@
     };
 
     [self.serverReachability startNotifier];
-    [self networkReachabilityChanged:YES];
 }
 
 - (void)networkReachabilityChanged:(BOOL)available
@@ -72,50 +71,20 @@
     if (available) {
         if (self.restClient == nil) {
             [self startRestClient];
-            [self warnNetworkAvailable];
         }
     }
     else {
         if (self.restClient != nil) {
             [self stopRestClient];
-            [self warnNetworkUnavailable];
         }
     }
-}
-
-- (void)warnNetworkAvailable
-{
-    if (! self.warnedUser) return;
-    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Network Available"
-                                                                   message:@"Uploading files to Dropbox account."
-                                                            preferredStyle:UIAlertControllerStyleAlert];
-    [alert addAction:[UIAlertAction actionWithTitle:@"OK"
-                                              style:UIAlertActionStyleDefault
-                                            handler:^(UIAlertAction* action) {
-                                            }]];
-    self.warnedUser = NO;
-    [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:alert animated:YES completion:nil];
-}
-
-- (void)warnNetworkUnavailable
-{
-    if (self.warnedUser) return;
-    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Network Unavailable"
-                                                                   message:@"Unable to upload files to Dropbox account."
-                                                            preferredStyle:UIAlertControllerStyleAlert];
-    [alert addAction:[UIAlertAction actionWithTitle:@"OK"
-                                              style:UIAlertActionStyleDefault
-                                            handler:^(UIAlertAction* action) {
-                                            }]];
-    self.warnedUser = YES;
-    [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:alert animated:YES completion:nil];
 }
 
 - (void)cancelUpload
 {
     if (self.restClient != nil && self.uploadingFile != nil) {
         [self.restClient cancelFileUpload:self.uploadingFile.filePath];
-        self.networkActivityIndicator = nil;
+        self.networkActivityIndicator = NO;
     }
 }
 
@@ -142,7 +111,7 @@
         self.uploadingFile = nil;
     }
     
-    self.networkActivityIndicator = nil;
+    self.networkActivityIndicator = NO;
 }
 
 - (void)readyToUpload
@@ -154,7 +123,7 @@
         _uploadingFile = nil;
     }
 
-    self.networkActivityIndicator = nil;
+    self.networkActivityIndicator = NO;
     self.uploadingFile = [self.monitor dropboxUploaderReadyToUpload:self];
 }
 
@@ -177,8 +146,35 @@
     _uploadingFile.uploading = YES;
     _totalProgress = 0.0;
 
-    self.networkActivityIndicator = [BRHNetworkActivityIndicator new];
-    [self createFolder:nil];
+    self.networkActivityIndicator = YES;
+
+    [self checkForFolder:nil];
+}
+
+- (void)checkForFolder:(NSTimer *)timer
+{
+    NSLog(@"checkForFolder - %@", _uploadingFile.filePath);
+
+    [self.restClient loadMetadata:_uploadingFile.filePath];
+}
+
+- (void)restClient:(DBRestClient *)client loadMetadataFailedWithError:(NSError *)error
+{
+    NSLog(@"loadMetadataFailedWithError - %@", error.description);
+    [NSTimer scheduledTimerWithTimeInterval:5.0 target:self selector:@selector(checkForFolder:) userInfo:nil
+                                    repeats:NO];
+}
+
+- (void)restClient:(DBRestClient*)client loadedMetadata:(DBMetadata*)metadata
+{
+    for (DBMetadata* child in metadata.contents) {
+        if (child.isDirectory && [child.filename isEqualToString:_uploadingFile.filePath]) {
+            [self uploadFile:@"events.csv"];
+        }
+        else {
+            [self createFolder:nil];
+        }
+    }
 }
 
 - (void)createFolder:(NSTimer *)timer

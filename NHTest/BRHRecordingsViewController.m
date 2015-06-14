@@ -456,8 +456,16 @@
 
 - (void)setDropboxUploader:(BRHDropboxUploader *)dropboxUploader
 {
+    if (_dropboxUploader) {
+        [_dropboxUploader cancelUpload];
+        _dropboxUploader = nil;
+    }
+
     _dropboxUploader = dropboxUploader;
-    _dropboxUploader.monitor = self;
+    
+    if (_dropboxUploader) {
+        _dropboxUploader.monitor = self;
+    }
 }
 
 - (BRHRecordingInfo *)nextToUpload

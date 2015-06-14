@@ -127,7 +127,13 @@ extractIdentityAndTrust(CFDataRef inPKCS12Data, SecIdentityRef* outIdentity, Sec
     NSString *text = [NSString stringWithFormat:@"Unable to find certificate %@ to use for APNs communications. Check the filename value in Settings.", fileName];
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Missing APN Certificate" message:text preferredStyle:UIAlertControllerStyleAlert];
     [alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction* action) {}]];
-    [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:alert animated:YES completion:nil];
+
+    UIViewController *vc = [UIApplication sharedApplication].keyWindow.rootViewController;
+    if (vc.presentedViewController) {
+        vc = vc.presentedViewController;
+    }
+    
+    [vc presentViewController:alert animated:YES completion:nil];
 }
 
 - (void)alertInvalidCert
@@ -135,7 +141,13 @@ extractIdentityAndTrust(CFDataRef inPKCS12Data, SecIdentityRef* outIdentity, Sec
     NSString *text = [NSString stringWithFormat:@"Unable to load certificate to use for APNs communications. Check the filename and password values in Settings."];
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Invalid APN Certificate" message:text preferredStyle:UIAlertControllerStyleAlert];
     [alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction* action) {}]];
-    [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:alert animated:YES completion:nil];
+
+    UIViewController *vc = [UIApplication sharedApplication].keyWindow.rootViewController;
+    if (vc.presentedViewController) {
+        vc = vc.presentedViewController;
+    }
+    
+    [vc presentViewController:alert animated:YES completion:nil];
 }
 
 - (BOOL)connect

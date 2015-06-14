@@ -63,20 +63,6 @@ static void* kKVOContext = &kKVOContext;
     }
 }
 
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
-{
-    if (context == kKVOContext) {
-        if ([keyPath isEqualToString:@"useDropbox"]) {
-            NSNumber *newValue = change[NSKeyValueChangeNewKey];
-            NSLog(@"useDropbox changed - %@", newValue);
-            [self enableDropbox:newValue.boolValue];
-        }
-    }
-    else {
-        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
-    }
-}
-
 #pragma mark - Dropbox Linking
 
 - (void)setupDropbox
@@ -101,12 +87,18 @@ static void* kKVOContext = &kKVOContext;
         }];
 
         UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
-            settings.useDropbox = NO;
+            [self enableDropbox:NO];
         }];
 
         [alert addAction:cancelAction];
         [alert addAction:linkAction];
-        [self.window.rootViewController presentViewController:alert animated:YES completion:nil];
+
+        UIViewController *vc = [UIApplication sharedApplication].keyWindow.rootViewController;
+        if (vc.presentedViewController) {
+            vc = vc.presentedViewController;
+        }
+
+        [vc presentViewController:alert animated:YES completion:nil];
     }
     else if (! settings.useDropbox && self.session.isLinked) {
         
@@ -122,7 +114,12 @@ static void* kKVOContext = &kKVOContext;
         }];
         
         [alert addAction:okAction];
-        [self.window.rootViewController presentViewController:alert animated:YES completion:nil];
+        UIViewController *vc = [UIApplication sharedApplication].keyWindow.rootViewController;
+        if (vc.presentedViewController) {
+            vc = vc.presentedViewController;
+        }
+        
+        [vc presentViewController:alert animated:YES completion:nil];
     }
     else {
         [self enableDropbox:settings.useDropbox];
@@ -132,10 +129,15 @@ static void* kKVOContext = &kKVOContext;
 - (void)enableDropbox:(BOOL)value
 {
     NSLog(@"enableDropbox - %d", value);
+    [BRHUserSettings userSettings].useDropbox = value;
     if (value) {
         if (! self.session.isLinked) {
             NSLog(@"not linked - showing link request");
-            [self.session linkFromController:self.window.rootViewController];
+            UIViewController *vc = [UIApplication sharedApplication].keyWindow.rootViewController;
+            if (vc.presentedViewController) {
+                vc = vc.presentedViewController;
+            }
+            [self.session linkFromController:vc];
         }
         else if (! self.mainViewController.dropboxUploader){
             NSLog(@"linked - creating BRHDropboxUploader");
@@ -168,7 +170,12 @@ static void* kKVOContext = &kKVOContext;
                                               style:UIAlertActionStyleCancel
                                             handler:^(UIAlertAction* action) {}]];
     
-    [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:alert animated:YES completion:nil];
+    UIViewController *vc = [UIApplication sharedApplication].keyWindow.rootViewController;
+    if (vc.presentedViewController) {
+        vc = vc.presentedViewController;
+    }
+    
+    [vc presentViewController:alert animated:YES completion:nil];
 }
 
 #pragma mark - Core Data Management
@@ -432,7 +439,12 @@ static void* kKVOContext = &kKVOContext;
                                               style:UIAlertActionStyleDefault
                                             handler:^(UIAlertAction* action) {}]];
 #if ! TARGET_IPHONE_SIMULATOR
-    [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:alert animated:YES completion:nil];
+    UIViewController *vc = [UIApplication sharedApplication].keyWindow.rootViewController;
+    if (vc.presentedViewController) {
+        vc = vc.presentedViewController;
+    }
+    
+    [vc presentViewController:alert animated:YES completion:nil];
 #endif
 }
 
@@ -460,8 +472,6 @@ static void* kKVOContext = &kKVOContext;
 {
     NSLog(@"applicationWillResignActive");
     [BRHEventLog add:@"resignActive", nil];
-    [[BRHUserSettings userSettings] removeObserver:self forKeyPath:@"useDropbox" context:kKVOContext];
-    NSLog(@"disabled KVO for useDropbox");
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application
@@ -481,8 +491,6 @@ static void* kKVOContext = &kKVOContext;
     NSLog(@"applicationDidBecomeActive");
     [BRHEventLog add:@"didBecomeActive", nil];
     [self setupDropbox];
-    [[BRHUserSettings userSettings] addObserver:self forKeyPath:@"useDropbox" options:NSKeyValueObservingOptionNew context:kKVOContext];
-    NSLog(@"enabled KVO for useDropbox");
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application

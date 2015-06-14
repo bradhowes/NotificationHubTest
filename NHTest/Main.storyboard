@@ -100,7 +100,7 @@
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="npn-Tb-hB0"/>
                                     <barButtonItem image="settings.png" id="OV8-gS-C8g" userLabel="Settings">
                                         <connections>
-                                            <segue destination="rm4-9w-Nsz" kind="modal" id="dAu-AO-xwb"/>
+                                            <action selector="showSettings:" destination="YuD-bI-rsP" id="g6f-MH-Gn3"/>
                                         </connections>
                                     </barButtonItem>
                                 </items>
@@ -151,39 +151,6 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="rwa-0m-4Vv" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-65" y="257"/>
-        </scene>
-        <!--Settings View Controller-->
-        <scene sceneID="8Ra-76-6nJ">
-            <objects>
-                <tableViewController id="vje-n2-QXF" userLabel="Settings View Controller" customClass="BRHSettingsViewController" sceneMemberID="viewController">
-                    <tableView key="view" opaque="NO" clipsSubviews="YES" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="grouped" separatorStyle="default" rowHeight="44" sectionHeaderHeight="10" sectionFooterHeight="10" id="Xzg-Sk-hFq">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" red="0.93725490196078431" green="0.93725490196078431" blue="0.95686274509803926" alpha="1" colorSpace="calibratedRGB"/>
-                    </tableView>
-                    <navigationItem key="navigationItem" title="Settings" id="2HI-Yl-Ute"/>
-                    <connections>
-                        <outlet property="view" destination="Xzg-Sk-hFq" id="GfQ-UT-LN5"/>
-                    </connections>
-                </tableViewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="NNq-kb-BHR" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="344" y="1008"/>
-        </scene>
-        <!--Settings Navigation Controller-->
-        <scene sceneID="7Re-wo-WFX">
-            <objects>
-                <navigationController definesPresentationContext="YES" modalTransitionStyle="crossDissolve" id="rm4-9w-Nsz" userLabel="Settings Navigation Controller" sceneMemberID="viewController">
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="9gT-dV-Bsf">
-                        <autoresizingMask key="autoresizingMask"/>
-                    </navigationBar>
-                    <connections>
-                        <segue destination="vje-n2-QXF" kind="relationship" relationship="rootViewController" id="EXu-79-sYU"/>
-                    </connections>
-                </navigationController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="Hue-dP-crI" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="-65" y="1008"/>
         </scene>
         <!--Recordings View Controller-->
         <scene sceneID="xiF-ef-TKz">

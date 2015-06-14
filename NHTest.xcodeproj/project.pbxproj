@@ -23,6 +23,7 @@
 		BD3EC5481876068E005AE4B8 /* plot@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = BD3EC5461876068E005AE4B8 /* plot@2x.png */; };
 		BD3EC5511876CE87005AE4B8 /* BRHNotificationDriver.m in Sources */ = {isa = PBXBuildFile; fileRef = BD3EC5501876CE87005AE4B8 /* BRHNotificationDriver.m */; };
 		BD3EC5541876E090005AE4B8 /* BRHLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = BD3EC5531876E090005AE4B8 /* BRHLogger.m */; };
+		BD4AB4DE1B2BB582004AE98E /* BRHSettingsStore.m in Sources */ = {isa = PBXBuildFile; fileRef = BD4AB4DD1B2BB582004AE98E /* BRHSettingsStore.m */; };
 		BD4FC2131B1B57B600C6634F /* UIBarButtonItem+Badge.m in Sources */ = {isa = PBXBuildFile; fileRef = BD4FC2121B1B57B600C6634F /* UIBarButtonItem+Badge.m */; };
 		BD4FC2381B1C61C000C6634F /* libCocoaLumberjack.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BD4FC2351B1C615700C6634F /* libCocoaLumberjack.a */; };
 		BD4FC24F1B1C662B00C6634F /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = BD4FC24C1B1C662B00C6634F /* GCDAsyncSocket.m */; };
@@ -34,7 +35,7 @@
 		BD5FE39718F94F50006368C4 /* settings.png in Resources */ = {isa = PBXBuildFile; fileRef = BD5FE39418F94F50006368C4 /* settings.png */; };
 		BD5FE39818F94F50006368C4 /* settings@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = BD5FE39518F94F50006368C4 /* settings@2x.png */; };
 		BD5FE39918F94F50006368C4 /* settings.opacity in Resources */ = {isa = PBXBuildFile; fileRef = BD5FE39618F94F50006368C4 /* settings.opacity */; };
-		BD5FE39C18F95695006368C4 /* BRHSettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = BD5FE39B18F95695006368C4 /* BRHSettingsViewController.m */; };
+		BD5FE39C18F95695006368C4 /* BRHSettingsViewDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = BD5FE39B18F95695006368C4 /* BRHSettingsViewDelegate.m */; };
 		BD5FE39D18F97919006368C4 /* BRHMainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = BDA7A50D1871AF60002F7780 /* BRHMainViewController.m */; };
 		BD6585B21875FA15008D1BA7 /* trash-25.png in Resources */ = {isa = PBXBuildFile; fileRef = BD6585AE1875FA15008D1BA7 /* trash-25.png */; };
 		BD6585B31875FA15008D1BA7 /* trash-50.png in Resources */ = {isa = PBXBuildFile; fileRef = BD6585AF1875FA15008D1BA7 /* trash-50.png */; };
@@ -173,6 +174,8 @@
 		BD3EC5501876CE87005AE4B8 /* BRHNotificationDriver.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = BRHNotificationDriver.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		BD3EC5521876E090005AE4B8 /* BRHLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = BRHLogger.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		BD3EC5531876E090005AE4B8 /* BRHLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = BRHLogger.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		BD4AB4DD1B2BB582004AE98E /* BRHSettingsStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BRHSettingsStore.m; sourceTree = "<group>"; };
+		BD4AB4E41B2BB5CB004AE98E /* BRHSettingsStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BRHSettingsStore.h; sourceTree = "<group>"; };
 		BD4FC2111B1B57B600C6634F /* UIBarButtonItem+Badge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIBarButtonItem+Badge.h"; path = "Vendor/UIBarButtonItem+Badge.h"; sourceTree = "<group>"; };
 		BD4FC2121B1B57B600C6634F /* UIBarButtonItem+Badge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIBarButtonItem+Badge.m"; path = "Vendor/UIBarButtonItem+Badge.m"; sourceTree = "<group>"; };
 		BD4FC22F1B1C615700C6634F /* Lumberjack.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Lumberjack.xcodeproj; path = ../../src/iphone/CocoaLumberjack/Framework/Mobile/Lumberjack.xcodeproj; sourceTree = "<group>"; };
@@ -190,8 +193,8 @@
 		BD5FE39418F94F50006368C4 /* settings.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = settings.png; sourceTree = "<group>"; };
 		BD5FE39518F94F50006368C4 /* settings@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "settings@2x.png"; sourceTree = "<group>"; };
 		BD5FE39618F94F50006368C4 /* settings.opacity */ = {isa = PBXFileReference; lastKnownFileType = file; path = settings.opacity; sourceTree = "<group>"; };
-		BD5FE39A18F95695006368C4 /* BRHSettingsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BRHSettingsViewController.h; sourceTree = "<group>"; };
-		BD5FE39B18F95695006368C4 /* BRHSettingsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = BRHSettingsViewController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		BD5FE39A18F95695006368C4 /* BRHSettingsViewDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BRHSettingsViewDelegate.h; sourceTree = "<group>"; };
+		BD5FE39B18F95695006368C4 /* BRHSettingsViewDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = BRHSettingsViewDelegate.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		BD6585AE1875FA15008D1BA7 /* trash-25.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "trash-25.png"; path = "NHTest/trash-25.png"; sourceTree = SOURCE_ROOT; };
 		BD6585AF1875FA15008D1BA7 /* trash-50.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "trash-50.png"; path = "NHTest/trash-50.png"; sourceTree = SOURCE_ROOT; };
 		BD6585B01875FA15008D1BA7 /* trash-75.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "trash-75.png"; path = "NHTest/trash-75.png"; sourceTree = SOURCE_ROOT; };
@@ -536,8 +539,10 @@
 		BDDBC7E31B2816A800EDFDC2 /* Settings */ = {
 			isa = PBXGroup;
 			children = (
-				BD5FE39A18F95695006368C4 /* BRHSettingsViewController.h */,
-				BD5FE39B18F95695006368C4 /* BRHSettingsViewController.m */,
+				BD5FE39A18F95695006368C4 /* BRHSettingsViewDelegate.h */,
+				BD5FE39B18F95695006368C4 /* BRHSettingsViewDelegate.m */,
+				BD4AB4E41B2BB5CB004AE98E /* BRHSettingsStore.h */,
+				BD4AB4DD1B2BB582004AE98E /* BRHSettingsStore.m */,
 				BDF02AF61B17375000DD3C47 /* BRHUserSettings.h */,
 				BDF02AF71B17375000DD3C47 /* BRHUserSettings.m */,
 			);
@@ -741,7 +746,7 @@
 				BD4FC2501B1C662B00C6634F /* GCDAsyncUdpSocket.m in Sources */,
 				BD2481381B1E210F00A3EF5E /* BRHSimDriver.m in Sources */,
 				BDFF04F41958406000677A74 /* BRHAPNsClient.m in Sources */,
-				BD5FE39C18F95695006368C4 /* BRHSettingsViewController.m in Sources */,
+				BD5FE39C18F95695006368C4 /* BRHSettingsViewDelegate.m in Sources */,
 				BDFBF343187C55460080CC99 /* BRHHistogram.m in Sources */,
 				BDC0475E19D07D2400A14DE9 /* BRHLatencyHistogramGraph.m in Sources */,
 				BDF2FFBD1A8E0F7E00364460 /* BRHRemoteDriver.m in Sources */,
@@ -756,6 +761,7 @@
 				BD24813A1B1E213900A3EF5E /* BRHLoopNotificationDriver.m in Sources */,
 				BD130FDD1B299063004B052C /* BRHLatencyByTimeGraphMissingPlot.m in Sources */,
 				BD130FE11B29B6A6004B052C /* BRHLatencyByTimeGraphMedianPlot.m in Sources */,
+				BD4AB4DE1B2BB582004AE98E /* BRHSettingsStore.m in Sources */,
 				BD4FC24F1B1C662B00C6634F /* GCDAsyncSocket.m in Sources */,
 				BD4FC25A1B1CA21100C6634F /* DDGPreferences.m in Sources */,
 				BD130FD21B2986E3004B052C /* BRHLatencyByTimeGraphLatencyPlot.m in Sources */,

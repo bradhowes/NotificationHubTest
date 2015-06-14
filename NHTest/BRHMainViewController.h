@@ -9,7 +9,9 @@
 @class BRHLatencyHistogramGraph;
 @class BRHLatencyByTimeGraph;
 @class BRHRecordingsViewController;
+@class BRHSettingsViewDelegate;
 @class BRHRunData;
+@class IASKAppSettingsViewController;
 
 @interface BRHMainViewController : UIViewController
 
@@ -24,13 +26,17 @@
 @property (strong, nonatomic) IBOutlet UITextView *logView;
 @property (strong, nonatomic) IBOutlet UITextView *eventsView;
 @property (strong, nonatomic) IBOutlet UIView *recordingsView;
+
 @property (strong, nonatomic) BRHRecordingsViewController *recordingsViewController;
+@property (strong, nonatomic) IASKAppSettingsViewController *settingsViewController;
+
 @property (strong, nonatomic) BRHDropboxUploader *dropboxUploader;
 
 - (IBAction)startStop:(id)sender;
 - (IBAction)showHideLogView:(id)sender;
 - (IBAction)showHideEventsView:(id)sender;
 - (IBAction)showHideRecordingsView:(id)sender;
+- (IBAction)showSettings:(id)sender;
 
 - (void)setRunData:(BRHRunData *)runData;
 

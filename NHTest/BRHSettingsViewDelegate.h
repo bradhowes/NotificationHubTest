@@ -6,13 +6,16 @@
 //  Copyright (c) 2014 Brad Howes. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
-
 #import "InAppSettingsKit/IASKAppSettingsViewController.h"
+
+@class BRHMainViewController;
 
 /*!
  * @brief Adaptation of the IASKAppSettingsViewController that shows setting values from our BRHUSerSettings instance.
  */
-@interface BRHSettingsViewController : IASKAppSettingsViewController <IASKSettingsDelegate>
+@interface BRHSettingsViewDelegate : NSObject <IASKSettingsDelegate>
+
+@property (strong, nonatomic) BRHMainViewController *mainWindowController;
+@property (strong, nonatomic) IASKAppSettingsViewController* settingsViewController;
 
 @end
