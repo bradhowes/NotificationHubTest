@@ -127,23 +127,23 @@
     if (_uploadingFile != nil) {
         _uploadingFile.uploading = NO;
         _uploadingFile.progress = 0.0;
-        _uploadingFile = nil;
+        self.uploadingFile = nil;
     }
-    
+
     self.networkActivityIndicator = NO;
 }
 
 - (void)readyToUpload
 {
-    NSLog(@"readyToUpload");
+    NSLog(@"BRHDropboxUploader readyToUpload");
 
     if (_uploadingFile != nil) {
         _uploadingFile.uploading = NO;
-        _uploadingFile = nil;
+        self.uploadingFile = nil;
     }
 
-    _uploadingFile = [_monitor dropboxUploaderReadyToUpload:self];
-
+    self.uploadingFile = [_monitor dropboxUploaderReadyToUpload:self];
+    
     self.networkActivityIndicator = NO;
 }
 

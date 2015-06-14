@@ -13,6 +13,7 @@
 #import "BRHRecordingInfo.h"
 #import "BRHRecordingsViewController.h"
 #import "BRHUserSettings.h"
+#import "MACircleProgressIndicator.h"
 
 @interface BRHRecordingsViewController () <NSFetchedResultsControllerDelegate, BRHDropboxUploaderMonitor>
 
@@ -196,7 +197,7 @@
 - (void)setButtonItem:(UIBarButtonItem *)buttonItem
 {
     _buttonItem = buttonItem;
-    [self updateBadge];
+    // [self updateBadge];
 }
 
 - (void)setPendingCount:(NSUInteger)pendingCount
@@ -380,17 +381,23 @@
 
     if (! recordingInfo.uploaded && recordingInfo.uploading) {
 
-        UIProgressView *accessoryView = (UIProgressView *)[cell accessoryView];
+        MACircleProgressIndicator *accessoryView = (MACircleProgressIndicator *)[cell accessoryView];
         if (accessoryView == nil) {
-            accessoryView = [[UIProgressView alloc] initWithProgressViewStyle:UIProgressViewStyleDefault];
+            // accessoryView = [[UIProgressView alloc] initWithProgressViewStyle:UIProgressViewStyleDefault];
+            accessoryView = [[MACircleProgressIndicator alloc] initWithFrame:CGRectMake(0.0, 0.0, 25.0, 25.0)];
+            accessoryView.color = [UIColor blueColor];
+            accessoryView.backgroundColor = [UIColor whiteColor];
+            // accessoryView.strokeWidth = 4.0;
+
 //            [[UIProgressView appearance] setProgressTintColor:[UIColor colorWithRed:0 green:175.0/255.0 blue:176.0/255.0 alpha:1.0]];
 //            [[UIProgressView appearance] setTrackTintColor:[UIColor colorWithRed:0.996 green:0.788 blue:0.180 alpha:1.000]];
-            CGRect bounds = accessoryView.bounds;
-            bounds.size.width = 80;
-            accessoryView.bounds = bounds;
+//            CGRect bounds = accessoryView.bounds;
+//            bounds.size.width = 80;
+//            accessoryView.bounds = bounds;
             [cell setAccessoryView:accessoryView];
         }
-        [accessoryView setProgress:recordingInfo.progress];
+        //[accessoryView setProgress:recordingInfo.progress];
+        accessoryView.value = recordingInfo.progress;
     }
     else {
         [cell setAccessoryView:nil];

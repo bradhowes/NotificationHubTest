@@ -24,6 +24,7 @@
 		BD3EC5511876CE87005AE4B8 /* BRHNotificationDriver.m in Sources */ = {isa = PBXBuildFile; fileRef = BD3EC5501876CE87005AE4B8 /* BRHNotificationDriver.m */; };
 		BD3EC5541876E090005AE4B8 /* BRHLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = BD3EC5531876E090005AE4B8 /* BRHLogger.m */; };
 		BD4AB4DE1B2BB582004AE98E /* BRHSettingsStore.m in Sources */ = {isa = PBXBuildFile; fileRef = BD4AB4DD1B2BB582004AE98E /* BRHSettingsStore.m */; };
+		BD4AB4F31B2DE78C004AE98E /* MACircleProgressIndicator.m in Sources */ = {isa = PBXBuildFile; fileRef = BD4AB4F21B2DE78C004AE98E /* MACircleProgressIndicator.m */; };
 		BD4FC2131B1B57B600C6634F /* UIBarButtonItem+Badge.m in Sources */ = {isa = PBXBuildFile; fileRef = BD4FC2121B1B57B600C6634F /* UIBarButtonItem+Badge.m */; };
 		BD4FC2381B1C61C000C6634F /* libCocoaLumberjack.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BD4FC2351B1C615700C6634F /* libCocoaLumberjack.a */; };
 		BD4FC24F1B1C662B00C6634F /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = BD4FC24C1B1C662B00C6634F /* GCDAsyncSocket.m */; };
@@ -176,6 +177,8 @@
 		BD3EC5531876E090005AE4B8 /* BRHLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = BRHLogger.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		BD4AB4DD1B2BB582004AE98E /* BRHSettingsStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BRHSettingsStore.m; sourceTree = "<group>"; };
 		BD4AB4E41B2BB5CB004AE98E /* BRHSettingsStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BRHSettingsStore.h; sourceTree = "<group>"; };
+		BD4AB4F11B2DE78C004AE98E /* MACircleProgressIndicator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MACircleProgressIndicator.h; path = NHTest/MACircleProgressIndicator.h; sourceTree = "<group>"; };
+		BD4AB4F21B2DE78C004AE98E /* MACircleProgressIndicator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MACircleProgressIndicator.m; path = NHTest/MACircleProgressIndicator.m; sourceTree = "<group>"; };
 		BD4FC2111B1B57B600C6634F /* UIBarButtonItem+Badge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIBarButtonItem+Badge.h"; path = "Vendor/UIBarButtonItem+Badge.h"; sourceTree = "<group>"; };
 		BD4FC2121B1B57B600C6634F /* UIBarButtonItem+Badge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIBarButtonItem+Badge.m"; path = "Vendor/UIBarButtonItem+Badge.m"; sourceTree = "<group>"; };
 		BD4FC22F1B1C615700C6634F /* Lumberjack.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Lumberjack.xcodeproj; path = ../../src/iphone/CocoaLumberjack/Framework/Mobile/Lumberjack.xcodeproj; sourceTree = "<group>"; };
@@ -511,6 +514,8 @@
 		BDB5D47218F93E49007B0C23 /* Vendor */ = {
 			isa = PBXGroup;
 			children = (
+				BD4AB4F11B2DE78C004AE98E /* MACircleProgressIndicator.h */,
+				BD4AB4F21B2DE78C004AE98E /* MACircleProgressIndicator.m */,
 				BD4FC2581B1CA21100C6634F /* DDGPreferences.h */,
 				BD4FC2591B1CA21100C6634F /* DDGPreferences.m */,
 				BD4FC24B1B1C662B00C6634F /* GCDAsyncSocket.h */,
@@ -762,6 +767,7 @@
 				BD130FDD1B299063004B052C /* BRHLatencyByTimeGraphMissingPlot.m in Sources */,
 				BD130FE11B29B6A6004B052C /* BRHLatencyByTimeGraphMedianPlot.m in Sources */,
 				BD4AB4DE1B2BB582004AE98E /* BRHSettingsStore.m in Sources */,
+				BD4AB4F31B2DE78C004AE98E /* MACircleProgressIndicator.m in Sources */,
 				BD4FC24F1B1C662B00C6634F /* GCDAsyncSocket.m in Sources */,
 				BD4FC25A1B1CA21100C6634F /* DDGPreferences.m in Sources */,
 				BD130FD21B2986E3004B052C /* BRHLatencyByTimeGraphLatencyPlot.m in Sources */,
