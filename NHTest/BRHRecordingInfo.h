@@ -17,6 +17,8 @@ extern NSString *BRHRecordingInfoDataModelName;
 @property (assign, nonatomic) BOOL uploaded;
 @property (assign, nonatomic) BOOL uploading;
 @property (assign, nonatomic) BOOL recording;
+@property (strong, nonatomic) NSDate *startTime;
+@property (strong, nonatomic) NSDate *endTime;
 
 @property (strong, readonly, nonatomic) NSURL *folderURL;
 
@@ -27,5 +29,7 @@ extern NSString *BRHRecordingInfoDataModelName;
 - (NSURL *)folderURL;
 
 - (unsigned long long int)folderSize;
+
+- (NSString *)durationString;
 
 @end

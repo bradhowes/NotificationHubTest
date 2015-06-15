@@ -76,6 +76,8 @@
  */
 @property (assign, nonatomic) BOOL useDropbox;
 
+@property (assign, nonatomic) NSNumber *retryUntilFetched;
+
 /*!
  @brief Obtain the global BRHUserSettings instance
  

@@ -10,5 +10,7 @@
 
 @interface BRHTimeFormatter : NSNumberFormatter
 
++ (instancetype)sharedTimeFormatter;
+
 @end
 

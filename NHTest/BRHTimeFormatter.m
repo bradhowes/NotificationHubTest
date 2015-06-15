@@ -10,7 +10,17 @@
 
 @implementation BRHTimeFormatter
 
-/** Format a elapsed time value into HH:MM:SS format
++ (instancetype)sharedTimeFormatter
+{
+    static BRHTimeFormatter *singleton = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        singleton = [BRHTimeFormatter new];
+    });
+    return singleton;
+}
+
+/** Format a elapsed time value into HHhMMmSSs format
  * @param obj the object to convert. Expects an object that responds to "doubleValue" method, like NSNumber
  * @return NSString representation of the given values
  */
@@ -44,15 +54,20 @@
     //
     if (ss.length == 1) ss = @"";
 
-    if (hours > 0) {
-        return [NSString stringWithFormat:@"%ld:%2.2ld:%2.2ld%@", (long)hours, (long)minutes, (long)seconds, ss];
+    NSMutableString *result = [NSMutableString new];
+    if (hours) {
+        [result appendFormat:@"%ldh", (long)hours];
     }
-    else if (minutes > 0) {
-        return [NSString stringWithFormat:@"%ld:%2.2ld%@", (long)minutes, (long)seconds, ss];
+    
+    if (minutes) {
+        [result appendFormat:@"%ldm", (long)minutes];
     }
-    else {
-        return [NSString stringWithFormat:@"%ld%@s", (long)seconds, ss];
+
+    if (seconds || ss.length) {
+        [result appendFormat:@"%ld%@s", (long)seconds, ss];
     }
+
+    return result;
 }
 
 @end

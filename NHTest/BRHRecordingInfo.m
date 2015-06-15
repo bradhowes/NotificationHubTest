@@ -4,6 +4,7 @@
 // Copyright (C) 2015 Brad Howes. All rights reserved.
 
 #import "BRHRecordingInfo.h"
+#import "BRHTimeFormatter.h"
 #import "BRHUserSettings.h"
 
 NSString *BRHRecordingInfoDataModelName = @"BRHRecordingInfo";
@@ -38,6 +39,9 @@ static NSString *kRecordingInfoRecordingKey = @"recording";
 @dynamic uploaded;
 @dynamic uploading;
 @dynamic recording;
+@dynamic startTime;
+@dynamic endTime;
+
 @synthesize folderURL = _folderURL;
 
 - (float)progress
@@ -226,6 +230,13 @@ static NSString *kRecordingInfoRecordingKey = @"recording";
     NSLog(@"fileSize: %llu", fileSize);
 
     return fileSize;
+}
+
+- (NSString *)durationString
+{
+    if (! self.startTime || ! self.endTime) return @"0s";
+    NSTimeInterval duration = round([self.endTime timeIntervalSinceDate:self.startTime]);
+    return [[BRHTimeFormatter sharedTimeFormatter] stringFromNumber:[NSNumber numberWithDouble:duration]];
 }
 
 @end

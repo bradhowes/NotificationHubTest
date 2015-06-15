@@ -191,7 +191,7 @@ static double const kPlotSymbolSize = 8.0;
     x.labelTextStyle = labelTextStyle;
     x.labelOffset = -4.0;
 
-    BRHTimeFormatter *formatter = [BRHTimeFormatter new];
+    BRHTimeFormatter *formatter = [BRHTimeFormatter sharedTimeFormatter];
     x.labelFormatter = formatter;
     
     x.tickDirection = CPTSignNegative;

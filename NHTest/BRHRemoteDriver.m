@@ -120,7 +120,9 @@ static NSString *taskFetch = @"fetch";
     NSURL *url = [NSURL URLWithString:@"/register" relativeToURL:self.url];
     NSLog(@"URL: %@", url.absoluteString);
 
-    NSDictionary *dict = @{@"deviceToken": self.deviceTokenAsString, @"interval": emitInterval};
+    BRHUserSettings *settings = [BRHUserSettings userSettings];
+    NSDictionary *dict = @{@"deviceToken": self.deviceTokenAsString, @"interval": emitInterval,
+                           @"retryUntilFetched":settings.retryUntilFetched};
     NSLog(@"dict: %@", dict);
 
     NSError *error = nil;

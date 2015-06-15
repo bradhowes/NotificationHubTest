@@ -51,7 +51,6 @@
 		BDA7A4F71871AF60002F7780 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BDA7A4F61871AF60002F7780 /* CoreGraphics.framework */; };
 		BDA7A4F91871AF60002F7780 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BDA7A4F81871AF60002F7780 /* UIKit.framework */; };
 		BDA7A5051871AF60002F7780 /* BRHAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = BDA7A5041871AF60002F7780 /* BRHAppDelegate.m */; };
-		BDA7A5131871AF60002F7780 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BDA7A5121871AF60002F7780 /* Images.xcassets */; };
 		BDA7A51A1871AF60002F7780 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BDA7A5191871AF60002F7780 /* XCTest.framework */; };
 		BDA7A51B1871AF60002F7780 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BDA7A4F41871AF60002F7780 /* Foundation.framework */; };
 		BDA7A51C1871AF60002F7780 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BDA7A4F81871AF60002F7780 /* UIKit.framework */; };
@@ -66,6 +65,7 @@
 		BDC5D7EF1950FFBE00D64B50 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BDC5D7EE1950FFBE00D64B50 /* CFNetwork.framework */; };
 		BDC5D7F11950FFC800D64B50 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BDC5D7F01950FFC800D64B50 /* CoreLocation.framework */; };
 		BDC5D7F31950FFD400D64B50 /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = BDC5D7F21950FFD400D64B50 /* libxml2.dylib */; };
+		BDD4C2AD1B2E1CC000B25997 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BDD4C2AC1B2E1CC000B25997 /* Images.xcassets */; };
 		BDDBC7EB1B281AE500EDFDC2 /* dropbox.png in Resources */ = {isa = PBXBuildFile; fileRef = BDDBC7EA1B281AE500EDFDC2 /* dropbox.png */; };
 		BDE3875318F827C9009E75CF /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BDE3875118F827C9009E75CF /* Main.storyboard */; };
 		BDE3875818F8288D009E75CF /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = BDE3875718F8288D009E75CF /* main.m */; };
@@ -218,7 +218,6 @@
 		BDA7A5041871AF60002F7780 /* BRHAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = BRHAppDelegate.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		BDA7A50C1871AF60002F7780 /* BRHMainViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = BRHMainViewController.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		BDA7A50D1871AF60002F7780 /* BRHMainViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = BRHMainViewController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
-		BDA7A5121871AF60002F7780 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		BDA7A5181871AF60002F7780 /* NHTestTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NHTestTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		BDA7A5191871AF60002F7780 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		BDA7A5211871AF60002F7780 /* NHTestTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "NHTestTests-Info.plist"; sourceTree = "<group>"; };
@@ -235,6 +234,7 @@
 		BDC5D7EE1950FFBE00D64B50 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		BDC5D7F01950FFC800D64B50 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		BDC5D7F21950FFD400D64B50 /* libxml2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.dylib; path = usr/lib/libxml2.dylib; sourceTree = SDKROOT; };
+		BDD4C2AC1B2E1CC000B25997 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		BDDBC7EA1B281AE500EDFDC2 /* dropbox.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = dropbox.png; sourceTree = "<group>"; };
 		BDE3875118F827C9009E75CF /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		BDE3875718F8288D009E75CF /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -457,7 +457,7 @@
 				BDA7A5041871AF60002F7780 /* BRHAppDelegate.m */,
 				BDA7A50C1871AF60002F7780 /* BRHMainViewController.h */,
 				BDA7A50D1871AF60002F7780 /* BRHMainViewController.m */,
-				BDA7A5121871AF60002F7780 /* Images.xcassets */,
+				BDD4C2AC1B2E1CC000B25997 /* Images.xcassets */,
 				BDA7A4FB1871AF60002F7780 /* Supporting Files */,
 			);
 			path = NHTest;
@@ -710,11 +710,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				BDE3876418F82A2E009E75CF /* Settings.bundle in Resources */,
+				BDD4C2AD1B2E1CC000B25997 /* Images.xcassets in Resources */,
 				BD5FE39818F94F50006368C4 /* settings@2x.png in Resources */,
 				BDA7A5641871B141002F7780 /* glyphicons_195_circle_info.png in Resources */,
 				BDE3877318F85127009E75CF /* apn-nhtest-dev.p12 in Resources */,
 				BD5FE39718F94F50006368C4 /* settings.png in Resources */,
-				BDA7A5131871AF60002F7780 /* Images.xcassets in Resources */,
 				BD6585B51875FA15008D1BA7 /* trash-100.png in Resources */,
 				BD6585B21875FA15008D1BA7 /* trash-25.png in Resources */,
 				BD3EC5481876068E005AE4B8 /* plot@2x.png in Resources */,

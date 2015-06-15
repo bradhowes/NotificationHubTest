@@ -11,8 +11,6 @@
 #import "BRHRunData.h"
 #import "BRHUserSettings.h"
 
-static void* kKVOContext = &kKVOContext;
-
 NSString *BRHRunDataNewDataNotification = @"BRHRunDataNewDataNotification";
 
 @interface BRHRunData ()
@@ -40,8 +38,6 @@ NSString *BRHRunDataNewDataNotification = @"BRHRunDataNewDataNotification";
         _orderedSamples = [NSMutableArray arrayWithCapacity:1000];
         _emitInterval = [NSNumber numberWithUnsignedInteger:settings.emitInterval];
         _running = NO;
-
-        [settings addObserver:self forKeyPath:@"maxHistogramBinSetting" options:NSKeyValueObservingOptionNew context:kKVOContext];
     }
 
     return self;
@@ -72,22 +68,6 @@ NSString *BRHRunDataNewDataNotification = @"BRHRunDataNewDataNotification";
     [encoder encodeObject:self.missing forKey:@"missing"];
     [encoder encodeObject:self.samples forKey:@"samples"];
     [encoder encodeObject:self.emitInterval forKey:@"emitInterval"];
-}
-
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
-{
-    if (context == kKVOContext) {
-        if (! self.running) {
-            BRHUserSettings *settings = [BRHUserSettings userSettings];
-            if ([keyPath isEqualToString:@"maxHistogramBinSetting"]) {
-                self.bins.lastBin = settings.maxHistogramBin;
-                [self.bins clear];
-            }
-        }
-    }
-    else {
-        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
-    }
 }
 
 - (void)start

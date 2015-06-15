@@ -42,6 +42,8 @@ static void* kKVOContext = &kKVOContext;
 - (NSURL *)applicationDocumentsDirectory;
 - (void)setupDropbox;
 - (void)saveContext;
+- (void)batteryStateChanged:(NSNotification *)notification;
+- (NSString *)batteryStateString:(UIDeviceBatteryState)batteryState;
 
 @end
 
@@ -272,8 +274,17 @@ static void* kKVOContext = &kKVOContext;
 - (void)startRun
 {
     BRHUserSettings *settings = [BRHUserSettings userSettings];
-    NSString *driverTag = settings.notificationDriver;
 
+    self.recordingInfo = [self makeRecordingInfo];
+    self.runData = [[BRHRunData alloc] initWithName:self.recordingInfo.name];
+    [self.runData start];
+    
+    self.recordingInfo.startTime = self.runData.startTime;
+    
+    [BRHLogger sharedInstance].logPath = self.recordingInfo.folderURL;
+    [BRHEventLog sharedInstance].logPath = self.recordingInfo.folderURL;
+    
+    NSString *driverTag = settings.notificationDriver;
     if ([driverTag isEqualToString:@"remote"]) {
         self.driver = [BRHRemoteDriver new];
     }
@@ -284,6 +295,8 @@ static void* kKVOContext = &kKVOContext;
         self.driver = [BRHLoopNotificationDriver new];
     }
 
+    [self batteryStateChanged:nil];
+
     self.driver.deviceToken = self.deviceToken;
     [self.driver startEmitting:[NSNumber numberWithInteger:settings.emitInterval] completionBlock:^(BOOL isRunning) {
         if (! isRunning) {
@@ -293,14 +306,6 @@ static void* kKVOContext = &kKVOContext;
         }
         else {
             self.running = YES;
-
-            self.recordingInfo = [self makeRecordingInfo];
-            self.runData = [[BRHRunData alloc] initWithName:self.recordingInfo.name];
-            [self.runData start];
-
-            [BRHLogger sharedInstance].logPath = self.recordingInfo.folderURL;
-            [BRHEventLog sharedInstance].logPath = self.recordingInfo.folderURL;
-            
             [self.mainViewController setRunData:self.runData];
         }
     }];
@@ -310,6 +315,7 @@ static void* kKVOContext = &kKVOContext;
 {
     if (! self.running) return;
 
+    NSDate *now = [NSDate date];
     self.running = NO;
     [self.runData stop];
     [self.driver stopEmitting:^{
@@ -322,9 +328,10 @@ static void* kKVOContext = &kKVOContext;
             NSLog(@"failed to write archive: %@", error.description);
         }
         
+        self.recordingInfo.endTime = now;
         [self.recordingInfo updateSize];
         [self saveContext];
-        
+
         self.recordingInfo.recording = NO;
         [self selectRecording:self.recordingInfo];
         
@@ -332,6 +339,9 @@ static void* kKVOContext = &kKVOContext;
             self.mainViewController.dropboxUploader.uploadingFile = self.recordingInfo;
             self.recordingInfo = nil;
         }
+        
+        [BRHLogger sharedInstance].logPath = nil;
+        [BRHEventLog sharedInstance].logPath = nil;
     }];
 }
 
@@ -370,6 +380,13 @@ static void* kKVOContext = &kKVOContext;
     [self saveContext];
 }
 
+- (void)batteryStateChanged:(NSNotification *)notification
+{
+    UIDevice *device = [UIDevice currentDevice];
+    UIDeviceBatteryState batteryState = device.batteryState;
+    [BRHEventLog add:@"batteryState", [self batteryStateString:batteryState], nil];
+}
+
 - (void)reachabilityChanged:(NSNotification *)notification
 {
     static int last = -1;
@@ -385,6 +402,17 @@ static void* kKVOContext = &kKVOContext;
     }
 }
 
+- (NSString *)batteryStateString:(UIDeviceBatteryState)batteryState
+{
+    switch (batteryState) {
+        case UIDeviceBatteryStateUnplugged: return @"unplugged";
+        case UIDeviceBatteryStateCharging: return @"charging";
+        case UIDeviceBatteryStateFull: return @"full";
+        case UIDeviceBatteryStateUnknown:
+        default: return @"unknown";
+    }
+}
+
 #pragma mark - Application Lifecycle
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
@@ -393,6 +421,10 @@ static void* kKVOContext = &kKVOContext;
     DDFileLogger *fileLogger = [[DDFileLogger alloc] init];
     [DDLog addLogger:fileLogger];
     DDLogDebug(@"launchOptions: %@", [launchOptions description]);
+
+    [UIDevice currentDevice].batteryMonitoringEnabled = YES;
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(batteryStateChanged:)
+                                                 name:UIDeviceBatteryStateDidChangeNotification object:nil];
 
     self.mainViewController = (BRHMainViewController *)self.window.rootViewController;
     self.runData = [[BRHRunData alloc] initWithName:@"Received Notifications"];

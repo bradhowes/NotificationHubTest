@@ -33,6 +33,7 @@
     self.useDropbox = NO;
     self.maxHistogramBin = 30;
     self.emitInterval = 60;
+    self.retryUntilFetched = [NSNumber numberWithBool:NO];
 }
 
 /*!

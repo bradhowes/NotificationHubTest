@@ -12,6 +12,7 @@
 #import "BRHDropboxUploader.h"
 #import "BRHRecordingInfo.h"
 #import "BRHRecordingsViewController.h"
+#import "BRHTimeFormatter.h"
 #import "BRHUserSettings.h"
 #import "MACircleProgressIndicator.h"
 
@@ -23,12 +24,11 @@
 
 @property (weak, nonatomic) BRHAppDelegate *delegate;
 @property (strong, nonatomic) NSFetchedResultsController *fetchedResultsController;
-@property (assign, nonatomic) NSUInteger pendingCount;
+@property (strong, nonatomic) BRHTimeFormatter *durationFormatter;
 
 - (void)configureCell:(UITableViewCell *)cell atIndexPath:(NSIndexPath *)indexPath;
 - (void)updateButtonsToMatchTableState;
 - (void)updateDeleteButtonTitle;
-- (void)calculatePendingCount;
 - (void)saveContext;
 
 @end
@@ -44,7 +44,6 @@
         _managedObjectContext = nil;
         _fetchedResultsController = nil;
         _dropboxUploader = nil;
-        _pendingCount = 0;
     }
 
     return self;
@@ -57,7 +56,7 @@
     self.delegate = [UIApplication sharedApplication].delegate;
     self.managedObjectContext = self.delegate.managedObjectContext;
     self.tableView.allowsSelection = YES;
-    self.pendingCount = 0;
+    self.durationFormatter = [BRHTimeFormatter new];
 
     NSError *error;
     if (![[self fetchedResultsController] performFetch:&error]) {
@@ -71,7 +70,6 @@
     }
     
     [self updateButtonsToMatchTableState];
-    [self calculatePendingCount];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -200,45 +198,6 @@
     // [self updateBadge];
 }
 
-- (void)setPendingCount:(NSUInteger)pendingCount
-{
-    if (_pendingCount != pendingCount) {
-        _pendingCount = pendingCount;
-        if (_buttonItem) {
-            if (pendingCount) {
-                self.buttonItem.badgeValue = [NSString stringWithFormat:@"%ld", (unsigned long)self.pendingCount, nil];
-            }
-            else {
-                self.buttonItem.badgeValue = nil;
-            }
-        }
-    }
-}
-
-- (void)updateBadge
-{
-    if (_buttonItem) {
-        if (_pendingCount) {
-            _buttonItem.badgeValue = [NSString stringWithFormat:@"%ld", (unsigned long)_pendingCount, nil];
-        }
-        else {
-            _buttonItem.badgeValue = nil;
-        }
-    }
-}
-
-- (void)calculatePendingCount
-{
-    NSUInteger count = 0;
-    for (BRHRecordingInfo *recordingInfo in [self.fetchedResultsController fetchedObjects]) {
-        if (! recordingInfo.uploaded) {
-            ++count;
-        }
-    }
-    
-    self.pendingCount = count;
-}
-
 - (void)controllerWillChangeContent:(NSFetchedResultsController *)controller
 {
     if (self.isViewLoaded) {
@@ -250,16 +209,13 @@
 {
     if (! self.isViewLoaded) return;
     UITableView *tableView = self.tableView;
-    BRHRecordingInfo *recordingInfo = anObject;
 
     switch(type) {
         case NSFetchedResultsChangeInsert:
-            if (! recordingInfo.uploaded) ++self.pendingCount;
             [tableView insertRowsAtIndexPaths:@[newIndexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
             break;
 
         case NSFetchedResultsChangeDelete:
-            if (! recordingInfo.uploaded) --self.pendingCount;
             [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
             break;
             
@@ -345,6 +301,11 @@
     NSString *status;
     UIColor *statusColor = [UIColor blackColor];
 
+    NSTimeInterval duration = 0.0;
+    if (recordingInfo.startTime && recordingInfo.endTime) {
+        duration = [recordingInfo.endTime timeIntervalSinceDate:recordingInfo.startTime];
+    }
+
     if (recordingInfo.recording) {
         status = @"Recording";
         statusColor = [UIColor redColor];
@@ -373,7 +334,8 @@
 
     cell.detailTextLabel.textColor = statusColor;
     if (recordingInfo.size.length > 0) {
-        cell.detailTextLabel.text = [NSString stringWithFormat:@"%@ - %@", recordingInfo.size, status];
+        cell.detailTextLabel.text = [NSString stringWithFormat:@"%@ • %@ - %@", recordingInfo.durationString,
+                                     recordingInfo.size, status];
     }
     else {
         cell.detailTextLabel.text = status;
@@ -387,13 +349,6 @@
             accessoryView = [[MACircleProgressIndicator alloc] initWithFrame:CGRectMake(0.0, 0.0, 25.0, 25.0)];
             accessoryView.color = [UIColor blueColor];
             accessoryView.backgroundColor = [UIColor whiteColor];
-            // accessoryView.strokeWidth = 4.0;
-
-//            [[UIProgressView appearance] setProgressTintColor:[UIColor colorWithRed:0 green:175.0/255.0 blue:176.0/255.0 alpha:1.0]];
-//            [[UIProgressView appearance] setTrackTintColor:[UIColor colorWithRed:0.996 green:0.788 blue:0.180 alpha:1.000]];
-//            CGRect bounds = accessoryView.bounds;
-//            bounds.size.width = 80;
-//            accessoryView.bounds = bounds;
             [cell setAccessoryView:accessoryView];
         }
         //[accessoryView setProgress:recordingInfo.progress];
@@ -501,7 +456,6 @@
 
 - (void)dropboxUploader:(BRHDropboxUploader *)dropboxUploader monitorFinishedWith:(BRHRecordingInfo *)recordingInfo
 {
-    if (recordingInfo.uploaded) --self.pendingCount;
     [self saveContext];
 }
 
