@@ -7,12 +7,38 @@
 
 extern NSString *BRHRunDataNewDataNotification;
 
+/*!
+ @brief Description of the new data added to BRHRunData.
+ 
+ An instance of this class is found in the NSNotification object of the BRHRunDataNewDataNotification notification
+ handler.
+ 
+ */
 @interface BRHRunDataNotificationInfo : NSObject
 
+/*!
+ @brief Where in the BRHRunData samples container does the new data start
+ */
 @property (assign, nonatomic) NSUInteger sampleIndex;
+
+/*!
+ @brief The number of new entries in BRHRunData samples
+ */
 @property (assign, nonatomic) NSUInteger sampleCount;
+
+/*!
+ @brief Where in the BRHRunData missing container does the new data start
+ */
 @property (assign, nonatomic) NSUInteger missingIndex;
+
+/*!
+ @brief The number of new entries in BRHRuData missing.
+ */
 @property (assign, nonatomic) NSUInteger missingCount;
+
+/*!
+ @brief The bin in BRHRunData bins that increased in count.
+ */
 @property (assign, nonatomic) NSUInteger binIndex;
 
 @end

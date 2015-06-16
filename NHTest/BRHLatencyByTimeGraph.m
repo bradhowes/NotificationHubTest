@@ -18,14 +18,83 @@ static double const kPlotSymbolSize = 8.0;
 
 @interface BRHLatencyByTimeGraph () <CPTPlotSpaceDelegate, CPTLegendDelegate>
 
+/*!
+ @brief Container of plots that make up the graph.
+ */
 @property (strong, nonatomic) NSMutableArray *plots;
 
+/*!
+ @brief True when the user is zooming due to vertical dragging.
+ */
+@property (assign, nonatomic) BOOL zooming;
+
+/*!
+ @brief The original Y range before zooming began.
+ */
+@property (strong, nonatomic) CPTPlotRange *unzooomedYRange;
+
+/*!
+ @brief The starting position of the drag event.
+ */
+@property (assign, nonatomic) CGPoint dragStart;
+
+/*!
+ @brief The starting position in Y of the drag in plot space coordinates.
+ */
+@property (assign, nonatomic) double startY;
+
+/*!
+ @brief Update the title of the plot using the settings in the BRHRunData instance.
+ */
 - (void)updateTitle;
+
+/*!
+ @brief Create the graph container that holds the plots
+ */
 - (void)makeGraph;
+
+/*!
+ @brief Create the plots for the graph.
+ */
 - (void)makePlots;
+
+/*!
+ @brief Obtain the min and max Y values for the given X range.
+ 
+ @param range the X range to query
+
+ @return new CPTPlotRange representing the min/max values
+ */
 - (CPTPlotRange *)findMinMaxInRange:(CPTPlotRange *)range;
+
+/*!
+ @brief Update the X and Y ranges to reflect new data.
+ 
+ Scrolls the X view to reveal new data if the current view is showing the end of the existing data.
+ 
+ @param pointsAdded number of new points added
+ */
 - (void)updateBounds:(NSUInteger )pointsAdded;
+
+/*!
+ @brief Handler for 2-tap gesture.
+ 
+ Show or hide the legend.
+ 
+ @param recognizer the UITapGestureRecognizer that invoked the handler
+ */
 - (void)handleTap:(UITapGestureRecognizer *)recognizer;
+
+/*!
+ @brief Notification handler when new data appears in the BRHRunData.
+ 
+ Update the plots so that they know about the new data. The notification parameter contains a description of the new 
+ data added to BRHRunData.
+ 
+ *
+ 
+ @param notification the description of the notification.
+ */
 - (void)update:(NSNotification *)notification;
 @end
 
@@ -41,6 +110,8 @@ static double const kPlotSymbolSize = 8.0;
     _runData = runData;
     if (! self.hostedGraph) {
         _plots = [NSMutableArray arrayWithCapacity:4];
+        _zooming = NO;
+        _unzooomedYRange = nil;
         [self makeGraph];
         [self makePlots];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(update:) name:BRHRunDataNewDataNotification object:nil];
@@ -51,6 +122,14 @@ static double const kPlotSymbolSize = 8.0;
         plot.runData = runData;
     }];
     
+    CPTPlotRange * xMinMax = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromDouble(0.0) length:CPTDecimalFromDouble(1E99)];
+    CPTPlotRange * yMinMax = [self findMinMaxInRange:xMinMax];
+    self.plotSpace.globalYRange = yMinMax;
+    self.axisSet.yAxis.visibleAxisRange = yMinMax;
+    self.axisSet.yAxis.visibleRange = yMinMax;
+    self.axisSet.xAxis.gridLinesRange = yMinMax;
+    
+    [self updateBounds:0];
     [self updateTitle];
 }
 
@@ -224,10 +303,11 @@ static double const kPlotSymbolSize = 8.0;
     y.majorTickLineStyle = nil;
     y.minorTickLineStyle = nil;
     y.tickDirection = CPTSignNone;
-
-    // self.backgroundColor = [UIColor blackColor];
 }
 
+/*!
+ @brief Overide of UIView method so that we can update min/max bounds when the graph size changes.
+ */
 - (void)layoutSubviews
 {
     [super layoutSubviews];
@@ -302,7 +382,7 @@ static double const kPlotSymbolSize = 8.0;
         return nil;
     }
 
-    NSTimeInterval minLatency = 0;
+    NSTimeInterval minLatency = 0.0;
     NSTimeInterval maxLatency = 0.0;
 
     NSUInteger x0 = [self findFirstPointAtOrAfter:range.locationDouble inArray:_runData.samples];
@@ -342,14 +422,23 @@ static double const kPlotSymbolSize = 8.0;
     CPTXYPlotSpace *plotSpace = self.plotSpace;
     plotSpace.globalXRange = [CPTPlotRange plotRangeWithLocation:xMin1 length:xMax1];
 
+    BOOL fitY = pointsAdded == 0;
     if (xMin == 0.0) {
+        
+        // Nothing going on here -- just show a default range of X
+        //
         plotSpace.xRange = [CPTPlotRange plotRangeWithLocation:xMin1 length:CPTDecimalFromDouble(xMax - xMin + emitInterval)];
+        fitY = YES;
         
     }
     else if (pointsAdded && xMax - plotSpace.xRange.endDouble < pointsAdded * emitInterval) {
+        
+        // Scroll the view to show the new points
+        //
         CPTPlotRange *oldRange = plotSpace.xRange;
         CPTPlotRange *newRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromDouble(xMin) length:CPTDecimalFromDouble(xMax - xMin + emitInterval)];
         [CPTAnimation animate:plotSpace property:@"xRange" fromPlotRange:oldRange toPlotRange:newRange duration:CPTFloat(0.25)];
+        fitY = YES;
     }
 
     CPTPlotRange *yRange = [self findMinMaxInRange:plotSpace.xRange];
@@ -357,8 +446,9 @@ static double const kPlotSymbolSize = 8.0;
         yRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromDouble(0.0) length:CPTDecimalFromDouble(1.0)];
     }
 
-    plotSpace.globalYRange = yRange;
-    plotSpace.yRange = yRange;
+    if (fitY) {
+        plotSpace.yRange = yRange;
+    }
 
     CPTXYAxisSet *axisSet = self.axisSet;
     CPTXYAxis *x = axisSet.xAxis;
@@ -366,10 +456,6 @@ static double const kPlotSymbolSize = 8.0;
 
     x.visibleAxisRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromDouble(0) length:CPTDecimalFromDouble(xMax)];
     x.visibleRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromDouble(0) length:CPTDecimalFromDouble(xMax)];
-
-    y.visibleAxisRange = yRange;
-    y.visibleRange = yRange;
-    x.gridLinesRange = yRange;
 
     y.gridLinesRange = [CPTPlotRange plotRangeWithLocation:xMin1 length:xMax1];
 }
@@ -387,25 +473,94 @@ static double const kPlotSymbolSize = 8.0;
 #pragma mark -
 #pragma mark Plot Space Delegate Methods
 
+- (BOOL)plotSpace:(CPTPlotSpace *)space shouldHandlePointingDeviceDownEvent:(id)event atPoint:(CGPoint)point
+{
+    // Start with the assumption that we will be zooming. We don't know until we have a second point to compare to see
+    // if the dragging is in the X or Y direction.
+    //
+    _zooming = YES;
+    _dragStart = point;
+    _unzooomedYRange = [CPTPlotRange plotRangeWithLocation:self.plotSpace.yRange.location
+                                                    length:self.plotSpace.yRange.length];
+    //    NSLog(@"event point: %f", point.y);
+
+    CPTPlotArea *plotArea = self.hostedGraph.plotAreaFrame.plotArea;
+    CGPoint dragStartInPlotArea = [self.hostedGraph convertPoint:point toLayer:plotArea];
+    NSLog(@"dragStartInPlotArea: %f", dragStartInPlotArea.y);
+    if (dragStartInPlotArea.y < 5) {
+        _zooming = NO;
+        return YES;
+    }
+
+    CPTXYPlotSpace *plotSpace = self.plotSpace;
+    double start[2];
+    [plotSpace doublePrecisionPlotPoint:start numberOfCoordinates:2 forPlotAreaViewPoint:dragStartInPlotArea];
+    NSLog(@"plotSpace: %f", start[1]);
+    _startY = log(MAX(start[1], DBL_EPSILON));
+
+    return YES;
+}
+
+- (BOOL)plotSpace:(CPTPlotSpace *)space shouldHandlePointingDeviceDraggedEvent:(UIEvent *)event atPoint:(CGPoint)point
+{
+    if (! _zooming) return YES;
+
+    // Stop zooming if the user is really dragging horizontally
+    //
+    if (ABS(point.x - _dragStart.x) > ABS(point.y - _dragStart.y)) {
+        _zooming = NO;
+        self.plotSpace.yRange = _unzooomedYRange;
+        return YES;
+    }
+
+    CPTXYPlotSpace *plotSpace = self.plotSpace;
+    CPTPlotRange *lastRange = plotSpace.yRange;
+    plotSpace.yRange = _unzooomedYRange;
+
+    CPTPlotArea *plotArea = self.hostedGraph.plotAreaFrame.plotArea;
+    CGPoint dragEndInPlotArea = [self.hostedGraph convertPoint:point toLayer:plotArea];
+
+    double end[2];
+    [plotSpace doublePrecisionPlotPoint:end numberOfCoordinates:2 forPlotAreaViewPoint:dragEndInPlotArea];
+    double scale = exp(log(end[1]) - _startY);
+    NSLog(@"scale %f", scale);
+
+    if (isnan(scale)) {
+        plotSpace.yRange = lastRange;
+        return NO;
+    }
+
+    double yRangeMax = MAX(_unzooomedYRange.lengthDouble / scale, 0.001);
+    CPTPlotRange *yRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromDouble(0.0) length:CPTDecimalFromDouble(yRangeMax)];
+    plotSpace.yRange = yRange;
+
+    CPTXYAxisSet *axisSet = self.axisSet;
+    axisSet.xAxis.labelingPolicy = CPTAxisLabelingPolicyAutomatic;
+    axisSet.yAxis.labelingPolicy = CPTAxisLabelingPolicyAutomatic;
+
+    return NO;
+}
+
+- (BOOL)plotSpace:(CPTPlotSpace *)space shouldHandlePointingDeviceUpEvent:(id)event atPoint:(CGPoint)point
+{
+    _zooming = NO;
+    return YES;
+}
+
+- (BOOL)plotSpace:(CPTPlotSpace *)space shouldHandlePointingDeviceCancelledEvent:(id)event atPoint:(CGPoint)point
+{
+    _zooming = NO;
+    return YES;
+}
+
 - (void)plotSpace:(CPTPlotSpace *)space didChangePlotRangeForCoordinate:(CPTCoordinate)coordinate
 {
-    if (coordinate == CPTCoordinateX) {
-        
-        // Clear any annotation that is no longer visible
-        //
-        CPTPlotRange *xRange = ((CPTXYPlotSpace *)space).xRange;
-        CPTPlotRange *yRange = [self findMinMaxInRange:xRange];
-        if (yRange) {
-            CPTXYPlotSpace *plotSpace = self.plotSpace;
-            plotSpace.globalYRange = yRange;
+    if (coordinate == CPTCoordinateY) {
+        CPTXYPlotSpace *plotSpace = self.plotSpace;
+        CPTPlotRange *yRange = plotSpace.yRange;
+        if (yRange.locationDouble != 0.0) {
+            yRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromDouble(0.0) length:yRange.length];
             plotSpace.yRange = yRange;
-
-            CPTXYAxisSet *axisSet = self.axisSet;
-            CPTXYAxis *x = axisSet.xAxis;
-            CPTXYAxis *y = axisSet.yAxis;
-            y.visibleAxisRange = yRange;
-            y.visibleRange = yRange;
-            x.gridLinesRange = yRange;
         }
     }
 }
