@@ -316,8 +316,11 @@ static void* kKVOContext = &kKVOContext;
     if (! self.running) return;
 
     NSDate *now = [NSDate date];
+
     self.running = NO;
     [self.runData stop];
+    self.recordingInfo.recording = NO;
+
     [self.driver stopEmitting:^{
         NSURL *runDataArchive = [self.recordingInfo.folderURL URLByAppendingPathComponent:@"runData.archive"];
         NSData *archiveData = [NSKeyedArchiver archivedDataWithRootObject:self.runData];
@@ -328,13 +331,13 @@ static void* kKVOContext = &kKVOContext;
             NSLog(@"failed to write archive: %@", error.description);
         }
         
+        self.recordingInfo.recording = NO;
         self.recordingInfo.endTime = now;
         [self.recordingInfo updateSize];
         [self saveContext];
 
-        self.recordingInfo.recording = NO;
         [self selectRecording:self.recordingInfo];
-        
+
         if (self.mainViewController.dropboxUploader) {
             self.mainViewController.dropboxUploader.uploadingFile = self.recordingInfo;
             self.recordingInfo = nil;

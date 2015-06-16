@@ -59,6 +59,7 @@
 		BDA7A5641871B141002F7780 /* glyphicons_195_circle_info.png in Resources */ = {isa = PBXBuildFile; fileRef = BDA7A5621871B141002F7780 /* glyphicons_195_circle_info.png */; };
 		BDB56F1C1A8A0C6600706A44 /* BRHLatencyByTimeGraph.m in Sources */ = {isa = PBXBuildFile; fileRef = BDC0475919D072C500A14DE9 /* BRHLatencyByTimeGraph.m */; };
 		BDC0475E19D07D2400A14DE9 /* BRHLatencyHistogramGraph.m in Sources */ = {isa = PBXBuildFile; fileRef = BDC0475D19D07D2400A14DE9 /* BRHLatencyHistogramGraph.m */; };
+		BDC593D41B301C31003C2FF6 /* UITableView+NSFetchedResultsController.m in Sources */ = {isa = PBXBuildFile; fileRef = BDC593D31B301C31003C2FF6 /* UITableView+NSFetchedResultsController.m */; };
 		BDC5D7E91950FF8A00D64B50 /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BDC5D7E81950FF8A00D64B50 /* AdSupport.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		BDC5D7EB1950FFA500D64B50 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BDC5D7EA1950FFA500D64B50 /* SystemConfiguration.framework */; };
 		BDC5D7ED1950FFB100D64B50 /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BDC5D7EC1950FFB100D64B50 /* CoreTelephony.framework */; };
@@ -228,6 +229,8 @@
 		BDC0475B19D0732500A14DE9 /* BRHLatencyByTimeGraph.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BRHLatencyByTimeGraph.h; sourceTree = "<group>"; };
 		BDC0475C19D07D1700A14DE9 /* BRHLatencyHistogramGraph.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = BRHLatencyHistogramGraph.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		BDC0475D19D07D2400A14DE9 /* BRHLatencyHistogramGraph.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = BRHLatencyHistogramGraph.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		BDC593CD1B301BCE003C2FF6 /* UITableView+NSFetchedResultsController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "UITableView+NSFetchedResultsController.h"; path = "Vendor/UITableView+NSFetchedResultsController.h"; sourceTree = "<group>"; };
+		BDC593D31B301C31003C2FF6 /* UITableView+NSFetchedResultsController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UITableView+NSFetchedResultsController.m"; path = "Vendor/UITableView+NSFetchedResultsController.m"; sourceTree = "<group>"; };
 		BDC5D7E81950FF8A00D64B50 /* AdSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AdSupport.framework; path = System/Library/Frameworks/AdSupport.framework; sourceTree = SDKROOT; };
 		BDC5D7EA1950FFA500D64B50 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		BDC5D7EC1950FFB100D64B50 /* CoreTelephony.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreTelephony.framework; path = System/Library/Frameworks/CoreTelephony.framework; sourceTree = SDKROOT; };
@@ -528,6 +531,8 @@
 				BD6CF5D41AFD4C34004969F2 /* InAppSettingsKit.xcodeproj */,
 				BD128B671875806300307B0C /* CorePlot-CocoaTouch.xcodeproj */,
 				BDB5D47818F9403E007B0C23 /* Reachability */,
+				BDC593CD1B301BCE003C2FF6 /* UITableView+NSFetchedResultsController.h */,
+				BDC593D31B301C31003C2FF6 /* UITableView+NSFetchedResultsController.m */,
 			);
 			name = Vendor;
 			sourceTree = "<group>";
@@ -780,6 +785,7 @@
 				BDB56F1C1A8A0C6600706A44 /* BRHLatencyByTimeGraph.m in Sources */,
 				BDF02AF11B17366200DD3C47 /* BRHDropboxUploader.m in Sources */,
 				BD130FDA1B298FC5004B052C /* BRHLatencyByTimeGraphAveragePlot.m in Sources */,
+				BDC593D41B301C31003C2FF6 /* UITableView+NSFetchedResultsController.m in Sources */,
 				BDF02AFA1B17462100DD3C47 /* BRHRecordingInfo.xcdatamodel in Sources */,
 				BD2481361B1DF0B700A3EF5E /* BRHRunData.m in Sources */,
 				BDF02AF21B17366200DD3C47 /* BRHRecordingInfo.m in Sources */,

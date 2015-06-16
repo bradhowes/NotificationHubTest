@@ -6,17 +6,19 @@
 #import <CoreData/CoreData.h>
 #import <DropboxSDK/DropboxSDK.h>
 
+#import "UITableView+NSFetchedResultsController.h"
 #import "UIBarButtonItem+Badge.h"
 
 #import "BRHAppDelegate.h"
 #import "BRHDropboxUploader.h"
+#import "BRHMainViewController.h"
 #import "BRHRecordingInfo.h"
 #import "BRHRecordingsViewController.h"
 #import "BRHTimeFormatter.h"
 #import "BRHUserSettings.h"
 #import "MACircleProgressIndicator.h"
 
-@interface BRHRecordingsViewController () <NSFetchedResultsControllerDelegate, BRHDropboxUploaderMonitor>
+@interface BRHRecordingsViewController () <NSFetchedResultsControllerDelegate, BRHDropboxUploaderMonitor, UIGestureRecognizerDelegate>
 
 @property (strong, nonatomic) IBOutlet UIBarButtonItem *editButton;
 @property (strong, nonatomic) IBOutlet UIBarButtonItem *cancelButton;
@@ -53,10 +55,24 @@
     NSLog(@"BRHRecordingsViewController.viewDidLoad");
     [super viewDidLoad];
 
+    self.tableView.allowsSelection = YES;
+    self.tableView.allowsSelectionDuringEditing = YES;
+
+    UITapGestureRecognizer* doubleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doubleTap:)];
+    doubleTap.delegate = self;
+    doubleTap.numberOfTapsRequired = 2;
+    doubleTap.numberOfTouchesRequired = 1;
+    [self.tableView addGestureRecognizer:doubleTap];
+
     self.delegate = [UIApplication sharedApplication].delegate;
     self.managedObjectContext = self.delegate.managedObjectContext;
-    self.tableView.allowsSelection = YES;
     self.durationFormatter = [BRHTimeFormatter new];
+
+    doubleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doubleTap:)];
+    doubleTap.delegate = self;
+    doubleTap.numberOfTapsRequired = 2;
+    doubleTap.numberOfTouchesRequired = 1;
+    [self.navigationController.navigationBar addGestureRecognizer:doubleTap];
 
     NSError *error;
     if (![[self fetchedResultsController] performFetch:&error]) {
@@ -198,73 +214,7 @@
     // [self updateBadge];
 }
 
-- (void)controllerWillChangeContent:(NSFetchedResultsController *)controller
-{
-    if (self.isViewLoaded) {
-        [self.tableView beginUpdates];
-    }
-}
-
-- (void)controller:(NSFetchedResultsController *)controller didChangeObject:(id)anObject atIndexPath:(NSIndexPath *)indexPath forChangeType:(NSFetchedResultsChangeType)type newIndexPath:(NSIndexPath *)newIndexPath
-{
-    if (! self.isViewLoaded) return;
-    UITableView *tableView = self.tableView;
-
-    switch(type) {
-        case NSFetchedResultsChangeInsert:
-            [tableView insertRowsAtIndexPaths:@[newIndexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
-            break;
-
-        case NSFetchedResultsChangeDelete:
-            [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
-            break;
-            
-        case NSFetchedResultsChangeUpdate:
-            [self configureCell:[tableView cellForRowAtIndexPath:indexPath] atIndexPath:indexPath];
-            break;
-
-        default:
-            break;
-    }
-}
-
-- (void)controller:(NSFetchedResultsController *)controller didChangeSection:(id <NSFetchedResultsSectionInfo>)sectionInfo atIndex:(NSUInteger)sectionIndex forChangeType:(NSFetchedResultsChangeType)type
-{
-    if (! self.isViewLoaded) return;
-
-    switch(type) {
-        case NSFetchedResultsChangeInsert:
-            [self.tableView insertSections:[NSIndexSet indexSetWithIndex:sectionIndex] withRowAnimation:UITableViewRowAnimationAutomatic];
-            break;
-        case NSFetchedResultsChangeDelete:
-            [self.tableView deleteSections:[NSIndexSet indexSetWithIndex:sectionIndex] withRowAnimation:UITableViewRowAnimationAutomatic];
-            break;
-            
-        default:
-            break;
-    }
-}
-
-- (void)saveContext
-{
-    if (! self.managedObjectContext) return;
-    if (! self.managedObjectContext.hasChanges) return;
-    NSError *error;
-    if (! [self.managedObjectContext save:&error]) {
-        NSLog(@"saveContext - error %@", error.description);
-    }
-}
-
-- (void)controllerDidChangeContent:(NSFetchedResultsController *)controller
-{
-    if (! self.isViewLoaded) return;
-    [self.tableView endUpdates];
-    [self updateButtonsToMatchTableState];
-    // [self saveContext];
-}
-
-#pragma mark -
-#pragma mark UITableViewDataSource Methods
+#pragma mark - UITableViewDataSource Methods
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     return [[self.fetchedResultsController sections] count];
@@ -371,8 +321,7 @@
     }
 }
 
-#pragma mark -
-#pragma mark UITableViewDelegate Methods
+#pragma mark -UITableViewDelegate Methods
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
@@ -391,8 +340,32 @@
     [self updateButtonsToMatchTableState];
 }
 
-#pragma mark -
-#pragma mark CoreData
+#pragma mark - Double Tap Gesture
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldBeRequiredToFailByGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
+{
+    return YES;
+}
+
+- (void)doubleTap:(UITapGestureRecognizer *)gesture
+{
+    if (self.tableView.editing) return;
+
+    if (gesture.state == UIGestureRecognizerStateEnded) {
+        
+        if (gesture.view == self.tableView) {
+            CGPoint p = [gesture locationInView:gesture.view];
+            NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:p];
+            BRHRecordingInfo *recordingInfo = [self.fetchedResultsController objectAtIndexPath:indexPath];
+            [self.delegate selectRecording:recordingInfo];
+        }
+
+        BRHMainViewController* mvc = (BRHMainViewController *)[UIApplication sharedApplication].keyWindow.rootViewController;
+        [mvc showHideRecordingsView:nil];
+    }
+}
+
+#pragma mark - CoreData
 
 - (NSFetchedResultsController *)fetchedResultsController
 {
@@ -412,6 +385,41 @@
                                                                                cacheName:nil];
     _fetchedResultsController.delegate = self;
     return _fetchedResultsController;
+}
+
+#pragma mark - NSFetchedResultsController Delegate Methods
+
+- (void)controllerWillChangeContent:(NSFetchedResultsController *)controller
+{
+    if (self.isViewLoaded) {
+        [self.tableView beginUpdates];
+    }
+}
+
+- (void)controller:(NSFetchedResultsController *)controller didChangeObject:(id)anObject atIndexPath:(NSIndexPath *)indexPath forChangeType:(NSFetchedResultsChangeType)type newIndexPath:(NSIndexPath *)newIndexPath
+{
+    [self.tableView addChangeForObjectAtIndexPath:indexPath forChangeType:type newIndexPath:newIndexPath];
+}
+
+- (void)controller:(NSFetchedResultsController *)controller didChangeSection:(id <NSFetchedResultsSectionInfo>)sectionInfo atIndex:(NSUInteger)sectionIndex forChangeType:(NSFetchedResultsChangeType)type
+{
+    [self.tableView addChangeForSection:sectionInfo atIndex:sectionIndex forChangeType:type];
+}
+
+- (void)saveContext
+{
+    if (! self.managedObjectContext) return;
+    if (! self.managedObjectContext.hasChanges) return;
+    NSError *error;
+    if (! [self.managedObjectContext save:&error]) {
+        NSLog(@"saveContext - error %@", error.description);
+    }
+}
+
+- (void)controllerDidChangeContent:(NSFetchedResultsController *)controller
+{
+    [self.tableView commitChanges];
+    [self updateButtonsToMatchTableState];
 }
 
 #pragma mark - Dropbox Uploader Integration
