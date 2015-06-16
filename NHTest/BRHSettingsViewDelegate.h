@@ -13,7 +13,7 @@
 /*!
  * @brief Adaptation of the IASKAppSettingsViewController that shows setting values from our BRHUSerSettings instance.
  */
-@interface BRHSettingsViewDelegate : NSObject <IASKSettingsDelegate>
+@interface BRHSettingsViewDelegate : NSObject <IASKSettingsDelegate, UITextFieldDelegate>
 
 @property (strong, nonatomic) BRHMainViewController *mainWindowController;
 @property (strong, nonatomic) IASKAppSettingsViewController* settingsViewController;

@@ -4,6 +4,7 @@
 //
 //  Copyright (c) 2015 Brad Howes. All rights reserved.
 
+#import "BRHAppDelegate.h"
 #import "BRHMainViewController.h"
 #import "BRHSettingsViewDelegate.h"
 #import "BRHUserSettings.h"
@@ -23,17 +24,18 @@
     if (![specifier.key isEqualToString:@"dropboxLinkButtonTextSetting"]) {
         return;
     }
-
+    
     BRHUserSettings *settings = [BRHUserSettings userSettings];
     if (! settings.useDropbox) {
-        settings.useDropbox = YES;
+        BRHAppDelegate *delegate = [UIApplication sharedApplication].delegate;
+        [delegate enableDropbox:YES];
         return;
     }
-
+    
     NSString *title = @"Dropbox";
     NSString *msg = @"Are you sure you want to unlink from Dropbox? This will prevent the app from saving future recordings to your Drobox folder.";
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:title message:msg preferredStyle:UIAlertControllerStyleAlert];
-
+    
     UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel"
                                                            style:UIAlertActionStyleCancel
                                                          handler:^(UIAlertAction *action){
@@ -42,17 +44,15 @@
     UIAlertAction *unlinkAction = [UIAlertAction actionWithTitle:@"Confirm"
                                                            style:UIAlertActionStyleDestructive
                                                          handler:^(UIAlertAction *action) {
-                                                             settings.useDropbox = NO;
+                                                             BRHAppDelegate *delegate = [UIApplication sharedApplication].delegate;
+                                                             [delegate enableDropbox:NO];
                                                          }];
     [alert addAction:cancelAction];
     [alert addAction:unlinkAction];
     
-    UIViewController *vc = [UIApplication sharedApplication].keyWindow.rootViewController;
-    if (vc.presentedViewController) {
-        vc = vc.presentedViewController;
-    }
-    
-    [vc presentViewController:alert animated:YES completion:nil];
+    [self.mainWindowController.presentedViewController presentViewController:alert animated:YES completion:^(){
+        [self.settingsViewController.tableView reloadData];
+    }];
 }
 
 /*!

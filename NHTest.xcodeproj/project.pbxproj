@@ -472,7 +472,6 @@
 				BDDBC7EA1B281AE500EDFDC2 /* dropbox.png */,
 				BDF02AE61B1735F400DD3C47 /* dbconfig.h */,
 				BDE3875718F8288D009E75CF /* main.m */,
-				BDE3876318F82A2E009E75CF /* Settings.bundle */,
 				BDEA88121B0E53E9004BB6AB /* events@2x.png */,
 				BDEA88131B0E53E9004BB6AB /* events.png */,
 				BD5FE39418F94F50006368C4 /* settings.png */,
@@ -549,6 +548,7 @@
 		BDDBC7E31B2816A800EDFDC2 /* Settings */ = {
 			isa = PBXGroup;
 			children = (
+				BDE3876318F82A2E009E75CF /* Settings.bundle */,
 				BD5FE39A18F95695006368C4 /* BRHSettingsViewDelegate.h */,
 				BD5FE39B18F95695006368C4 /* BRHSettingsViewDelegate.m */,
 				BD4AB4E41B2BB5CB004AE98E /* BRHSettingsStore.h */,

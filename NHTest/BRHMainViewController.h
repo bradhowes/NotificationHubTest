@@ -29,7 +29,7 @@
 
 @property (strong, nonatomic) BRHRecordingsViewController *recordingsViewController;
 @property (strong, nonatomic) IASKAppSettingsViewController *settingsViewController;
-
+@property (strong, nonatomic) BRHSettingsViewDelegate *settingsViewDelegate;
 @property (strong, nonatomic) BRHDropboxUploader *dropboxUploader;
 
 - (IBAction)startStop:(id)sender;

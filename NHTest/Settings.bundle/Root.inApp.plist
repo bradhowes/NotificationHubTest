@@ -105,6 +105,12 @@
                 <string>Host</string>
                 <key>DefaultValue</key>
                 <string>emitter-bradhowes.c9.io</string>
+                <key>KeyboardType</key>
+                <string>URL</string>
+                <key>AutocapitalizationType</key>
+                <string>None</string>
+                <key>AutocorrectionType</key>
+                <string>No</string>
             </dict>
             <dict>
                 <key>Type</key>
@@ -147,6 +153,10 @@
                 <string>apn-nhtest-prod.p12</string>
                 <key>KeyboardType</key>
                 <string>URL</string>
+                <key>AutocapitalizationType</key>
+                <string>None</string>
+                <key>AutocorrectionType</key>
+                <string>No</string>
             </dict>
             <dict>
                 <key>Type</key>
@@ -181,6 +191,10 @@
                 <string>apn-nhtest-dev.p12</string>
                 <key>KeyboardType</key>
                 <string>URL</string>
+                <key>AutocapitalizationType</key>
+                <string>None</string>
+                <key>AutocorrectionType</key>
+                <string>No</string>
             </dict>
             <dict>
                 <key>Type</key>

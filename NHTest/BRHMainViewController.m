@@ -14,14 +14,14 @@
 #import "BRHRecordingsViewController.h"
 #import "BRHRunData.h"
 #import "BRHSettingsStore.h"
+#import "BRHSettingsViewDelegate.h"
 #import "BRHUserSettings.h"
 #import "InAppSettingsKit/IASKAppSettingsViewController.h"
 
 static void* const kKVOContext = (void *)&kKVOContext;
 
-@interface BRHMainViewController () <IASKSettingsDelegate>
+@interface BRHMainViewController ()
 
-@property (strong, nonatomic) UIPopoverController *activityPopover;
 @property (strong, nonatomic) UIView *lowerView;
 
 - (void)animateLowerView:(UIView *)view;
@@ -48,9 +48,13 @@ static void* const kKVOContext = (void *)&kKVOContext;
     self.recordingsView.hidden = YES;
     self.lowerView = nil;
 
+    self.settingsViewDelegate = [BRHSettingsViewDelegate new];
     self.settingsViewController = [IASKAppSettingsViewController new];
-    self.settingsViewController.delegate = self;
     self.settingsViewController.settingsStore = [BRHSettingsStore new];
+
+    self.settingsViewDelegate.settingsViewController = self.settingsViewController;
+    self.settingsViewDelegate.mainWindowController = self;
+    self.settingsViewController.delegate = self.settingsViewDelegate;
 
     // Remove the "Stop" button so that there in only a "Play" one shown
     //
@@ -186,6 +190,7 @@ static void* const kKVOContext = (void *)&kKVOContext;
 
 - (void)start
 {
+    self.stopButton.tintColor = [UIColor redColor];
     [self showButton:self.stopButton];
     BRHAppDelegate *delegate = [UIApplication sharedApplication].delegate;
     [delegate startRun];
@@ -286,61 +291,6 @@ static void* const kKVOContext = (void *)&kKVOContext;
 - (UIStatusBarStyle)preferredStatusBarStyle
 {
     return UIStatusBarStyleLightContent;
-}
-
-/*!
- * @brief Delegate method called when user clicks on button in view.
- *
- * @note: For this to work on iPad devices, we need the view to have a lastButton attribute defined. This is a hack of the IASK source code.
- *
- * @param sender the view (us) -- sort of meaningless here
- * @param specifier definition of the setting values
- */
-- (void)settingsViewController:(id)sender buttonTappedForSpecifier:(IASKSpecifier *)specifier {
-    NSLog(@"buttonTappedForSpecifier - %@", specifier.key);
-    if (![specifier.key isEqualToString:@"dropboxLinkButtonTextSetting"]) {
-        return;
-    }
-
-    BRHUserSettings *settings = [BRHUserSettings userSettings];
-    if (! settings.useDropbox) {
-        BRHAppDelegate *delegate = [UIApplication sharedApplication].delegate;
-        [delegate enableDropbox:YES];
-        return;
-    }
-
-    NSString *title = @"Dropbox";
-    NSString *msg = @"Are you sure you want to unlink from Dropbox? This will prevent the app from saving future recordings to your Drobox folder.";
-    UIAlertController *alert = [UIAlertController alertControllerWithTitle:title message:msg preferredStyle:UIAlertControllerStyleAlert];
-    
-    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel"
-                                                           style:UIAlertActionStyleCancel
-                                                         handler:^(UIAlertAction *action){
-                                                         }];
-    
-    UIAlertAction *unlinkAction = [UIAlertAction actionWithTitle:@"Confirm"
-                                                           style:UIAlertActionStyleDestructive
-                                                         handler:^(UIAlertAction *action) {
-                                                             BRHAppDelegate *delegate = [UIApplication sharedApplication].delegate;
-                                                             [delegate enableDropbox:NO];
-                                                         }];
-    [alert addAction:cancelAction];
-    [alert addAction:unlinkAction];
-    
-    [self.presentedViewController presentViewController:alert animated:YES completion:^(){
-        [self.settingsViewController.tableView reloadData];
-    }];
-}
-
-/*!
- * @brief Delegate method called when the view is dismissed and the settings have been saved.
- *
- * @param sender the view that is no longer around
- */
-- (void)settingsViewControllerDidEnd:(IASKAppSettingsViewController *)sender {
-    NSLog(@"BRHSettingsViewController settingsViewControllerDidEnd:");
-    [[BRHUserSettings userSettings] readPreferences];
-    [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 @end
