@@ -48,9 +48,9 @@ static NSString *kRecordingInfoRecordingKey = @"recording";
 {
     NSNumber *tmpValue;
     [self willAccessValueForKey:kRecordingInfoProgressKey];
-    tmpValue = [self primitiveProgress];
+    tmpValue = self.primitiveProgress;
     [self didAccessValueForKey:kRecordingInfoProgressKey];
-    return [tmpValue floatValue];
+    return tmpValue.floatValue;
 }
 
 - (void)setProgress:(float)value
@@ -64,9 +64,9 @@ static NSString *kRecordingInfoRecordingKey = @"recording";
 {
     NSNumber *tmpValue;
     [self willAccessValueForKey:kRecordingInfoUploadedKey];
-    tmpValue = [self primitiveUploaded];
+    tmpValue = self.primitiveUploaded;
     [self didAccessValueForKey:kRecordingInfoUploadedKey];
-    return [tmpValue boolValue];
+    return tmpValue.boolValue;
 }
 
 - (void)setUploaded:(BOOL)value
@@ -80,9 +80,9 @@ static NSString *kRecordingInfoRecordingKey = @"recording";
 {
     NSNumber *tmpValue;
     [self willAccessValueForKey:kRecordingInfoUploadingKey];
-    tmpValue = [self primitiveUploading];
+    tmpValue = self.primitiveUploading;
     [self didAccessValueForKey:kRecordingInfoUploadingKey];
-    return [tmpValue boolValue];
+    return tmpValue.boolValue;
 }
 
 - (void)setUploading:(BOOL)value
@@ -96,13 +96,18 @@ static NSString *kRecordingInfoRecordingKey = @"recording";
 {
     NSNumber *tmpValue;
     [self willAccessValueForKey:kRecordingInfoRecordingKey];
-    tmpValue = [self primitiveRecording];
+    tmpValue = self.primitiveRecording;
     [self didAccessValueForKey:kRecordingInfoRecordingKey];
-    return [tmpValue boolValue];
+    return tmpValue.boolValue;
 }
 
 - (void)setRecording:(BOOL)value
 {
+    if (value == NO && self.primitiveRecording.boolValue == YES) {
+        self.endTime = [NSDate date];
+        [self updateSize];
+    }
+
     [self willChangeValueForKey:kRecordingInfoRecordingKey];
     [self setPrimitiveRecording:[NSNumber numberWithBool:value]];
     [self didChangeValueForKey:kRecordingInfoRecordingKey];
@@ -189,6 +194,8 @@ static NSString *kRecordingInfoRecordingKey = @"recording";
     self.progress = 0.0;
     self.size = @"";
     self.recording = YES;
+    self.startTime = now;
+    self.endTime = now;
     _folderURL = nil;
 
     [self createRecordingDirectory];

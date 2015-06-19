@@ -197,11 +197,10 @@ extractIdentityAndTrust(CFDataRef inPKCS12Data, SecIdentityRef* outIdentity, Sec
     completionBlock(YES);
 }
 
-- (void)stopEmitting:(BRHNotificationDriverStopCompletionBlock )completionBlock
+- (void)stopEmitting
 {
     [super stopEmitting];
     [self stopEmitter];
-    completionBlock();
 }
 
 - (BRHLatencySample *)receivedNotification:(NSDictionary *)notification at:(NSDate *)when fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler

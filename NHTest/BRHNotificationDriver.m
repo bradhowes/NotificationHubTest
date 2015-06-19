@@ -39,12 +39,6 @@
     [BRHEventLog add:@"driverStop",nil];
 }
 
-- (void)stopEmitting:(BRHNotificationDriverStopCompletionBlock )completionBlock
-{
-    [self stopEmitting];
-    completionBlock(YES);
-}
-
 - (BRHLatencySample *)receivedNotification:(NSDictionary *)notification at:(NSDate *)when fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
 {
     [BRHLogger add: @"receivedNotification - %@", notification];

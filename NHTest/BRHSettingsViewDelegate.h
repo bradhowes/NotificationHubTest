@@ -15,7 +15,14 @@
  */
 @interface BRHSettingsViewDelegate : NSObject <IASKSettingsDelegate, UITextFieldDelegate>
 
+/*!
+ @brief The main view controller that manages top-level views
+ */
 @property (strong, nonatomic) BRHMainViewController *mainWindowController;
+
+/*!
+ @brief The settings view that we are the delegate for
+ */
 @property (strong, nonatomic) IASKAppSettingsViewController* settingsViewController;
 
 @end

@@ -8,6 +8,7 @@
 
 #import "BRHAppDelegate.h"
 #import "BRHDropboxUploader.h"
+#import "BRHLogger.h"
 #import "BRHMainViewController.h"
 #import "BRHRecordingInfo.h"
 #import "BRHRecordingsViewController.h"
@@ -270,7 +271,16 @@
     if (! self.managedObjectContext.hasChanges) return;
     NSError *error;
     if (! [self.managedObjectContext save:&error]) {
-        NSLog(@"saveContext - error %@", error.description);
+        [BRHLogger add:@"Failed to save to data store: %@", error.localizedDescription];
+        NSArray* detailedErrors = [error.userInfo objectForKey:NSDetailedErrorsKey];
+        if (detailedErrors) {
+            for (NSError* detailedError in detailedErrors) {
+                [BRHLogger add:@"  DetailedError: %@", detailedError.userInfo];
+            }
+        }
+        else {
+            [BRHLogger add:@"  %@", [error userInfo]];
+        }
     }
 }
 

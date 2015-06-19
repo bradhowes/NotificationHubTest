@@ -12,12 +12,12 @@
 @implementation BRHSettingsViewDelegate
 
 /*!
- * @brief Delegate method called when user clicks on button in view.
- *
- * @note: For this to work on iPad devices, we need the view to have a lastButton attribute defined. This is a hack of the IASK source code.
- *
- * @param sender the view (us) -- sort of meaningless here
- * @param specifier definition of the setting values
+ @brief Delegate method called when user clicks on button in view.
+ 
+ Handle the Dropbox button.
+ 
+ @param sender the view (us) -- sort of meaningless here
+ @param specifier definition of the setting values
  */
 - (void)settingsViewController:(id)sender buttonTappedForSpecifier:(IASKSpecifier *)specifier {
     NSLog(@"buttonTappedForSpecifier - %@", specifier.key);

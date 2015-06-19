@@ -54,8 +54,6 @@ typedef void (^BRHNotificationDriverStopCompletionBlock)();
  */
 - (void)stopEmitting;
 
-- (void)stopEmitting:(BRHNotificationDriverStopCompletionBlock )completionBlock;
-
 - (BRHLatencySample *)receivedNotification:(NSDictionary *)userInfo at:(NSDate *)when
       fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler;
 

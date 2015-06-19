@@ -12,9 +12,9 @@
 @implementation BRHSettingsStore
 
 /*!
- * @brief Initialize instance
- *
- * @return <#return value description#>
+ @brief Initialize instance
+
+ @return <#return value description#>
  */
 - (instancetype)init {
     self = [super init];
@@ -26,10 +26,10 @@
 }
 
 /*!
- * @brief Set a user setting
- *
- * @param value the value for the setting
- * @param key the name of the setting
+ @brief Set a user setting
+ 
+ @param value the value for the setting
+ @param key the name of the setting
  */
 - (void)setObject:(id)value forKey:(NSString *)key {
     if (value && key) {
@@ -38,11 +38,11 @@
 }
 
 /*!
- * @brief Fetch a use setting
- *
- * @param key the name of the setting
- *
- * @return the setting value
+ @brief Fetch a use setting
+ 
+ @param key the name of the setting
+ 
+ @return the setting value
  */
 - (id)objectForKey:(NSString *)key {
     id obj = [_settings valueForKey:key];
@@ -50,9 +50,9 @@
 }
 
 /*!
- * @brief Save any changed configuration settings
- *
- * @return YES always
+ @brief Save any changed configuration settings
+ 
+ @return YES always
  */
 - (BOOL)synchronize {
     [_settings writePreferences];

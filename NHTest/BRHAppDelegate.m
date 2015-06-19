@@ -196,15 +196,15 @@ static void* kKVOContext = &kKVOContext;
     if (! self.managedObjectContext.hasChanges) return;
     NSError *error;
     if (! [self.managedObjectContext save:&error]) {
-        NSLog(@"Failed to save to data store: %@", [error localizedDescription]);
-        NSArray* detailedErrors = [[error userInfo] objectForKey:NSDetailedErrorsKey];
-        if(detailedErrors != nil && [detailedErrors count] > 0) {
-            for(NSError* detailedError in detailedErrors) {
-                NSLog(@"  DetailedError: %@", [detailedError userInfo]);
+        [BRHLogger add:@"Failed to save to data store: %@", error.localizedDescription];
+        NSArray* detailedErrors = [error.userInfo objectForKey:NSDetailedErrorsKey];
+        if (detailedErrors) {
+            for (NSError* detailedError in detailedErrors) {
+                [BRHLogger add:@"  DetailedError: %@", detailedError.userInfo];
             }
         }
         else {
-            NSLog(@"  %@", [error userInfo]);
+            [BRHLogger add:@"  %@", [error userInfo]];
         }
     }
 }
@@ -287,9 +287,7 @@ static void* kKVOContext = &kKVOContext;
     self.recordingInfo = [self makeRecordingInfo];
     self.runData = [[BRHRunData alloc] initWithName:self.recordingInfo.name];
     [self.runData start];
-    
-    self.recordingInfo.startTime = self.runData.startTime;
-    
+
     [BRHLogger sharedInstance].logPath = self.recordingInfo.folderURL;
     [BRHEventLog sharedInstance].logPath = self.recordingInfo.folderURL;
     
@@ -324,37 +322,31 @@ static void* kKVOContext = &kKVOContext;
 {
     if (! self.running) return;
 
-    NSDate *now = [NSDate date];
-
     self.running = NO;
     [self.runData stop];
     self.recordingInfo.recording = NO;
 
-    [self.driver stopEmitting:^{
-        NSURL *runDataArchive = [self.recordingInfo.folderURL URLByAppendingPathComponent:@"runData.archive"];
-        NSData *archiveData = [NSKeyedArchiver archivedDataWithRootObject:self.runData];
-        NSLog(@"archiveData size: %lu", (unsigned long)archiveData.length);
+    [self.driver stopEmitting];
+    
+    NSURL *runDataArchive = [self.recordingInfo.folderURL URLByAppendingPathComponent:@"runData.archive"];
+    NSData *archiveData = [NSKeyedArchiver archivedDataWithRootObject:self.runData];
+    NSLog(@"archiveData size: %lu", (unsigned long)archiveData.length);
         
-        NSError *error;
-        if (![archiveData writeToURL:runDataArchive options:0 error:&error]) {
-            NSLog(@"failed to write archive: %@", error.description);
-        }
-        
-        self.recordingInfo.recording = NO;
-        self.recordingInfo.endTime = now;
-        [self.recordingInfo updateSize];
-        [self saveContext];
-
-        [self selectRecording:self.recordingInfo];
-
-        if (self.mainViewController.dropboxUploader) {
-            self.mainViewController.dropboxUploader.uploadingFile = self.recordingInfo;
-            self.recordingInfo = nil;
-        }
-        
-        [BRHLogger sharedInstance].logPath = nil;
-        [BRHEventLog sharedInstance].logPath = nil;
-    }];
+    NSError *error;
+    if (![archiveData writeToURL:runDataArchive options:0 error:&error]) {
+        NSLog(@"failed to write archive: %@", error.description);
+    }
+    
+    [self.recordingInfo updateSize];
+    [self saveContext];
+    
+    //        [self selectRecording:self.recordingInfo];
+    
+    if (self.mainViewController.dropboxUploader) {
+        self.mainViewController.dropboxUploader.uploadingFile = self.recordingInfo;
+    }
+    
+    self.recordingInfo = nil;
 }
 
 - (void)selectRecording:(BRHRecordingInfo *)recordingInfo
@@ -367,10 +359,11 @@ static void* kKVOContext = &kKVOContext;
         [self.mainViewController setRunData:self.runData];
     }
 
+    [[BRHLogger sharedInstance] save];
     [BRHLogger sharedInstance].logPath = recordingInfo.folderURL;
-    [BRHEventLog sharedInstance].logPath = recordingInfo.folderURL;
     
-    // [self.mainViewController showHideRecordingsView:nil];
+    [[BRHEventLog sharedInstance] save];
+    [BRHEventLog sharedInstance].logPath = recordingInfo.folderURL;
 }
 
 - (void)deleteRecording:(BRHRecordingInfo *)recordingInfo
@@ -489,6 +482,8 @@ static void* kKVOContext = &kKVOContext;
     }
     
     [vc presentViewController:alert animated:YES completion:nil];
+#else
+    self.deviceToken = [NSData dataWithBytes:"12345678901234567890123456789012" length:32];
 #endif
 }
 

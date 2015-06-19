@@ -6,6 +6,8 @@
 //  Copyright (c) 2015 Brad Howes. All rights reserved.
 //
 
+#import <objc/runtime.h>
+
 #import "BRHEventLog.h"
 #import "BRHLatencySample.h"
 #import "BRHLogger.h"
@@ -19,22 +21,16 @@ static NSString *taskRegister = @"register";
 static NSString *taskUnregister = @"unregister";
 static NSString *taskFetch = @"fetch";
 
-@interface NSURLSessionDataTask (BRH)
-@property (copy, nonatomic) BRHFetchCompletionHandler fetchCompletionHandler;
-@end
+@interface BRHRemoteDriver () <NSURLSessionDelegate, NSURLSessionTaskDelegate, NSURLSessionDataDelegate, NSURLSessionDownloadDelegate>
 
-@implementation NSURLSessionDataTask (BRH)
-@dynamic fetchCompletionHandler;
-@end
-
-@interface BRHRemoteDriver () <NSURLSessionDelegate, NSURLSessionTaskDelegate, NSURLSessionDataDelegate>
 @property (strong, nonatomic) NSURL *url;
 @property (strong, nonatomic) NSURLSession *foregroundSession;
 @property (strong, nonatomic) NSURLSession *fetchSession;
 @property (strong, nonatomic) NSString *deviceTokenAsString;
 @property (copy, nonatomic) BRHBackgroundCompletionHandler savedBackgroundCompletionHandler;
+@property (copy, nonatomic) BRHFetchCompletionHandler savedFetchCompletionHandler;
 
-@property (strong, nonatomic) NSDate *requestStartTime;
+- (void)estimateClockOffset:(NSData *)response requestStartTime:(double )requestStartTime requestEndTime:(double )requestEndTime;
 
 @end
 
@@ -85,30 +81,45 @@ static NSString *taskFetch = @"fetch";
     return _fetchSession;
 }
 
-- (void)estimateClockOffset:(NSDictionary *)headers requestEndTime:(double )requestEndTime
+- (void)estimateClockOffset:(NSData *)response requestStartTime:(double )requestStartTime requestEndTime:(double )requestEndTime
 {
-    NSString *serverStartTimeString = headers[@"X-StartTime"];
-    NSString *serverEndTimeString = headers[@"X-EndTime"];
+    NSError *error = nil;
+    NSString *body = [[NSString alloc] initWithData:response encoding:NSUTF8StringEncoding];
+    NSLog(@"estimateClockOfset - body: %@", body);
 
-    double serverStartTime = serverStartTimeString.doubleValue;
-    double serverEndTime = serverEndTimeString.doubleValue;
+    NSDictionary *timing = [NSJSONSerialization JSONObjectWithData:response options:kNilOptions error:&error];
+    if (error) {
+        NSLog(@"failed to process body for JSON - %@", body);
+        NSLog(@"error: %@", error.description);
+        return;
+    }
 
-    double requestStartTime = [self.requestStartTime timeIntervalSince1970];
-    
     // Total time measured by request is Tr = requestEndTime - requestStartTime.
     // Total time taken by server processing request is Ts = serverEndTime - serverStartTime
     // Total network transit time is roughly calculated as Tn * 2 = Tr - Ts
     // Offset between server and phone clock is estimated as To = requestStartTime + Tn - serverStartTime
 
+    NSLog(@"requestStartTime: %f", requestStartTime);
+    NSLog(@"requestEndTime: %f", requestEndTime);
     double Tr = requestEndTime - requestStartTime;
-    double Ts = serverEndTime - serverStartTime;
-    double Tn = (Tr - Ts) / 2.0;
-    double To = requestStartTime + Tn - serverStartTime;
+    NSLog(@"delta request: %f", Tr);
 
-    NSLog(@"estimateClockOffset - %f -- Tr: %f Ts: %f Tn: %f", To, Tr, Ts, Tn);
+    double serverStartTime = ((NSNumber *)timing[@"startTime"]).doubleValue;
+    NSLog(@"severStartTime: %f", serverStartTime);
+        double serverEndTime = ((NSNumber *)timing[@"endTime"]).doubleValue;
+    NSLog(@"severEndTime: %f", serverEndTime);
+    
+    double Ts = serverEndTime - serverStartTime;
+    NSLog(@"delta server: %f", Ts);
+
+    double Tn = (Tr - Ts) / 2.0;
+    NSLog(@".5 network: %f", Tn);
+
+    double To = requestStartTime + Tn - serverStartTime;
+    NSLog(@"To: %f", To);
 
     [BRHLogger add:@"estimateClockOffset - %f -- Tr: %f Ts: %f Tn: %f", To, Tr, Ts, Tn];
-    [BRHEventLog add:@"estimateClockOffset", @(To), serverStartTimeString, serverEndTimeString, @(requestStartTime), @(requestEndTime), nil];
+    [BRHEventLog add:@"estimateClockOffset", @(To), @(serverStartTime), @(serverEndTime), @(requestStartTime), @(requestEndTime), nil];
 
     self.deviceServerDelta = To;
 }
@@ -144,40 +155,34 @@ static NSString *taskFetch = @"fetch";
 
     [BRHEventLog add:@"registering", [dict objectForKey:@"interval"], nil];
 
+    double requestStartTime = [[NSDate date] timeIntervalSince1970];
     NSURLSessionUploadTask *task = [self.foregroundSession uploadTaskWithRequest:request fromData:body completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         if (error) {
             [BRHEventLog add:@"failedRegister", error.description, nil];
-            [BRHLogger add:@"failed register - %@", error.description];
+            [BRHLogger add:@"failed to register - %@", error.description];
             completionBlock(NO);
             return;
         }
 
         double requestEndTime = [[NSDate date] timeIntervalSince1970];
-
         NSHTTPURLResponse *r = (NSHTTPURLResponse *)response;
         NSLog(@"response: %@", r);
-
-        [self estimateClockOffset:r.allHeaderFields requestEndTime:requestEndTime];
-
+        [self estimateClockOffset:data requestStartTime:requestStartTime requestEndTime:requestEndTime];
         [BRHLogger add:@"registered"];
         [BRHEventLog add:@"registered", nil];
-
         completionBlock(YES);
     }];
-
-    task.taskDescription = taskRegister;
-    self.requestStartTime = [NSDate date];
 
     [task resume];
 }
 
-- (void)stopEmitting:(BRHNotificationDriverStopCompletionBlock )completionBlock
+- (void)sendStopEmittingRequest
 {
     NSURL *url = [NSURL URLWithString:@"/unregister" relativeToURL:self.url];
     NSLog(@"URL: %@", url.absoluteString);
 
     NSDictionary *dict = @{@"deviceToken":self.deviceTokenAsString};
-
+    
     NSError *error = nil;
     NSData *body = [NSJSONSerialization dataWithJSONObject:dict options:0 error:&error];
     if (error) {
@@ -194,32 +199,30 @@ static NSString *taskFetch = @"fetch";
     request.HTTPBody = body;
     
     [BRHEventLog add:@"unregistering", nil];
-
+    
+    double requestStartTime = [[NSDate date] timeIntervalSince1970];
     NSURLSessionUploadTask *task = [self.foregroundSession uploadTaskWithRequest:request fromData:body completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         if (error) {
             [BRHEventLog add:@"failedUnregister", error.description, nil];
             [BRHLogger add:@"failed unregister - %@", error.description];
-            completionBlock(NO);
+            [self sendStopEmittingRequest];
             return;
         }
 
         double requestEndTime = [[NSDate date] timeIntervalSince1970];
-
         NSHTTPURLResponse *r = (NSHTTPURLResponse *)response;
         NSLog(@"response: %@", r);
-
-        [self estimateClockOffset:r.allHeaderFields requestEndTime:requestEndTime];
-
+        [self estimateClockOffset:data requestStartTime:requestStartTime requestEndTime:requestEndTime];
         [BRHLogger add:@"unregistered"];
         [BRHEventLog add:@"unregistered", nil];
-
-        completionBlock(YES);
     }];
-
-    task.taskDescription = taskUnregister;
-    self.requestStartTime = [NSDate date];
-
+    
     [task resume];
+}
+
+- (void)stopEmitting
+{
+    [self sendStopEmittingRequest];
     [super stopEmitting];
 }
 
@@ -252,28 +255,50 @@ static NSString *taskFetch = @"fetch";
 
     [BRHEventLog add:@"fetchUpdate", identifier, nil];
 
+    double requestStartTime = [[NSDate date] timeIntervalSince1970];
     NSURLSessionDataTask *task = [self.fetchSession dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-        double requestEndTime = [[NSDate date] timeIntervalSince1970];
         if (error) {
             [BRHLogger add:@"failed fetch task - %@", error.description];
             [BRHEventLog add:@"failedTask", error.description, nil];
             completionHandler(UIBackgroundFetchResultFailed);
         }
         else {
-            [BRHLogger add:@"completed fetch task"];
-            [BRHEventLog add:@"finishedFetch", nil];
+            double requestEndTime = [[NSDate date] timeIntervalSince1970];
             NSHTTPURLResponse *r = (NSHTTPURLResponse *)response;
             NSLog(@"response: %@", r);
-            [self estimateClockOffset:r.allHeaderFields requestEndTime:requestEndTime];
+            [self estimateClockOffset:data requestStartTime:requestStartTime requestEndTime:requestEndTime];
+            [BRHLogger add:@"completed fetch task"];
+            [BRHEventLog add:@"finishedFetch", nil];
             completionHandler(UIBackgroundFetchResultNewData);
         }
     }];
 
-    self.requestStartTime = [NSDate date];
     [task resume];
 }
 
-#pragma mark NSURLSession Delegate Methods
+- (void)handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)())completionHandler
+{
+    if ([identifier isEqualToString:@"fetchSession"]) {
+        [self fetchSession];
+        _savedBackgroundCompletionHandler = completionHandler;
+    }
+    else {
+        completionHandler();
+    }
+}
+
+- (void)URLSessionDidFinishEventsForBackgroundURLSession:(NSURLSession *)session
+{
+    NSLog(@"URLSessionDidFinishEventsForBackgroundURLSession");
+    [BRHLogger add:@"URLSessionDidFinishEventsForBackgroundURLSession"];
+    BRHBackgroundCompletionHandler handler = _savedBackgroundCompletionHandler;
+    _savedBackgroundCompletionHandler = NULL;
+    if (handler) {
+        [[NSOperationQueue mainQueue] addOperationWithBlock:handler];
+    }
+}
+
+#pragma mark - Session Delegate Methods
 
 - (void)URLSession:(NSURLSession *)session didBecomeInvalidWithError:(NSError *)error
 {
@@ -292,20 +317,44 @@ static NSString *taskFetch = @"fetch";
     completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
 }
 
+#pragma mark - Task Delegate Methods
+
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didSendBodyData:(int64_t)bytesSent totalBytesSent:(int64_t)totalBytesSent totalBytesExpectedToSend:(int64_t)totalBytesExpectedToSend
 {
     NSLog(@"task didSendBodyData - %lld", bytesSent);
-    self.requestStartTime = [NSDate date];
 }
 
-- (void)URLSessionDidFinishEventsForBackgroundURLSession:(NSURLSession *)session
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
 {
-    NSLog(@"URLSessionDidFinishEventsForBackgroundURLSession");
-    [BRHLogger add:@"URLSessionDidFinishEventsForBackgroundURLSession"];
-    BRHBackgroundCompletionHandler handler = _savedBackgroundCompletionHandler;
-    _savedBackgroundCompletionHandler = NULL;
+    [BRHLogger add:@"task didCompleteWithError: %@", error ? error.description : @"None"];
+    BRHFetchCompletionHandler handler = _savedFetchCompletionHandler;
+    _savedFetchCompletionHandler = NULL;
+    if (error && handler) {
+        [BRHLogger add:@"failed fetch task - %@", error.description];
+        [BRHEventLog add:@"failedTask", error.description, nil];
+        handler(UIBackgroundFetchResultFailed);
+    }
+}
+
+# pragma mark - Download Task Delegate Methods
+
+- (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didResumeAtOffset:(int64_t)fileOffset expectedTotalBytes:(int64_t)expectedTotalBytes
+{
+    [BRHLogger add:@"downloadTask didResume"];
+}
+
+- (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didWriteData:(int64_t)bytesWritten totalBytesWritten:(int64_t)totalBytesWritten totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite
+{
+    [BRHLogger add:@"downloadTask didWriteData"];
+}
+
+- (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didFinishDownloadingToURL:(NSURL *)location
+{
+    [BRHLogger add:@"downloadTask didFinishDownloadingToURL: %@", location.absoluteString];
+    BRHFetchCompletionHandler handler = _savedFetchCompletionHandler;
+    _savedFetchCompletionHandler = NULL;
     if (handler) {
-        [[NSOperationQueue mainQueue] addOperationWithBlock:handler];
+        handler(UIBackgroundFetchResultNewData);
     }
 }
 
