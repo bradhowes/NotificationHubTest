@@ -1,0 +1,19 @@
+doctype html
+html(lang="en")
+  head
+    title= title
+  body
+    h1 NHTest Activity - #{now}
+
+    p There are #{registrations.length} registrations.
+    
+    each r in registrations
+
+      h2= r.deviceToken
+      ul
+        li Identifier: #{r.identifier}
+        li EmitInterval: #{r.emitInterval / 1000.0}
+        li Expiration: #{r.expiration - now} seconds
+        li ResendUntilFeched: #{r.resendUntilFetched}
+        li Expired: #{r.expired()}
+        li Stopped: #{r.stopped()}

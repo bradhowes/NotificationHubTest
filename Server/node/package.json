@@ -1,0 +1,25 @@
+{
+  "name": "brhemitter",
+  "version": "1.0.0",
+  "engines": {
+    "node": "~0.12.3"
+  },
+  "private": true,
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "apn": "^1.7.4",
+    "async": "^1.2.1",
+    "azure": "^0.10.6",
+    "body-parser": "^1.13.1",
+    "express": "^4.12.4",
+    "jade": "^1.11.0",
+    "log4js": "^0.6.26",
+    "moment": "^2.10.3",
+    "q": "^1.4.1"
+  },
+  "devDependencies": {
+    "vows": "^0.8.1"
+  }
+}
