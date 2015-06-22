@@ -1,10 +1,7 @@
 #include "UIKit/UIKit.h"
 #include "Foundation/Foundation.h"
 
-#import "CocoaLumberjack/CocoaLumberjack.h"
-
 #ifdef DEBUG
+#import "CocoaLumberjack/CocoaLumberjack.h"
 static const DDLogLevel ddLogLevel = DDLogLevelVerbose;
-#else
-static const DDLogLevel ddLogLevel = DDLogLevelWarn;
 #endif

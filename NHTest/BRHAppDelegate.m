@@ -291,6 +291,9 @@ static void* kKVOContext = &kKVOContext;
     [BRHLogger sharedInstance].logPath = self.recordingInfo.folderURL;
     [BRHEventLog sharedInstance].logPath = self.recordingInfo.folderURL;
     
+    [BRHLogger add:@"Version: %@", [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"]];
+    [BRHEventLog add:@"version", [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"], nil];
+    
     NSString *driverTag = settings.notificationDriver;
     if ([driverTag isEqualToString:@"remote"]) {
         self.driver = [BRHRemoteDriver new];
@@ -302,6 +305,7 @@ static void* kKVOContext = &kKVOContext;
         self.driver = [BRHLoopNotificationDriver new];
     }
 
+    [self reachabilityChanged:nil];
     [self batteryStateChanged:nil];
 
     self.driver.deviceToken = self.deviceToken;
@@ -396,7 +400,7 @@ static void* kKVOContext = &kKVOContext;
 {
     static int last = -1;
     NetworkStatus status = [self.reachability currentReachabilityStatus];
-    if (last != status) {
+    if (! notification || last != status) {
         last = status;
         switch (status) {
             case NotReachable: [BRHEventLog add:@"networkState,None", nil]; break;
@@ -422,11 +426,6 @@ static void* kKVOContext = &kKVOContext;
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    [DDLog addLogger:[DDTTYLogger sharedInstance]];
-    DDFileLogger *fileLogger = [[DDFileLogger alloc] init];
-    [DDLog addLogger:fileLogger];
-    DDLogDebug(@"launchOptions: %@", [launchOptions description]);
-
     [UIDevice currentDevice].batteryMonitoringEnabled = YES;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(batteryStateChanged:)
                                                  name:UIDeviceBatteryStateDidChangeNotification object:nil];

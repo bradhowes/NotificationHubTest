@@ -22,7 +22,7 @@
 - (void)networkReachabilityChanged:(BOOL)active;
 - (void)startRestClient;
 - (void)stopRestClient;
-- (void)readyToUpload;
+- (void)readyToUploadNextFile;
 
 - (void)finishedUploading;
 - (void)failedUploading:(NSError *)error;
@@ -37,7 +37,7 @@
         _monitor = nil;
         _uploadingFile = nil;
         _totalProgress = 0.0;
-        [NSTimer scheduledTimerWithTimeInterval:3.0 target:self selector:@selector(startReachabilityService:)
+        [NSTimer scheduledTimerWithTimeInterval:5.0 target:self selector:@selector(startReachabilityService:)
                                        userInfo:nil repeats:NO];
     }
 
@@ -81,6 +81,7 @@
     };
 
     [_serverReachability startNotifier];
+    [self startRestClient];
 }
 
 - (void)networkReachabilityChanged:(BOOL)available
@@ -114,7 +115,7 @@
     NSLog(@"startRestClient");
     _restClient = [[DBRestClient alloc] initWithSession:[DBSession sharedSession]];
     _restClient.delegate = self;
-    [self readyToUpload];
+    [self readyToUploadNextFile];
 }
 
 - (void)stopRestClient
@@ -133,17 +134,15 @@
     self.networkActivityIndicator = NO;
 }
 
-- (void)readyToUpload
+- (void)readyToUploadNextFile
 {
     NSLog(@"BRHDropboxUploader readyToUpload");
-
     if (_uploadingFile != nil) {
         _uploadingFile.uploading = NO;
-        self.uploadingFile = nil;
+        _uploadingFile = nil;
     }
 
     self.uploadingFile = [_monitor dropboxUploaderReadyToUpload:self];
-    
     self.networkActivityIndicator = NO;
 }
 
@@ -156,7 +155,7 @@
     }
 
     if (_uploadingFile) {
-        NSLog(@"already have a file uploading - %@", recording.filePath);
+        NSLog(@"already have a file uploading - %@", _uploadingFile.filePath);
         return;
     }
 
@@ -217,7 +216,7 @@
               from:(NSString *)srcPath;
 {
     NSLog(@"uploadProgress - %@ %f", destPath, progress);
-    _uploadingFile.progress = _totalProgress + progress / 3.0;
+    _uploadingFile.progress = (float)(_totalProgress + progress / 3.0);
 }
 
 - (void)restClient:(DBRestClient *)client uploadedFile:(NSString *)destPath from:(NSString *)srcPath
@@ -245,15 +244,15 @@
     [BRHLogger add:@"finished uploading %@", _uploadingFile.filePath];
     _uploadingFile.uploaded = YES;
     [_monitor dropboxUploader:self monitorFinishedWith:_uploadingFile];
-    [self readyToUpload];
+    [self readyToUploadNextFile];
 }
 
 - (void)failedUploading:(NSError *)error
 {
     [BRHLogger add:@"failed to upload recording - %@", error.description];
-    _uploadingFile.progress = error.code * -1.0;
+    _uploadingFile.progress = (float)(error.code * -1.0);
     [_monitor dropboxUploader:self monitorFinishedWith:_uploadingFile];
-    [self readyToUpload];
+    [self readyToUploadNextFile];
 }
 
 @end

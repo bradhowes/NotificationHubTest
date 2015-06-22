@@ -29,17 +29,17 @@
     double value = [obj doubleValue];
     NSInteger hours = 0;
     if (value >= 3600.0) {
-        hours = value / 3600.0;
+        hours = (NSInteger)(value / 3600.0);
         value -= hours * 3600.0;
     }
     
     NSInteger minutes = 0;
     if (value >= 60.0) {
-        minutes = value / 60.0;
+        minutes = (NSInteger)(value / 60.0);
         value -= minutes * 60.0;
     }
     
-    NSInteger seconds = value;
+    NSInteger seconds = (NSInteger)(value);
     value -= seconds;
     NSString *ss = [NSString stringWithFormat:@"%.2f", value];
 

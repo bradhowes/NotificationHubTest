@@ -8,8 +8,8 @@ var suite = vows.describe('config');
 
 suite.addBatch({
     'We can see APNs passphrase values': {
-        topic: config.apns_passphrase,
-        'apns_passphrase is defined': function (topic) {
+        topic: config.apns_prod_passphrase,
+        'apns_prod_passphrase is defined': function (topic) {
             assert.isString(topic);
         }
     }

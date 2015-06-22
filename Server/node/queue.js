@@ -23,7 +23,9 @@ Queue.prototype = {
     add: function(msg, timeoutInSeconds, callback) {
         var self = this;
         var log = this.log.child('add');
-        var options = {messagettl: timeoutInSeconds * 10, visibilityTimeout:timeoutInSeconds}; // 1 hour TTL
+        var visibilityTimeout = timeoutInSeconds;
+        var messagettl = (visibilityTimeout ? visibilityTimeout : 1) * 10;
+        var options = {messagettl: 60 * 60, visibilityTimeout:timeoutInSeconds};
         log.BEGIN(msg, timeoutInSeconds);
         this.qsvc.createMessage(this.queueName, msg, options, function(err, result, response) { 
             log.info('createMessage:', err);

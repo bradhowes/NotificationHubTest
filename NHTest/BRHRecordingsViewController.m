@@ -289,7 +289,7 @@
     if (! self.isViewLoaded) return;
     [self.tableView endUpdates];
     [self updateButtonsToMatchTableState];
-    // [self saveContext];
+    [self saveContext];
 }
 
 #pragma mark - UITableViewDataSource Methods
@@ -328,11 +328,6 @@
 
     NSString *status;
     UIColor *statusColor = [UIColor blackColor];
-
-    NSTimeInterval duration = 0.0;
-    if (recordingInfo.startTime && recordingInfo.endTime) {
-        duration = [recordingInfo.endTime timeIntervalSinceDate:recordingInfo.startTime];
-    }
 
     if (recordingInfo.recording) {
         status = @"Recording";

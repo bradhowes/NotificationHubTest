@@ -48,7 +48,7 @@ suite.addBatch({
     'create registrar': {
         topic: function () {
             registrar = new Registrar(tableStore, queue, this.callback);
-            registrar.apnConnection.sendNotification = function(notification) {};
+            registrar.apnProdConnection.sendNotification = function(notification) {};
         },
         'succeeds without error': function (err, created, response) {
             assert.isNull(err);
@@ -59,7 +59,7 @@ suite.addBatch({
 suite.addBatch({
     'create entry': {
         topic: function () {
-            registrar.add('123', 0, 0, this.callback);
+            registrar.add('123', 0, false, false, this.callback);
         },
         'succeeds without error': function (err, created, response) {
             assert.isNull(err);

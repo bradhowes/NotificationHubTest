@@ -153,19 +153,30 @@ extractIdentityAndTrust(CFDataRef inPKCS12Data, SecIdentityRef* outIdentity, Sec
 - (BOOL)connect
 {
     BRHUserSettings *settings = [BRHUserSettings userSettings];
-    NSString *fileName = settings.useAPNsSandbox ? settings.apnsDevCertFileName : settings.apnsProdCertFileName;
+#if APNS_USE_SANDBOX
+    BOOL useSandbox = YES;
+#else
+    BOOL useSandbox = NO;
+#endif
+
+    NSString *fileName = useSandbox ? settings.apnsDevCertFileName : settings.apnsProdCertFileName;
     NSData *cert = [NSData dataWithContentsOfURL:[[[NSBundle mainBundle] bundleURL] URLByAppendingPathComponent:fileName]];
     if (! cert) {
         [self alertCertNotFound:fileName];
         return NO;
     }
 
-    NSString *password = settings.useAPNsSandbox ? settings.apnsDevCertPassword : settings.apnsProdCertPassword;
+    NSString *password = useSandbox ? settings.apnsDevCertPassword : settings.apnsProdCertPassword;
     if (password.length == 0)
         password = nil;
 
-    SecTrustRef trust;
+    SecTrustRef trust = NULL;
     OSStatus status = extractIdentityAndTrust((__bridge CFDataRef)cert, &_identity, &trust, (__bridge CFStringRef)password);
+    
+    if (trust) {
+        CFRelease(trust);
+    }
+
     password = nil;
     
     self.apns = nil;
@@ -174,9 +185,8 @@ extractIdentityAndTrust(CFDataRef inPKCS12Data, SecIdentityRef* outIdentity, Sec
         return NO;
     }
 
-    DDLogInfo(@"loaded cert %@", fileName);
     [BRHLogger add:@"loaded cert for sending notifications"];
-    self.apns = [[BRHAPNsClient alloc] initWithIdentity:self.identity deviceToken:self.deviceToken sandbox:settings.useAPNsSandbox];
+    self.apns = [[BRHAPNsClient alloc] initWithIdentity:self.identity deviceToken:self.deviceToken sandbox:useSandbox];
     self.apns.delegate = self;
 
     return YES;

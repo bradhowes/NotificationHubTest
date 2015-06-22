@@ -44,12 +44,6 @@
  */
 @property (copy, nonatomic) NSString *apnsProdCertPassword;
 /*!
- @brief If YES, use the sandbox APNs service.
-
- To use the production one, you must run a signed app on the device under test.
- */
-@property (assign, nonatomic) BOOL useAPNsSandbox;
-/*!
  @brief The number of bins to show in the latency histgram graph.
  */
 @property (copy, nonatomic) NSString *maxHistogramBinSetting;
@@ -76,7 +70,7 @@
  */
 @property (assign, nonatomic) BOOL useDropbox;
 
-@property (assign, nonatomic) NSNumber *retryUntilFetched;
+@property (assign, nonatomic) BOOL resendUntilFetched;
 
 /*!
  @brief Obtain the global BRHUserSettings instance

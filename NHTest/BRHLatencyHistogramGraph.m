@@ -215,7 +215,7 @@ static void* kKVOContext = &kKVOContext;
     CPTXYAxis *y = axisSet.xAxis;
     y.gridLinesRange = [CPTMutablePlotRange plotRangeWithLocation:CPTDecimalFromInteger(-1) length:CPTDecimalFromInteger(lastBin + 1)];
 
-    NSUInteger max = floor((MAX(_runData.bins.maxBinCount.unsignedIntegerValue, 5) + 4) / 5) * 5;
+    NSUInteger max = (NSUInteger)floor((MAX(_runData.bins.maxBinCount.unsignedIntegerValue, 5) + 4) / 5) * 5;
     plotSpace.yRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromInteger(0) length:CPTDecimalFromInteger(max)];
 }
 

@@ -53,7 +53,7 @@ static NSString *taskFetch = @"fetch";
 - (NSString *)deviceTokenAsString
 {
     if (! _deviceTokenAsString && self.deviceToken) {
-        _deviceTokenAsString = [self.deviceToken base64EncodedStringWithOptions:0];
+        _deviceTokenAsString = [self.deviceToken base64EncodedStringWithOptions:(NSDataBase64EncodingOptions)0];
     }
     
     return _deviceTokenAsString;
@@ -131,9 +131,16 @@ static NSString *taskFetch = @"fetch";
     NSURL *url = [NSURL URLWithString:@"/register" relativeToURL:self.url];
     NSLog(@"URL: %@", url.absoluteString);
 
+#if APNS_USE_SANDBOX
+    BOOL useSandbox = YES;
+#else
+    BOOL useSandbox = NO;
+#endif
+
     BRHUserSettings *settings = [BRHUserSettings userSettings];
     NSDictionary *dict = @{@"deviceToken": self.deviceTokenAsString, @"interval": emitInterval,
-                           @"retryUntilFetched":settings.retryUntilFetched};
+                           @"resendUntilFetched":@(settings.resendUntilFetched),
+                           @"useSandbox":@(useSandbox)};
     NSLog(@"dict: %@", dict);
 
     NSError *error = nil;
@@ -156,10 +163,10 @@ static NSString *taskFetch = @"fetch";
     [BRHEventLog add:@"registering", [dict objectForKey:@"interval"], nil];
 
     double requestStartTime = [[NSDate date] timeIntervalSince1970];
-    NSURLSessionUploadTask *task = [self.foregroundSession uploadTaskWithRequest:request fromData:body completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-        if (error) {
-            [BRHEventLog add:@"failedRegister", error.description, nil];
-            [BRHLogger add:@"failed to register - %@", error.description];
+    NSURLSessionUploadTask *task = [self.foregroundSession uploadTaskWithRequest:request fromData:body completionHandler:^(NSData *data, NSURLResponse *response, NSError *err) {
+        if (err) {
+            [BRHEventLog add:@"failedRegister", err.description, nil];
+            [BRHLogger add:@"failed to register - %@", err.description];
             completionBlock(NO);
             return;
         }
@@ -201,10 +208,10 @@ static NSString *taskFetch = @"fetch";
     [BRHEventLog add:@"unregistering", nil];
     
     double requestStartTime = [[NSDate date] timeIntervalSince1970];
-    NSURLSessionUploadTask *task = [self.foregroundSession uploadTaskWithRequest:request fromData:body completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-        if (error) {
-            [BRHEventLog add:@"failedUnregister", error.description, nil];
-            [BRHLogger add:@"failed unregister - %@", error.description];
+    NSURLSessionUploadTask *task = [self.foregroundSession uploadTaskWithRequest:request fromData:body completionHandler:^(NSData *data, NSURLResponse *response, NSError *err) {
+        if (err) {
+            [BRHEventLog add:@"failedUnregister", err.description, nil];
+            [BRHLogger add:@"failed unregister - %@", err.description];
             [self sendStopEmittingRequest];
             return;
         }

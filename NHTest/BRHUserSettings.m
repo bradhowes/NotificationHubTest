@@ -8,6 +8,8 @@
 
 @implementation BRHUserSettings
 
+@synthesize resendUntilFetched = _resendUntilFetched;
+
 + (instancetype)userSettings
 {
     static BRHUserSettings *singleton = nil;
@@ -23,8 +25,8 @@
  */
 - (void)setDefaultPreferences
 {
-    self.notificationDriver = @"loop";
-    self.remoteServerName = @"emitter-bradhowes.c9.io";
+    self.notificationDriver = @"remote";
+    self.remoteServerName = @"brhemitter.azurewebsites.net";
     self.remoteServerPort = 80;
     self.apnsDevCertFileName = @"apn-nhtest-dev.p12";
     self.apnsDevCertPassword = @"";
@@ -33,7 +35,7 @@
     self.useDropbox = NO;
     self.maxHistogramBin = 30;
     self.emitInterval = 60;
-    self.retryUntilFetched = [NSNumber numberWithBool:NO];
+    self.resendUntilFetched = NO;
 }
 
 /*!

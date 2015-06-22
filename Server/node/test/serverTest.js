@@ -1,70 +1,21 @@
 'use strict';
 
-var assert = require('assert');
-var HTTPStatus = require('http-status');
 var config = require('../config');
-var fs = require('fs');
 var http = require('http');
 var https = require('https');
-var log4js = require('log4js');
 var pact = require('pact');
 var request = require('request');
-var vows = require('vows');
 var App = require('../app');
+
+var fs = require('fs');
+var HTTPStatus = require('http-status');
+var vows = require('vows');
+var assert = require('assert');
 
 var host = 'localhost';
 var port = 4465;
 
-var agent;
-if (config.ssl_authentication_enabled) {
-    var key = fs.readFileSync("certs/client.key");
-    var cert = fs.readFileSync('certs/client.cert');
-    var ca = [fs.readFileSync('certs/ca.cert')];
-    agent = new https.Agent({key:key, cert:cert, ca:ca});
-}
-
 var server = null;
-
-var validRegistration_WNS = {
-    deviceId: 'myregistration_WNS',
-    templateVersion: '3.0',
-    templateLanguage: 'en-us',
-    routes: [{service: 'wns', name: '*',
-                token: 'https://db3.notify.windows.com/?token=AgYAAAAeMSsYVg4AoTlZmb3zsib4Mv%2bUw30tgjgBkmIYh%2fc97tzD8LV1qnzjbEBtrcnnH0BkZxyFw2H%2bQzubrWElpu6tFC6GUaKm3fzvB0NWBoSudh08tTBW1O15%2fza80a4Bows%3d',
-              secondsToLive: 60}]
-};
-
-var validRegistration_APNS = {
-    deviceId: 'myregistration_APNS',
-    templateVersion: '3.0',
-    templateLanguage: 'en-us',
-    routes: [{service: 'apns', name: '*', token: '6aBSE3NLfNw9TwAEUgV+pHgeVU6eEWraSar9f4ycf98=', secondsToLive: 60}]
-};
-
-var validTemplate_WNS = {
-    eventId: 200,
-    notificationId: 100,
-    templateVersion: '3.0',
-    templateLanguage: 'en',
-    route: '*',
-    service: 'wns',
-    template: {
-        kind: 'wns/badge',
-        content: '<?xml version="1.0" encoding="utf-8"?><badge value="@@B@@"/>'
-    }
-};
-
-var validTemplate_APNS = {
-    eventId: 200,
-    notificationId: 100,
-    templateVersion: '3.0',
-    templateLanguage: 'en',
-    route: '*',
-    service: 'apns',
-    template: {
-        content: '{"aps":{"alert":"Hello, @@A@@ World!","badge":@@B@@,"sound":"default"}}'
-    }
-};
 
 var validPost = function (post) {
     if (typeof post === 'undefined') post = {};

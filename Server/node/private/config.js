@@ -12,7 +12,8 @@ var D = function(value) {
 };
 
 module.exports = {
-    apns_passphrase: D('8CyUsb8m0T8E+2iUgKAw6A=='),
+    apns_dev_passphrase: D('8CyUsb8m0T8E+2iUgKAw6A=='),
+    apns_prod_passphrase: D('8CyUsb8m0T8E+2iUgKAw6A=='),
     azure_storage_access_key: D('8EGOTSsgFoxTDEVRQAq6xJhXgRFJPQuzP5SLlOSATgL4ZCuv64mITantG+Z28lSZuzZ7VSU8ZslPf9HviZ4r1L3JQ5XMVPnrCLi8NaLOBs5c107qU0297HV/QRRDIctI'),
     azure_servicebus_access_key: D('kgk2NtN+GhTXh1oZ7wUyyH5CSkxhZ1jupAzleJUSvMhARTdtE+Ugx0HL4hSU+ilZ')
 };

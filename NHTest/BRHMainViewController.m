@@ -185,13 +185,13 @@ static void* const kKVOContext = (void *)&kKVOContext;
     button.enabled = YES;
     NSMutableArray *items = [self.toolbar.items mutableCopy];
     [items replaceObjectAtIndex:0 withObject:button];
-    [self.toolbar setItems:items animated:YES];
+    [self.toolbar setItems:items animated:NO];
 }
 
 - (void)start
 {
-    self.stopButton.tintColor = [UIColor redColor];
     [self showButton:self.stopButton];
+    self.stopButton.tintColor = [UIColor redColor];
     BRHAppDelegate *delegate = [UIApplication sharedApplication].delegate;
     [delegate startRun];
 }

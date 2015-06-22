@@ -51,13 +51,25 @@ function Config () {
      * The FQDN of the host to use to deliver APNs notifcation payloads.
      * @type {String}
      */
-    this.apns_service_host = 'gateway.sandbox.push.apple.com'; // or 'gateway.push.apple.com'
+    this.apns_dev_service_host = 'gateway.sandbox.push.apple.com';
 
     /**
      * The port of the host to connect to for APNs notifications.
      * @type {Number}
      */
-    this.apns_service_port = 2195;
+    this.apns_dev_service_port = 2195;
+
+    /**
+     * The FQDN of the host to use to deliver APNs notifcation payloads.
+     * @type {String}
+     */
+    this.apns_prod_service_host = 'gateway.push.apple.com';
+
+    /**
+     * The port of the host to connect to for APNs notifications.
+     * @type {Number}
+     */
+    this.apns_prod_service_port = 2195;
 
     /**
      * The file holding the root certificate used to authenticate the remote server.
@@ -69,19 +81,37 @@ function Config () {
      * The file holding the private key certificate used to authenticate to the remote server.
      * @type {String}
      */
-    this.apns_client_private_key_file = 'private/apn-nhtest-dev-key.pem';
+    this.apns_dev_client_private_key_file = 'private/apn-nhtest-dev-key.pem';
 
     /**
      * The file holding the credentials used to authenticate to the remote server for application notifications.
      * @type {String}
      */
-    this.apns_client_certificate_file = 'private/apn-nhtest-dev-cert.pem';
+    this.apns_dev_client_certificate_file = 'private/apn-nhtest-dev-cert.pem';
+
+    /**
+     * The file holding the private key certificate used to authenticate to the remote server.
+     * @type {String}
+     */
+    this.apns_prod_client_private_key_file = 'private/apn-nhtest-prod-key.pem';
+
+    /**
+     * The file holding the credentials used to authenticate to the remote server for application notifications.
+     * @type {String}
+     */
+    this.apns_prod_client_certificate_file = 'private/apn-nhtest-prod-cert.pem';
 
     /**
      * The passphrase to decrypt to APNs key file.
      * @type {String}
      */
-    this.apns_passphrase = priv.apns_passphrase;
+    this.apns_dev_passphrase = priv.apns_dev_passphrase;
+
+    /**
+     * The passphrase to decrypt to APNs key file.
+     * @type {String}
+     */
+    this.apns_prod_passphrase = priv.apns_prod_passphrase;
 
     /**
      * The Azure storage account access key to use.

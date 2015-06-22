@@ -145,7 +145,6 @@
 
     void (^block)(void) = ^{
         [_log writeToURL:_logPath atomically:NO encoding:NSUTF8StringEncoding error:nil];
-        DDLogDebug(@"wrote log to disk");
     };
 
     dispatch_queue_t q = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);

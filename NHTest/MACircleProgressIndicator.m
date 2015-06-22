@@ -80,11 +80,11 @@
     CGContextRef ctx = UIGraphicsGetCurrentContext();
 
     CGPoint center = CGPointMake(rect.size.width/2, rect.size.height/2);
-    float minSize = MIN(rect.size.width, rect.size.height);
-    float lineWidth = _strokeWidth;
-    if(lineWidth == -1.0) lineWidth = minSize*_strokeWidthRatio;
-    float radius = (minSize-lineWidth)/2;
-    float endAngle = M_PI*(self.value*2);
+    double minSize = MIN(rect.size.width, rect.size.height);
+    double lineWidth = _strokeWidth;
+    if (lineWidth == -1.0) lineWidth = minSize*_strokeWidthRatio;
+    double radius = (minSize-lineWidth)/2;
+    double endAngle = M_PI*(self.value*2);
     
     CGContextSaveGState(ctx);
     CGContextTranslateCTM(ctx, center.x, center.y);

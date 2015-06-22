@@ -324,8 +324,8 @@ static double const kPlotSymbolSize = 8.0;
 
 - (NSUInteger)calculatePlotWidth
 {
-    float w = self.hostedGraph.frame.size.width;
-    return floor(w / (kPlotSymbolSize * 1.5));
+    double w = self.hostedGraph.frame.size.width;
+    return (NSUInteger)floor(w / (kPlotSymbolSize * 1.5));
 }
 
 - (void)renderPDF:(CGContextRef)pdfContext

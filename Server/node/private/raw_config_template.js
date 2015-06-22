@@ -17,7 +17,9 @@
 
 module.exports = {
     /* Passphrase to use to decrypt the cert used for APNs connectivity */
-    apns_passphrase: 'REPLACE ME',
+    apns_dev_passphrase: 'REPLACE ME',
+    /* Passphrase to use to decrypt the cert used for APNs connectivity */
+    apns_prod_passphrase: 'REPLACE ME',
     /* The access key for the Azure storage account being used */
     azure_storage_access_key: 'REPLACE ME',
     /* The access key for the Azure ServiceBus being used */

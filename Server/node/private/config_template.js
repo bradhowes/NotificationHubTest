@@ -12,7 +12,8 @@ var D = function(value) {
 };
 
 module.exports = {
-    apns_passphrase: D('@@apns_passphrase@@'),
+    apns_dev_passphrase: D('@@apns_dev_passphrase@@'),
+    apns_prod_passphrase: D('@@apns_prod_passphrase@@'),
     azure_storage_access_key: D('@@azure_storage_access_key@@'),
     azure_servicebus_access_key: D('@@azure_servicebus_access_key@@')
 };

@@ -5,6 +5,7 @@
  */
 module.exports = TableStore;
 
+var escape = require('querystring').escape;
 var azure = require('azure');
 var config = require('./config');
 
@@ -35,7 +36,8 @@ TableStore.prototype = {
     set: function(key, entity, callback) {
         var self = this;
         var log = self.log.child('set');
-        log.BEGIN(entity);
+        key = escape(key);
+        log.BEGIN(key, entity);
         entity.PartitionKey = this.makePartitionKey(key);
         entity.RowKey = this.makeRowKey(key);
         self.store.insertOrReplaceEntity(self.tableName, entity, function (error, result, response) {
@@ -48,6 +50,7 @@ TableStore.prototype = {
     get: function(key, callback) {
         var self = this;
         var log = self.log.child('get');
+        key = escape(key);
         log.BEGIN(key);
         this.store.retrieveEntity(this.tableName, key, key, function(error, result, response) {
             callback(error, result);
@@ -57,11 +60,11 @@ TableStore.prototype = {
 
     del: function(key, callback) {
         var log = this.log.child('del');
-        var entity = {
-            PartitionKey: this.makePartitionKey(key),
-            RowKey: this.makeRowKey(key)
-        };
+        var entity = {};
+        key = escape(key);
         log.BEGIN('key:', key);
+        entity.PartitionKey = this.makePartitionKey(key);
+        entity.RowKey = this.makeRowKey(key);
         this.store.deleteEntity(this.tableName, entity, function (err) {
             log.info('deleteEntity:', err);
             callback(err);
@@ -70,10 +73,10 @@ TableStore.prototype = {
     },
 
     makePartitionKey: function (value) {
-        return {'_' :value}; // new Buffer(value).toString('base64');
+        return {'_' :value,'$':'Edm.String'}; // new Buffer(value).toString('base64');
     },
 
     makeRowKey: function (value) {
-        return {'_':value}; // new Buffer(value).toString('base64');
+        return {'_':value,'$':'Edm.String'}; // new Buffer(value).toString('base64');
     }
 };
