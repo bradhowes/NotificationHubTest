@@ -16,7 +16,6 @@ NSString *BRHRunDataNewDataNotification = @"BRHRunDataNewDataNotification";
 @interface BRHRunData ()
 
 @property (strong, nonatomic) NSMutableArray *orderedSamples;
-@property (assign, readwrite, nonatomic) BOOL running;
 
 @end
 
@@ -31,13 +30,11 @@ NSString *BRHRunDataNewDataNotification = @"BRHRunDataNewDataNotification";
     if (self) {
         BRHUserSettings *settings = [BRHUserSettings userSettings];
         _name = name;
-        _startTime = nil;
         _bins = [BRHHistogram histogramWithLastBin:settings.maxHistogramBin];
         _missing = [NSMutableArray arrayWithCapacity:10];
         _samples = [NSMutableArray arrayWithCapacity:1000];
         _orderedSamples = [NSMutableArray arrayWithCapacity:1000];
         _emitInterval = [NSNumber numberWithUnsignedInteger:settings.emitInterval];
-        _running = NO;
     }
 
     return self;
@@ -50,44 +47,21 @@ NSString *BRHRunDataNewDataNotification = @"BRHRunDataNewDataNotification";
     }
 
     self.name = [decoder decodeObjectForKey:@"name"];
-    self.startTime = [decoder decodeObjectForKey:@"startTime"];
     self.bins = [decoder decodeObjectForKey:@"bins"];
     self.missing = [decoder decodeObjectForKey:@"missing"];
     self.samples = [decoder decodeObjectForKey:@"samples"];
     self.emitInterval = [decoder decodeObjectForKey:@"emitInterval"];
     self.orderedSamples = nil;
-    self.running = NO;
 
     return self;
 }
 
 - (void)encodeWithCoder:(NSCoder *)encoder {
     [encoder encodeObject:self.name forKey:@"name"];
-    [encoder encodeObject:self.startTime forKey:@"startTime"];
     [encoder encodeObject:self.bins forKey:@"bins"];
     [encoder encodeObject:self.missing forKey:@"missing"];
     [encoder encodeObject:self.samples forKey:@"samples"];
     [encoder encodeObject:self.emitInterval forKey:@"emitInterval"];
-}
-
-- (void)start
-{
-    self.running = YES;
-    self.startTime = [NSDate date];
-
-    BRHUserSettings *settings = [BRHUserSettings userSettings];
-    self.emitInterval = [NSNumber numberWithUnsignedInteger:settings.emitInterval];
-    self.bins.lastBin = settings.maxHistogramBin;
-
-    [self.bins clear];
-    [self.missing removeAllObjects];
-    [self.samples removeAllObjects];
-    [self.orderedSamples removeAllObjects];
-}
-
-- (void)stop
-{
-    self.running = NO;
 }
 
 - (BRHLatencySample *)min

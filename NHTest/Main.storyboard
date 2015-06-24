@@ -160,7 +160,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="252"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <prototypes>
-                            <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="BRHRecordingInfoCell" textLabel="i4A-oL-SRo" detailTextLabel="DuC-fk-AgO" style="IBUITableViewCellStyleSubtitle" id="u5n-3f-Rkc">
+                            <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="BRHRecordingInfoCell" textLabel="i4A-oL-SRo" detailTextLabel="DuC-fk-AgO" style="IBUITableViewCellStyleSubtitle" id="u5n-3f-Rkc" customClass="MGSwipeTableCell">
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="u5n-3f-Rkc" id="PXl-HW-bgb">

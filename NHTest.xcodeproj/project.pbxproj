@@ -31,6 +31,10 @@
 		BD4FC2501B1C662B00C6634F /* GCDAsyncUdpSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = BD4FC24E1B1C662B00C6634F /* GCDAsyncUdpSocket.m */; };
 		BD4FC25A1B1CA21100C6634F /* DDGPreferences.m in Sources */ = {isa = PBXBuildFile; fileRef = BD4FC2591B1CA21100C6634F /* DDGPreferences.m */; };
 		BD55ED8C1B0DF56A00E70F1F /* BRHEventLog.m in Sources */ = {isa = PBXBuildFile; fileRef = BD55ED8B1B0DF56A00E70F1F /* BRHEventLog.m */; };
+		BD5977811B3AC0D500A70B60 /* share.png in Resources */ = {isa = PBXBuildFile; fileRef = BD5977801B3AC0D500A70B60 /* share.png */; };
+		BD5977831B3AC17600A70B60 /* share@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = BD5977821B3AC17600A70B60 /* share@2x.png */; };
+		BD5977891B3AC69A00A70B60 /* dropbox@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = BD5977881B3AC69A00A70B60 /* dropbox@2x.png */; };
+		BD59778B1B3AC6B600A70B60 /* dropbox.png in Resources */ = {isa = PBXBuildFile; fileRef = BD59778A1B3AC6B600A70B60 /* dropbox.png */; };
 		BD5EE9B41874BCED00A55A13 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BD5EE9B31874BCED00A55A13 /* QuartzCore.framework */; };
 		BD5FE31F18F94078006368C4 /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = BD5FE31E18F94078006368C4 /* Reachability.m */; };
 		BD5FE39718F94F50006368C4 /* settings.png in Resources */ = {isa = PBXBuildFile; fileRef = BD5FE39418F94F50006368C4 /* settings.png */; };
@@ -66,7 +70,7 @@
 		BDC5D7F11950FFC800D64B50 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BDC5D7F01950FFC800D64B50 /* CoreLocation.framework */; };
 		BDC5D7F31950FFD400D64B50 /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = BDC5D7F21950FFD400D64B50 /* libxml2.dylib */; };
 		BDD4C2AD1B2E1CC000B25997 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BDD4C2AC1B2E1CC000B25997 /* Images.xcassets */; };
-		BDDBC7EB1B281AE500EDFDC2 /* dropbox.png in Resources */ = {isa = PBXBuildFile; fileRef = BDDBC7EA1B281AE500EDFDC2 /* dropbox.png */; };
+		BDDBC7EB1B281AE500EDFDC2 /* dropboxBig.png in Resources */ = {isa = PBXBuildFile; fileRef = BDDBC7EA1B281AE500EDFDC2 /* dropboxBig.png */; };
 		BDE3875318F827C9009E75CF /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BDE3875118F827C9009E75CF /* Main.storyboard */; };
 		BDE3875818F8288D009E75CF /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = BDE3875718F8288D009E75CF /* main.m */; };
 		BDE3876418F82A2E009E75CF /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = BDE3876318F82A2E009E75CF /* Settings.bundle */; };
@@ -156,6 +160,10 @@
 		BD4FC2591B1CA21100C6634F /* DDGPreferences.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DDGPreferences.m; path = Vendor/DDGPreferences.m; sourceTree = "<group>"; };
 		BD55ED871B0DF55600E70F1F /* BRHEventLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = BRHEventLog.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		BD55ED8B1B0DF56A00E70F1F /* BRHEventLog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = BRHEventLog.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		BD5977801B3AC0D500A70B60 /* share.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = share.png; sourceTree = "<group>"; };
+		BD5977821B3AC17600A70B60 /* share@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "share@2x.png"; sourceTree = "<group>"; };
+		BD5977881B3AC69A00A70B60 /* dropbox@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "dropbox@2x.png"; sourceTree = "<group>"; };
+		BD59778A1B3AC6B600A70B60 /* dropbox.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = dropbox.png; sourceTree = "<group>"; };
 		BD5EE9B31874BCED00A55A13 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		BD5FE31D18F94078006368C4 /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Reachability.h; path = Vendor/Reachability.h; sourceTree = "<group>"; };
 		BD5FE31E18F94078006368C4 /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Reachability.m; path = Vendor/Reachability.m; sourceTree = "<group>"; };
@@ -202,7 +210,7 @@
 		BDC5D7F01950FFC800D64B50 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		BDC5D7F21950FFD400D64B50 /* libxml2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.dylib; path = usr/lib/libxml2.dylib; sourceTree = SDKROOT; };
 		BDD4C2AC1B2E1CC000B25997 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = NHTest/Images.xcassets; sourceTree = SOURCE_ROOT; };
-		BDDBC7EA1B281AE500EDFDC2 /* dropbox.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = dropbox.png; sourceTree = "<group>"; };
+		BDDBC7EA1B281AE500EDFDC2 /* dropboxBig.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = dropboxBig.png; sourceTree = "<group>"; };
 		BDE3875118F827C9009E75CF /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		BDE3875718F8288D009E75CF /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		BDE3876318F82A2E009E75CF /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
@@ -426,7 +434,11 @@
 		BDA7A4FB1871AF60002F7780 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				BDDBC7EA1B281AE500EDFDC2 /* dropbox.png */,
+				BD59778A1B3AC6B600A70B60 /* dropbox.png */,
+				BD5977881B3AC69A00A70B60 /* dropbox@2x.png */,
+				BDDBC7EA1B281AE500EDFDC2 /* dropboxBig.png */,
+				BD5977801B3AC0D500A70B60 /* share.png */,
+				BD5977821B3AC17600A70B60 /* share@2x.png */,
 				BDF02AE61B1735F400DD3C47 /* dbconfig.h */,
 				BDE3875718F8288D009E75CF /* main.m */,
 				BDEA88121B0E53E9004BB6AB /* events@2x.png */,
@@ -635,12 +647,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				BDE3876418F82A2E009E75CF /* Settings.bundle in Resources */,
+				BD59778B1B3AC6B600A70B60 /* dropbox.png in Resources */,
 				BDD4C2AD1B2E1CC000B25997 /* Images.xcassets in Resources */,
 				BD5FE39818F94F50006368C4 /* settings@2x.png in Resources */,
 				BDA7A5641871B141002F7780 /* glyphicons_195_circle_info.png in Resources */,
 				BDE3877318F85127009E75CF /* apn-nhtest-dev.p12 in Resources */,
 				BD5FE39718F94F50006368C4 /* settings.png in Resources */,
 				BD6585B51875FA15008D1BA7 /* trash-100.png in Resources */,
+				BD5977831B3AC17600A70B60 /* share@2x.png in Resources */,
 				BD6585B21875FA15008D1BA7 /* trash-25.png in Resources */,
 				BD3EC5481876068E005AE4B8 /* plot@2x.png in Resources */,
 				BD3EC5421876043A005AE4B8 /* log@2x.png in Resources */,
@@ -650,8 +664,10 @@
 				BDE3875318F827C9009E75CF /* Main.storyboard in Resources */,
 				BDEA88151B0E53E9004BB6AB /* events.png in Resources */,
 				BDEA88141B0E53E9004BB6AB /* events@2x.png in Resources */,
-				BDDBC7EB1B281AE500EDFDC2 /* dropbox.png in Resources */,
+				BD5977891B3AC69A00A70B60 /* dropbox@2x.png in Resources */,
+				BDDBC7EB1B281AE500EDFDC2 /* dropboxBig.png in Resources */,
 				BD6585B41875FA15008D1BA7 /* trash-75.png in Resources */,
+				BD5977811B3AC0D500A70B60 /* share.png in Resources */,
 				BD5FE39918F94F50006368C4 /* settings.opacity in Resources */,
 				BD6585B31875FA15008D1BA7 /* trash-50.png in Resources */,
 			);

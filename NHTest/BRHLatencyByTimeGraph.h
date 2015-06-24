@@ -8,7 +8,7 @@
 #import "CorePlot-CocoaTouch.h"
 
 @class BRHLatencySample;
-@class BRHRunData;
+@class BRHRecordingInfo;
 
 /*!
  @brief Graph of the notificaton latencies.
@@ -21,7 +21,7 @@
 /*!
  @brief The data being used for the plots
  */
-@property(strong, nonatomic) BRHRunData *runData;
+@property(strong, nonatomic) BRHRecordingInfo *recordingInfo;
 
 /*!
  @brief Render the graph as a PDF

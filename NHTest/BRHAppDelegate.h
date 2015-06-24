@@ -7,7 +7,6 @@
 
 @class BRHNotificationDriver;
 @class BRHUserSettings;
-@class BRHRunData;
 @class BRHNotificationDriver;
 @class BRHRecordingInfo;
 
@@ -22,10 +21,11 @@
 @property (strong, nonatomic) UIWindow *window;
 @property (strong, nonatomic) NSData *deviceToken;
 @property (strong, nonatomic) BRHNotificationDriver *driver;
-@property (strong, nonatomic) BRHRunData *runData;
-@property (assign, nonatomic) BOOL running;
+@property (strong, nonatomic) BRHRecordingInfo *recordingInfo;
 
 @property (strong, readonly, nonatomic) NSManagedObjectContext *managedObjectContext;
+@property (strong, readonly, nonatomic) NSManagedObjectModel *managedObjectModel;
+@property (strong, readonly, nonatomic) NSPersistentStoreCoordinator *persistentStoreCoordinator;
 
 - (void)startRun;
 
@@ -36,5 +36,7 @@
 - (void)selectRecording:(BRHRecordingInfo *)recordingInfo;
 
 - (void)enableDropbox:(BOOL)value;
+
+- (void)saveContext;
 
 @end

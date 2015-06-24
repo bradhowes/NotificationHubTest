@@ -11,6 +11,7 @@
 #import "BRHLogger.h"
 #import "BRHMainViewController.h"
 #import "BRHNotificationDriver.h"
+#import "BRHRecordingInfo.h"
 #import "BRHRecordingsViewController.h"
 #import "BRHRunData.h"
 #import "BRHSettingsStore.h"
@@ -18,28 +19,21 @@
 #import "BRHUserSettings.h"
 #import "InAppSettingsKit/IASKAppSettingsViewController.h"
 
-static void* const kKVOContext = (void *)&kKVOContext;
-
 @interface BRHMainViewController ()
 
 @property (strong, nonatomic) UIView *lowerView;
 
 - (void)animateLowerView:(UIView *)view;
-- (void)start;
-- (void)stop;
 
 @end
 
 @implementation BRHMainViewController
 
+#pragma mark - View Management
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-
-    // Attach widgets to the text loggers
-    //
-    [BRHLogger sharedInstance].textView = self.logView;
-    [BRHEventLog sharedInstance].textView = self.eventsView;
 
     self.playButton.enabled = YES;
     self.stopButton.enabled = NO;
@@ -62,8 +56,8 @@ static void* const kKVOContext = (void *)&kKVOContext;
     [items removeObjectAtIndex:1];
     [self.toolbar setItems: items animated:NO];
 
-    BRHAppDelegate *delegate = [UIApplication sharedApplication].delegate;
-    [self setRunData:delegate.runData];
+    // BRHAppDelegate *delegate = [UIApplication sharedApplication].delegate;
+    // self.recordingInfo = delegate.recordingInfo;
 }
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
@@ -75,8 +69,6 @@ static void* const kKVOContext = (void *)&kKVOContext;
     if (identifier && [identifier isEqualToString:@"recordingsViewController"]) {
         UINavigationController *nc = segue.destinationViewController;
         self.recordingsViewController = (BRHRecordingsViewController *)[nc topViewController];
-        BRHAppDelegate *delegate = [UIApplication sharedApplication].delegate;
-        self.recordingsViewController.managedObjectContext = delegate.managedObjectContext;
         self.recordingsViewController.buttonItem = self.recordingsButton;
         if (self.dropboxUploader) {
             self.recordingsViewController.dropboxUploader = self.dropboxUploader;
@@ -188,6 +180,8 @@ static void* const kKVOContext = (void *)&kKVOContext;
     [self.toolbar setItems:items animated:NO];
 }
 
+#pragma mark - Recordings
+
 - (void)start
 {
     [self showButton:self.stopButton];
@@ -213,11 +207,26 @@ static void* const kKVOContext = (void *)&kKVOContext;
     }
 }
 
-- (void)setRunData:(BRHRunData *)runData
+- (void)setRecordingInfo:(BRHRecordingInfo *)recordingInfo
 {
-    if (runData) {
-        self.latencyPlot.runData = runData;
-        self.countBars.runData = runData;
+    self.latencyPlot.recordingInfo = recordingInfo;
+    self.countBars.recordingInfo = recordingInfo;
+
+    if (! recordingInfo.wasRecorded) {
+        [BRHLogger sharedInstance].textView = _logView;
+        [BRHEventLog sharedInstance].textView = _eventsView;
+    }
+    else {
+        [BRHLogger sharedInstance].textView = nil;
+        [BRHEventLog sharedInstance].textView = nil;
+
+        NSString *text = [[BRHLogger sharedInstance] logContentForFolderPath:recordingInfo.folderURL];
+        _logView.text = text;
+        [_logView scrollRangeToVisible:NSMakeRange(0, 0)];
+        
+        text = [[BRHEventLog sharedInstance] logContentForFolderPath:recordingInfo.folderURL];
+        _eventsView.text = text;
+        [_eventsView scrollRangeToVisible:NSMakeRange(0, 0)];
     }
 }
 

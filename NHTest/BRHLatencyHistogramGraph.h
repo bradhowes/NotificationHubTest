@@ -7,14 +7,14 @@
 
 #import "CorePlot-CocoaTouch.h"
 
-@class BRHRunData;
+@class BRHRecordingInfo;
 
 /*!
  A Core Plot bar chart with vertical bars that represents the contents of a histogram of arrival latencies with 1-second bins.
  */
 @interface BRHLatencyHistogramGraph : CPTGraphHostingView
 
-@property (strong, nonatomic) BRHRunData *runData;
+@property (strong, nonatomic) BRHRecordingInfo *recordingInfo;
 
 /*!
  * @brief Generate the plot as a PDF image

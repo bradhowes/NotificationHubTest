@@ -8,19 +8,27 @@
 
 extern NSString *BRHRecordingInfoDataModelName;
 
+@class BRHRunData;
+
 @interface BRHRecordingInfo : NSManagedObject
 
-@property (copy, nonatomic) NSString *filePath;
-@property (copy, nonatomic) NSString *name;
-@property (assign, nonatomic) float progress;
-@property (copy, nonatomic) NSString *size;
-@property (assign, nonatomic) BOOL uploaded;
-@property (assign, nonatomic) BOOL uploading;
-@property (assign, nonatomic) BOOL recording;
+// These properties *are* managed
 @property (strong, nonatomic) NSDate *startTime;
 @property (strong, nonatomic) NSDate *endTime;
+@property (copy, nonatomic) NSString *filePath;
+@property (copy, nonatomic) NSString *name;
+@property (copy, nonatomic) NSString *size;
+@property (assign, nonatomic) NSInteger errorCode;
+@property (assign, nonatomic) BOOL awaitingUpload;
+@property (assign, nonatomic) BOOL uploaded;
 
+// These properties are *not* managed
+@property (strong, readonly, nonatomic) BRHRunData *runData;
 @property (strong, readonly, nonatomic) NSURL *folderURL;
+@property (assign, readonly, nonatomic) BOOL recordingNow;
+@property (assign, readonly, nonatomic) BOOL wasRecorded;
+@property (assign, nonatomic) BOOL uploading;
+@property (assign, nonatomic) float progress;
 
 - (void)initialize;
 
@@ -31,5 +39,12 @@ extern NSString *BRHRecordingInfoDataModelName;
 - (unsigned long long int)folderSize;
 
 - (NSString *)durationString;
+
+/*!
+ * @brief Clear all data and record the start time of the run
+ */
+- (void)start;
+
+- (void)stop;
 
 @end

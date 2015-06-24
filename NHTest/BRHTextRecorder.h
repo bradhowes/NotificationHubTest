@@ -66,4 +66,8 @@
  */
 - (void)clear;
 
+- (NSURL *)logPathForFolderPath:(NSURL *)folder;
+
+- (NSString *)logContentForFolderPath:(NSURL *)folder;
+
 @end

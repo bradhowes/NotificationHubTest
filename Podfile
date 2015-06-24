@@ -6,7 +6,8 @@ target 'NHTest' do
   platform :ios, '8.0'
   pod 'CocoaLumberjack'
   pod 'InAppSettingsKit'
-
+  pod 'MGSwipeTableCell'
+  
 end
 
 target 'NHTestTests' do

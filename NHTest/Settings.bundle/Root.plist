@@ -90,6 +90,16 @@
 			<key>DefaultValue</key>
 			<false/>
 		</dict>
+                <dict>
+                    <key>Type</key>
+                    <string>PSToggleSwitchSpecifier</string>
+                    <key>Key</key>
+                    <string>uploadAutomatically</string>
+                    <key>Title</key>
+                    <string>Upload automatically</string>
+                    <key>DefaultValue</key>
+                    <false/>
+                </dict>
 		<dict>
 			<key>Type</key>
 			<string>PSGroupSpecifier</string>
@@ -104,7 +114,7 @@
 			<key>Title</key>
 			<string>Host</string>
 			<key>DefaultValue</key>
-			<string>emitter-bradhowes.c9.io</string>
+			<string>brhemitter.azurewebsites.net</string>
 			<key>KeyboardType</key>
 			<string>URL</string>
 			<key>AutocapitalizationType</key>

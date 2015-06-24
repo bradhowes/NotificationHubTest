@@ -23,6 +23,7 @@ app.initialize(function(errors, service) {
         log.error('failed to start due to errors during initialization: ', errors);
     }
     else {
+        log.info('starting emission checker');
 
         // Uff -- ping Azure storage queue for any notifications to fire
         //

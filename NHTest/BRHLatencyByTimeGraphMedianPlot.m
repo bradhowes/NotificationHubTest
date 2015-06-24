@@ -4,6 +4,7 @@
 // Copyright (C) 2015 Brad Howes. All rights reserved.
 
 #import "BRHLatencyByTimeGraphMedianPlot.h"
+#import "BRHRecordingInfo.h"
 #import "BRHRunData.h"
 
 @implementation BRHLatencyByTimeGraphMedianPlot
@@ -43,7 +44,7 @@
 
 - (NSArray *)dataSource
 {
-    return self.runData.samples;
+    return self.recordingInfo.runData.samples;
     return nil;
 }
 

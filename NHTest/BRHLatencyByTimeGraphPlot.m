@@ -6,6 +6,7 @@
 #import "BRHLatencyByTimeGraph.h"
 #import "BRHLatencyByTimeGraphPlot.h"
 #import "BRHLatencySample.h"
+#import "BRHRecordingInfo.h"
 #import "BRHRunData.h"
 
 @implementation BRHLatencyByTimeGraphPlot
@@ -14,7 +15,7 @@
 {
     if (self = [super init]) {
         _graph = graph;
-        _runData = graph.runData;
+        _recordingInfo = graph.recordingInfo;
         _plot = nil;
     }
 
@@ -37,9 +38,9 @@
     return _plot;
 }
 
-- (void)setRunData:(BRHRunData *)runData
+- (void)setRecordingInfo:(BRHRecordingInfo *)recordingInfo
 {
-    _runData = runData;
+    _recordingInfo = recordingInfo;
     [_plot setDataNeedsReloading];
 }
 

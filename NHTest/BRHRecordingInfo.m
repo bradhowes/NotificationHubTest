@@ -3,139 +3,111 @@
 //
 // Copyright (C) 2015 Brad Howes. All rights reserved.
 
+#import "BRHEventLog.h"
+#import "BRHLogger.h"
 #import "BRHRecordingInfo.h"
+#import "BRHRunData.h"
 #import "BRHTimeFormatter.h"
-#import "BRHUserSettings.h"
 
 NSString *BRHRecordingInfoDataModelName = @"BRHRecordingInfo";
 
-static NSString *kRecordingInfoProgressKey = @"progress";
-static NSString *kRecordingInfoUploadedKey = @"uploaded";
-static NSString *kRecordingInfoUploadingKey = @"uploading";
-static NSString *kRecordingInfoRecordingKey = @"recording";
-
 @interface BRHRecordingInfo (PrimitiveAccessors)
-
-- (NSNumber *)primitiveProgress;
-- (void)setPrimitiveProgress:(NSNumber *)value;
 
 - (NSNumber *)primitiveUploaded;
 - (void)setPrimitiveUploaded:(NSNumber *)value;
 
-- (NSNumber *)primitiveUploading;
-- (void)setPrimitiveUploading:(NSNumber *)value;
-
-- (NSNumber *)primitiveRecording;
-- (void)setPrimitiveRecording:(NSNumber *)value;
+- (NSNumber *)primitiveAwaitingUpload;
+- (void)setPrimitiveAwaitingUpload:(NSNumber *)value;
 
 @end
 
 @implementation BRHRecordingInfo
 
+@dynamic awaitingUpload;
+@dynamic endTime;
+@dynamic errorCode;
 @dynamic filePath;
 @dynamic name;
-@dynamic progress;
 @dynamic size;
-@dynamic uploaded;
-@dynamic uploading;
-@dynamic recording;
 @dynamic startTime;
-@dynamic endTime;
+@dynamic uploaded;
 
+@synthesize recordingNow = _recordingNow;
+@synthesize uploading = _uploading;
 @synthesize folderURL = _folderURL;
-
-- (float)progress
-{
-    NSNumber *tmpValue;
-    [self willAccessValueForKey:kRecordingInfoProgressKey];
-    tmpValue = self.primitiveProgress;
-    [self didAccessValueForKey:kRecordingInfoProgressKey];
-    return tmpValue.floatValue;
-}
-
-- (void)setProgress:(float)value
-{
-    [self willChangeValueForKey:kRecordingInfoProgressKey];
-    [self setPrimitiveProgress:[NSNumber numberWithFloat:value]];
-    [self didChangeValueForKey:kRecordingInfoProgressKey];
-}
+@synthesize progress = _progress;
+@synthesize runData = _runData;
+@synthesize wasRecorded = _wasRecorded;
 
 - (BOOL)uploaded
 {
     NSNumber *tmpValue;
-    [self willAccessValueForKey:kRecordingInfoUploadedKey];
+    [self willAccessValueForKey:@"uploaded"];
     tmpValue = self.primitiveUploaded;
-    [self didAccessValueForKey:kRecordingInfoUploadedKey];
+    [self didAccessValueForKey:@"uploaded"];
     return tmpValue.boolValue;
 }
 
 - (void)setUploaded:(BOOL)value
 {
-    [self willChangeValueForKey:kRecordingInfoUploadedKey];
+    [self willChangeValueForKey:@"uploaded"];
     [self setPrimitiveUploaded:[NSNumber numberWithBool:value]];
-    [self didChangeValueForKey:kRecordingInfoUploadedKey];
+    [self didChangeValueForKey:@"uploaded"];
 }
 
-- (BOOL)uploading
+- (BOOL)awaitingUpload
 {
     NSNumber *tmpValue;
-    [self willAccessValueForKey:kRecordingInfoUploadingKey];
-    tmpValue = self.primitiveUploading;
-    [self didAccessValueForKey:kRecordingInfoUploadingKey];
+    [self willAccessValueForKey:@"awaitingUpload"];
+    tmpValue = self.primitiveAwaitingUpload;
+    [self didAccessValueForKey:@"awaitingUpload"];
     return tmpValue.boolValue;
 }
 
-- (void)setUploading:(BOOL)value
+- (void)setAwaitingUpload:(BOOL)value
 {
-    [self willChangeValueForKey:kRecordingInfoUploadingKey];
-    [self setPrimitiveUploading:[NSNumber numberWithBool:value]];
-    [self didChangeValueForKey:kRecordingInfoUploadingKey];
-}
-
-- (BOOL)recording
-{
-    NSNumber *tmpValue;
-    [self willAccessValueForKey:kRecordingInfoRecordingKey];
-    tmpValue = self.primitiveRecording;
-    [self didAccessValueForKey:kRecordingInfoRecordingKey];
-    return tmpValue.boolValue;
-}
-
-- (void)setRecording:(BOOL)value
-{
-    if (value == NO && self.primitiveRecording.boolValue == YES) {
-        self.endTime = [NSDate date];
-        [self updateSize];
-    }
-
-    [self willChangeValueForKey:kRecordingInfoRecordingKey];
-    [self setPrimitiveRecording:[NSNumber numberWithBool:value]];
-    [self didChangeValueForKey:kRecordingInfoRecordingKey];
+    [self willChangeValueForKey:@"awaitingUpload"];
+    [self setPrimitiveAwaitingUpload:[NSNumber numberWithBool:value]];
+    [self didChangeValueForKey:@"awaitingUpload"];
 }
 
 - (void)awakeFromFetch
 {
     [super awakeFromFetch];
-
-    if (self.primitiveUploading.boolValue) {
-        self.uploading = NO;
-    }
-
-    if (self.primitiveProgress.floatValue != 0.0) {
-        self.progress = 0.0;
-    }
-
-    if (self.primitiveRecording.boolValue)
-        self.recording = NO;
-
-    if (self.size.length == 0) {
+    if (self.size.length < 2) {
         [self updateSize];
     }
 
+    _runData = nil;
     _folderURL = nil;
+    _recordingNow = NO;
+    _uploading = NO;
+    _wasRecorded = self.name.length > 1;
+    _uploading = NO;
+    _progress = 0.0;
 }
 
-- (NSString *)recordingDirectory:(NSDate *)when
+- (void)initialize
+{
+    NSDate *now = [NSDate date];
+    self.startTime = now;
+    self.endTime = now;
+    self.filePath = @"-";
+    self.name = @"-";
+    self.size = @"-";
+    self.awaitingUpload = NO;
+    self.uploaded = NO;
+    self.errorCode = 0;
+
+    _runData = [[BRHRunData alloc] initWithName:self.name];
+    _folderURL = nil;
+    _recordingNow = NO;
+    _wasRecorded = NO;
+    _uploading = NO;
+    _progress = 0.0;
+}
+
+- (NSString *)recordingDirectoryName:(NSDate *)when
 {
     static NSDateFormatter *dateFormatter = nil;
     static dispatch_once_t onceToken;
@@ -147,19 +119,7 @@ static NSString *kRecordingInfoRecordingKey = @"recording";
     return [dateFormatter stringFromDate:when];
 }
 
-- (void)createRecordingDirectory
-{
-    NSFileManager *fileManager = [[NSFileManager alloc] init];
-    NSError *err = nil;
-    NSURL *dir = self.folderURL;
-    if (! [fileManager createDirectoryAtURL:dir withIntermediateDirectories:YES attributes:nil error:&err]) {
-        NSLog(@"failed to create dir: %@ err: %@", dir, [err description]);
-    }
-
-    NSLog(@"recordingDir: %@", dir);
-}
-
-- (NSString *)recordingName:(NSDate *)when
+- (NSString *)recordingDisplayName:(NSDate *)when
 {
     static NSDateFormatter *dateFormatter = nil;
     static dispatch_once_t onceToken;
@@ -169,8 +129,12 @@ static NSString *kRecordingInfoRecordingKey = @"recording";
         dateFormatter.dateStyle = NSDateIntervalFormatterMediumStyle;
         dateFormatter.timeStyle = NSDateIntervalFormatterMediumStyle;
     });
-
+    
     return [dateFormatter stringFromDate:when];
+}
+
+- (void)createRecordingDirectory
+{
 }
 
 - (NSURL *)folderURL
@@ -183,22 +147,20 @@ static NSString *kRecordingInfoRecordingKey = @"recording";
     return _folderURL;
 }
 
-- (void)initialize
+- (BRHRunData *)runData
 {
-    NSDate *now = [NSDate date];
+    // When reanimated from Core Data, _runData is nil so we reconstitute it using previously-saved archive file.
+    //
+    if (! _runData) {
+        NSURL *runDataArchive = [self.folderURL URLByAppendingPathComponent:@"runData.archive"];
+        NSData *archiveData = [NSData dataWithContentsOfURL:runDataArchive];
+        if (archiveData) {
+            NSLog(@"archiveData size: %lu", (unsigned long)archiveData.length);
+            _runData = [NSKeyedUnarchiver unarchiveObjectWithData:archiveData];
+        }
+    }
 
-    self.filePath = [self recordingDirectory:now];
-    self.name = [self recordingName:now];
-    self.uploaded = NO;
-    self.uploading = NO;
-    self.progress = 0.0;
-    self.size = @"";
-    self.recording = YES;
-    self.startTime = now;
-    self.endTime = now;
-    _folderURL = nil;
-
-    [self createRecordingDirectory];
+    return _runData;
 }
 
 - (void)updateSize
@@ -241,9 +203,72 @@ static NSString *kRecordingInfoRecordingKey = @"recording";
 
 - (NSString *)durationString
 {
-    if (! self.startTime || ! self.endTime) return @"0s";
+    if (! self.startTime || ! self.endTime) return @"--";
     NSTimeInterval duration = round([self.endTime timeIntervalSinceDate:self.startTime]);
     return [[BRHTimeFormatter sharedTimeFormatter] stringFromNumber:[NSNumber numberWithDouble:duration]];
+}
+
+- (void)setRecordingNow:(BOOL)recording
+{
+    if (recording) {
+        
+        // Update Core Data entity with recording info
+        //
+        NSDate *now = [NSDate date];
+        self.startTime = now;
+        self.endTime = now;
+        self.name = [self recordingDisplayName:now];
+        self.filePath = [self recordingDirectoryName:now];
+
+        // Create folder to hold the recording data
+        //
+        NSFileManager *fileManager = [NSFileManager defaultManager];
+        NSError *err = nil;
+        NSURL *documentDirectory = [[fileManager URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
+        _folderURL = [documentDirectory URLByAppendingPathComponent:self.filePath];
+        if (! [fileManager createDirectoryAtURL:_folderURL withIntermediateDirectories:YES attributes:nil error:&err]) {
+            NSLog(@"failed to create dir: %@ err: %@", _folderURL, [err description]);
+            _folderURL = nil;
+        }
+        
+        // Have the loggers record into the recording directory
+        //
+        NSLog(@"recordingDir: %@", _folderURL);
+        [BRHLogger sharedInstance].logPath = _folderURL;
+        [BRHEventLog sharedInstance].logPath = _folderURL;
+    }
+    else {
+        if (_recordingNow) {
+
+            // Stop recording and archive what we measured.
+            //
+            self.endTime = [NSDate date];
+            if (_folderURL) {
+                NSURL *runDataArchive = [_folderURL URLByAppendingPathComponent:@"runData.archive"];
+                NSData *archiveData = [NSKeyedArchiver archivedDataWithRootObject:self.runData];
+                NSLog(@"archiveData size: %lu", (unsigned long)archiveData.length);
+                NSError *error;
+                if (![archiveData writeToURL:runDataArchive options:0 error:&error]) {
+                    NSLog(@"failed to write archive: %@", error.description);
+                }
+            }
+
+            [self updateSize];
+            _wasRecorded = YES;
+        }
+    }
+
+    _recordingNow = recording;
+}
+
+- (void)start
+{
+    self.recordingNow = YES;
+}
+
+- (void)stop
+{
+    self.recordingNow = NO;
 }
 
 @end

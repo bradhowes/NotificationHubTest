@@ -9,6 +9,7 @@
 @implementation BRHUserSettings
 
 @synthesize resendUntilFetched = _resendUntilFetched;
+@synthesize uploadAutomatically = _uploadAutomatically;
 
 + (instancetype)userSettings
 {
@@ -36,6 +37,7 @@
     self.maxHistogramBin = 30;
     self.emitInterval = 60;
     self.resendUntilFetched = NO;
+    self.uploadAutomatically = NO;
 }
 
 /*!

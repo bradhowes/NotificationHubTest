@@ -5,6 +5,7 @@
 
 #import "BRHLatencyByTimeGraphMissingPlot.h"
 #import "BRHLatencySample.h"
+#import "BRHRecordingInfo.h"
 #import "BRHRunData.h"
 
 static double const kPlotSymbolSize = 8.0;
@@ -46,7 +47,7 @@ static double const kPlotSymbolSize = 8.0;
 
 - (NSArray *)dataSource
 {
-    return self.runData.missing;
+    return self.recordingInfo.runData.missing;
     return nil;
 }
 

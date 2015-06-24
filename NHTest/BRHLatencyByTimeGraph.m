@@ -10,6 +10,7 @@
 #import "BRHLatencyByTimeGraphMissingPlot.h"
 #import "BRHLatencySample.h"
 #import "BRHLogger.h"
+#import "BRHRecordingInfo.h"
 #import "BRHRunData.h"
 #import "BRHTimeFormatter.h"
 #import "BRHUserSettings.h"
@@ -105,9 +106,10 @@ static double const kPlotSymbolSize = 8.0;
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-- (void)setRunData:(BRHRunData *)runData
+- (void)setRecordingInfo:(BRHRecordingInfo *)recordingInfo
 {
-    _runData = runData;
+    _recordingInfo = recordingInfo;
+
     if (! self.hostedGraph) {
         _plots = [NSMutableArray arrayWithCapacity:4];
         _zooming = NO;
@@ -116,10 +118,10 @@ static double const kPlotSymbolSize = 8.0;
         [self makePlots];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(update:) name:BRHRunDataNewDataNotification object:nil];
     }
-    
+
     [_plots enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         BRHLatencyByTimeGraphPlot *plot = obj;
-        plot.runData = runData;
+        plot.recordingInfo = recordingInfo;
     }];
     
     CPTPlotRange * xMinMax = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromDouble(0.0) length:CPTDecimalFromDouble(1E99)];
@@ -197,14 +199,19 @@ static double const kPlotSymbolSize = 8.0;
 
 - (NSTimeInterval)xValueFor:(BRHLatencySample *)sample
 {
-    return [sample.emissionTime timeIntervalSinceDate:_runData.startTime];
+    return [sample.emissionTime timeIntervalSinceDate:_recordingInfo.startTime];
 }
 
 - (void)updateTitle
 {
     CPTXYAxisSet *axisSet = self.axisSet;
     CPTXYAxis *x = axisSet.xAxis;
-    x.title = [NSString stringWithFormat:@"%@ - %lds Intervals", self.runData.name, (long)self.runData.emitInterval.integerValue];
+    if (_recordingInfo.name.length > 1) {
+        x.title = [NSString stringWithFormat:@"%@ - %lds Intervals", _recordingInfo.name, (long)_recordingInfo.runData.emitInterval.integerValue];
+    }
+    else {
+        x.title = [NSString stringWithFormat:@"%lds Intervals", (long)_recordingInfo.runData.emitInterval.integerValue];
+    }
 }
 
 - (void)makeGraph
@@ -351,7 +358,7 @@ static double const kPlotSymbolSize = 8.0;
 - (NSUInteger)findFirstPointAtOrAfter:(NSTimeInterval )when inArray:(NSArray *)array
 {
     BRHLatencySample *tmp = [BRHLatencySample new];
-    tmp.emissionTime = [_runData.startTime dateByAddingTimeInterval:when];
+    tmp.emissionTime = [_recordingInfo.startTime dateByAddingTimeInterval:when];
     NSRange range = NSMakeRange(0, array.count);
     NSUInteger index = [array indexOfObject:tmp inSortedRange:range options:NSBinarySearchingInsertionIndex | NSBinarySearchingFirstEqual usingComparator:^NSComparisonResult(id obj1, id obj2) {
         BRHLatencySample *sample1 = obj1;
@@ -365,7 +372,7 @@ static double const kPlotSymbolSize = 8.0;
 - (NSUInteger)findLastPointAtOrBefore:(NSTimeInterval )when inArray:(NSArray *)array
 {
     BRHLatencySample *tmp = [BRHLatencySample new];
-    tmp.emissionTime = [_runData.startTime dateByAddingTimeInterval:when];
+    tmp.emissionTime = [_recordingInfo.startTime dateByAddingTimeInterval:when];
     NSRange range = NSMakeRange(0, array.count);
     NSUInteger index = [array indexOfObject:tmp inSortedRange:range options:NSBinarySearchingInsertionIndex | NSBinarySearchingLastEqual usingComparator:^NSComparisonResult(id obj1, id obj2) {
         BRHLatencySample *sample1 = obj1;
@@ -378,18 +385,18 @@ static double const kPlotSymbolSize = 8.0;
 
 - (CPTPlotRange *)findMinMaxInRange:(CPTPlotRange *)range
 {
-    if (_runData.samples.count == 0) {
+    if (_recordingInfo.runData.samples.count == 0) {
         return nil;
     }
 
     NSTimeInterval minLatency = 0.0;
     NSTimeInterval maxLatency = 0.0;
 
-    NSUInteger x0 = [self findFirstPointAtOrAfter:range.locationDouble inArray:_runData.samples];
-    NSUInteger x1 = [self findLastPointAtOrBefore:range.endDouble inArray:_runData.samples];
+    NSUInteger x0 = [self findFirstPointAtOrAfter:range.locationDouble inArray:_recordingInfo.runData.samples];
+    NSUInteger x1 = [self findLastPointAtOrBefore:range.endDouble inArray:_recordingInfo.runData.samples];
 
     while (x0 < x1) {
-        NSTimeInterval latency = ((BRHLatencySample *)_runData.samples[x0++]).latency.doubleValue;
+        NSTimeInterval latency = ((BRHLatencySample *)_recordingInfo.runData.samples[x0++]).latency.doubleValue;
         if (latency > maxLatency) maxLatency = latency;
     }
     
@@ -401,9 +408,9 @@ static double const kPlotSymbolSize = 8.0;
 - (void)updateBounds:(NSUInteger )pointsAdded
 {
     NSUInteger visiblePoints = [self calculatePlotWidth];
-    NSTimeInterval emitInterval = _runData.emitInterval.integerValue;
+    NSTimeInterval emitInterval = _recordingInfo.runData.emitInterval.integerValue;
 
-    NSArray *plotData = _runData.samples;
+    NSArray *plotData = _recordingInfo.runData.samples;
     NSTimeInterval xMin = 0.0;
     NSTimeInterval xMax = (visiblePoints - 1) * emitInterval;
 
@@ -462,6 +469,8 @@ static double const kPlotSymbolSize = 8.0;
 
 - (void)update:(NSNotification *)notification;
 {
+    if (! _recordingInfo.recordingNow) return;
+
     BRHRunDataNotificationInfo *info = notification.userInfo[@"info"];
     for (BRHLatencyByTimeGraphPlot *plot in _plots) {
         [plot update:info];

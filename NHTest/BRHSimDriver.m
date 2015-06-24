@@ -55,7 +55,7 @@
     return self.randomValue * 5.0 + 0.12345;;
 }
 
-- (void)stopEmitting:(BRHNotificationDriverStopCompletionBlock )completionBlock
+- (void)stopEmitting
 {
     if (self.emitter) {
         [self.emitter invalidate];
@@ -63,7 +63,6 @@
     }
 
     [super stopEmitting];
-    completionBlock();
 }
 
 - (void)emitterFired:(NSTimer *)timer

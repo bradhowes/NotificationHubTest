@@ -43,22 +43,34 @@
 {
     [BRHLogger add: @"receivedNotification - %@", notification];
     NSNumber *identifier = notification[@"id"];
-    if (self.lastIdentifier && self.lastIdentifier.integerValue == identifier.integerValue) {
-        [BRHEventLog add:@"duplicateNotification", identifier, nil];
-        completionHandler(UIBackgroundFetchResultNoData);
-        return nil;
-    }
-
-    self.lastIdentifier = identifier;
+    
     BRHLatencySample *sample = [BRHLatencySample new];
     sample.identifier = identifier;
     NSNumber *emissionTime = notification[@"when"];
     sample.emissionTime = [NSDate dateWithTimeIntervalSince1970:emissionTime.doubleValue];
     sample.arrivalTime = when;
-
     sample.latency = [NSNumber numberWithDouble:[self calculateLatency:sample]];
     [BRHLogger add:@"latency: %@", sample.latency];
+
+    if (self.lastIdentifier) {
+        NSString *tag = nil;
+        if (self.lastIdentifier.integerValue == identifier.integerValue) {
+            tag = @"duplicate";
+        }
+        else if (self.lastIdentifier.integerValue > identifier.integerValue) {
+            tag = @"old";
+        }
+        
+        if (tag) {
+            [BRHLogger add:@"%@ notification - %@", tag, identifier];
+            [BRHEventLog add:[tag stringByAppendingString:@"Notification"],sample.identifier, sample.emissionTime, sample.arrivalTime, sample.latency, nil];
+            completionHandler(UIBackgroundFetchResultNoData);
+            return nil;
+        }
+    }
+
     [BRHEventLog add:@"receivedNotification",sample.identifier, sample.emissionTime, sample.arrivalTime, sample.latency, nil];
+    self.lastIdentifier = identifier;
     [self fetchUpdate:notification fetchCompletionHandler:completionHandler];
 
     return sample;

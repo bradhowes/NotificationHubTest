@@ -6,14 +6,14 @@
 #import "CorePlot-CocoaTouch.h"
 
 @class BRHLatencyByTimeGraph;
-@class BRHRunData;
+@class BRHRecordingInfo;
 @class BRHRunDataNotificationInfo;
 
 @interface BRHLatencyByTimeGraphPlot : NSObject <CPTPlotDataSource>
 
 @property (strong, nonatomic) BRHLatencyByTimeGraph* graph;
 @property (strong, nonatomic) CPTScatterPlot *plot;
-@property (strong, nonatomic) BRHRunData *runData;
+@property (strong, nonatomic) BRHRecordingInfo *recordingInfo;
 @property (copy, nonatomic) NSString *sampleValueKey;
 
 - (instancetype)initFor:(BRHLatencyByTimeGraph *)graph;

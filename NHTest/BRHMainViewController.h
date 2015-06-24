@@ -8,6 +8,7 @@
 @class BRHDropboxUploader;
 @class BRHLatencyHistogramGraph;
 @class BRHLatencyByTimeGraph;
+@class BRHRecordingInfo;
 @class BRHRecordingsViewController;
 @class BRHSettingsViewDelegate;
 @class BRHRunData;
@@ -32,12 +33,15 @@
 @property (strong, nonatomic) BRHSettingsViewDelegate *settingsViewDelegate;
 @property (strong, nonatomic) BRHDropboxUploader *dropboxUploader;
 
+@property (strong, nonatomic) BRHRecordingInfo *recordingInfo;
+
 - (IBAction)startStop:(id)sender;
 - (IBAction)showHideLogView:(id)sender;
 - (IBAction)showHideEventsView:(id)sender;
 - (IBAction)showHideRecordingsView:(id)sender;
 - (IBAction)showSettings:(id)sender;
 
-- (void)setRunData:(BRHRunData *)runData;
+- (void)start;
+- (void)stop;
 
 @end

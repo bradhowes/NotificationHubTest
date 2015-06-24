@@ -136,14 +136,15 @@
 
 - (void)readyToUploadNextFile
 {
-    NSLog(@"BRHDropboxUploader readyToUpload");
-    if (_uploadingFile != nil) {
+    NSLog(@"BRHDropboxUploader readyToUploadNextFile");
+    if (_uploadingFile) {
+        self.networkActivityIndicator = NO;
         _uploadingFile.uploading = NO;
+        [_monitor dropboxUploader:self monitorFinishedWith:_uploadingFile];
         _uploadingFile = nil;
     }
 
     self.uploadingFile = [_monitor dropboxUploaderReadyToUpload:self];
-    self.networkActivityIndicator = NO;
 }
 
 - (void)setUploadingFile:(BRHRecordingInfo *)recording
@@ -216,13 +217,15 @@
               from:(NSString *)srcPath;
 {
     NSLog(@"uploadProgress - %@ %f", destPath, progress);
-    _uploadingFile.progress = (float)(_totalProgress + progress / 3.0);
+    _uploadingFile.progress = _totalProgress + progress / 3.0;
+    NSLog(@"totalProgress: %f", _uploadingFile.progress);
 }
 
 - (void)restClient:(DBRestClient *)client uploadedFile:(NSString *)destPath from:(NSString *)srcPath
 {
     // Finished uploading a file. Handle the others
     _totalProgress += 1.0/3.0;
+    _uploadingFile.progress = _totalProgress;
     if ([[srcPath lastPathComponent] isEqualToString:@"events.csv"]) {
         [self uploadFile:@"log.txt"];
     }
@@ -243,15 +246,13 @@
 {
     [BRHLogger add:@"finished uploading %@", _uploadingFile.filePath];
     _uploadingFile.uploaded = YES;
-    [_monitor dropboxUploader:self monitorFinishedWith:_uploadingFile];
     [self readyToUploadNextFile];
 }
 
 - (void)failedUploading:(NSError *)error
 {
     [BRHLogger add:@"failed to upload recording - %@", error.description];
-    _uploadingFile.progress = (float)(error.code * -1.0);
-    [_monitor dropboxUploader:self monitorFinishedWith:_uploadingFile];
+    _uploadingFile.errorCode = error.code;
     [self readyToUploadNextFile];
 }
 

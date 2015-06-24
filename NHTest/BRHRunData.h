@@ -47,11 +47,9 @@ extern NSString *BRHRunDataNewDataNotification;
 @class BRHLatencySample;
 
 /*!
- * @brief Container for the results of a test run.
+ * @brief Container for the results of a run.
  */
 @interface BRHRunData : NSObject <NSCoding>
-
-@property (strong, nonatomic) NSDate *startTime;
 
 @property (strong, nonatomic) NSString *name;
 
@@ -75,13 +73,6 @@ extern NSString *BRHRunDataNewDataNotification;
 @property (assign, readonly, nonatomic) BOOL running;
 
 - (instancetype)initWithName:(NSString *)name;
-
-/*!
- * @brief Clear all data and record the start time of the run
- */
-- (void)start;
-
-- (void)stop;
 
 /*!
  * @brief Obtain minimum latency value seen so far

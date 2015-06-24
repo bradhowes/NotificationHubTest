@@ -26,22 +26,15 @@
 #import "dbconfig.h"
 #import "Reachability.h"
 
-static NSString* rootFolder = @"/NHTest";
-static void* kKVOContext = &kKVOContext;
-
 @interface BRHAppDelegate () <DBSessionDelegate>
 
-@property (strong, nonatomic, readonly) NSManagedObjectModel *managedObjectModel;
-@property (strong, nonatomic, readonly) NSPersistentStoreCoordinator *persistentStoreCoordinator;
-@property (strong, nonatomic, readonly) NSFetchedResultsController *fetchedResultsController;
 @property (weak, nonatomic) BRHMainViewController *mainViewController;
-@property (strong, nonatomic) BRHRecordingInfo *recordingInfo;
 @property (strong, nonatomic) DBSession *session;
 @property (strong, nonatomic) Reachability *reachability;
 
 - (NSURL *)applicationDocumentsDirectory;
+- (BRHRecordingInfo *)makeRecordingInfo;
 - (void)setupDropbox;
-- (void)saveContext;
 - (void)batteryStateChanged:(NSNotification *)notification;
 - (NSString *)batteryStateString:(UIDeviceBatteryState)batteryState;
 
@@ -49,7 +42,7 @@ static void* kKVOContext = &kKVOContext;
 
 @implementation BRHAppDelegate
 
-@synthesize managedObjectModel=_managedObjectModel, managedObjectContext=_managedObjectContext, persistentStoreCoordinator=_persistentStoreCoordinator, fetchedResultsController=_fetchedResultsController;
+@synthesize managedObjectModel=_managedObjectModel, managedObjectContext=_managedObjectContext, persistentStoreCoordinator=_persistentStoreCoordinator;
 
 - (NSURL *)applicationDocumentsDirectory
 {
@@ -182,14 +175,6 @@ static void* kKVOContext = &kKVOContext;
 
 #pragma mark - Core Data Management
 
-- (BRHRecordingInfo *)makeRecordingInfo
-{
-    BRHRecordingInfo *recordingInfo = [NSEntityDescription insertNewObjectForEntityForName:BRHRecordingInfoDataModelName
-                                                                    inManagedObjectContext:self.managedObjectContext];
-    [recordingInfo initialize];
-    return recordingInfo;
-}
-
 - (void)saveContext
 {
     if (! self.managedObjectContext) return;
@@ -209,7 +194,7 @@ static void* kKVOContext = &kKVOContext;
     }
 }
 
-- (NSManagedObjectContext *) managedObjectContext
+- (NSManagedObjectContext *)managedObjectContext
 {
     if (_managedObjectContext != nil) {
         return _managedObjectContext;
@@ -259,10 +244,12 @@ static void* kKVOContext = &kKVOContext;
     return _persistentStoreCoordinator;
 }
 
-- (NSFetchedResultsController *)fetchedResultsController
+- (BRHRecordingInfo *)makeRecordingInfo
 {
-    if (_fetchedResultsController != nil) return _fetchedResultsController;
+    NSError *error;
     
+    // Make a fetch request that will find any stray unrecorded entities
+    //
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
     NSEntityDescription *entity = [NSEntityDescription entityForName:BRHRecordingInfoDataModelName
                                               inManagedObjectContext:self.managedObjectContext];
@@ -270,112 +257,139 @@ static void* kKVOContext = &kKVOContext;
     
     NSSortDescriptor *nameDescriptor = [NSSortDescriptor sortDescriptorWithKey:@"name" ascending:NO];
     [fetchRequest setSortDescriptors:[NSArray arrayWithObject:nameDescriptor]];
+    [fetchRequest setPredicate:[NSPredicate predicateWithFormat:@"name MATCHES %@", @"-"]];
     
-    _fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest
-                                                                    managedObjectContext:self.managedObjectContext
-                                                                      sectionNameKeyPath:nil
-                                                                               cacheName:nil];
-    return _fetchedResultsController;
+    NSFetchedResultsController *fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:self.managedObjectContext sectionNameKeyPath:nil cacheName:nil];
+    if (![fetchedResultsController performFetch:&error]) {
+        NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
+        abort();
+    }
+
+    NSArray* found = fetchedResultsController.fetchedObjects;
+    NSLog(@"found %d", found.count);
+    for (BRHRecordingInfo *obj in found) {
+        NSLog(@"obj - %@", obj.description);
+    }
+
+    BRHRecordingInfo *recordingInfo;
+    if (found.count > 0) {
+        recordingInfo = found[0];
+    }
+    else {
+        recordingInfo = [NSEntityDescription insertNewObjectForEntityForName:BRHRecordingInfoDataModelName inManagedObjectContext:self.managedObjectContext];
+    }
+    
+    [recordingInfo initialize];
+    return recordingInfo;
 }
 
 #pragma mark - Run Management
+
+- (void)setRecordingInfo:(BRHRecordingInfo *)recordingInfo
+{
+    // Only hold onto new, unrecorded instances.
+    //
+    if (! recordingInfo.wasRecorded) {
+        _recordingInfo = recordingInfo;
+    }
+
+    _mainViewController.recordingInfo = recordingInfo;
+}
 
 - (void)startRun
 {
     BRHUserSettings *settings = [BRHUserSettings userSettings];
 
-    self.recordingInfo = [self makeRecordingInfo];
-    self.runData = [[BRHRunData alloc] initWithName:self.recordingInfo.name];
-    [self.runData start];
+    // See if we need new object to record into
+    //
+    if (_recordingInfo.wasRecorded) {
+        self.recordingInfo = [self makeRecordingInfo];
+    }
 
-    [BRHLogger sharedInstance].logPath = self.recordingInfo.folderURL;
-    [BRHEventLog sharedInstance].logPath = self.recordingInfo.folderURL;
-    
+    [_recordingInfo start];
+
     [BRHLogger add:@"Version: %@", [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"]];
     [BRHEventLog add:@"version", [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"], nil];
-    
+
     NSString *driverTag = settings.notificationDriver;
     if ([driverTag isEqualToString:@"remote"]) {
-        self.driver = [BRHRemoteDriver new];
+        _driver = [BRHRemoteDriver new];
     }
     else if ([driverTag isEqualToString:@"sim"]) {
-        self.driver = [BRHSimDriver new];
+        _driver = [BRHSimDriver new];
     }
     else {
-        self.driver = [BRHLoopNotificationDriver new];
+        _driver = [BRHLoopNotificationDriver new];
     }
 
     [self reachabilityChanged:nil];
     [self batteryStateChanged:nil];
 
-    self.driver.deviceToken = self.deviceToken;
-    [self.driver startEmitting:[NSNumber numberWithInteger:settings.emitInterval] completionBlock:^(BOOL isRunning) {
+    _driver.deviceToken = _deviceToken;
+    [_driver startEmitting:_recordingInfo.runData.emitInterval completionBlock:^(BOOL isRunning) {
         if (! isRunning) {
             [BRHEventLog add:@"failed to start", nil];
-            self.recordingInfo = nil;
-            [self.mainViewController startStop:nil];
-        }
-        else {
-            self.running = YES;
-            [self.mainViewController setRunData:self.runData];
+            [_recordingInfo stop];
+            _recordingInfo.awaitingUpload = NO;
+            [self saveContext];
+            [_mainViewController stop];
         }
     }];
 }
 
 - (void)stopRun
 {
-    if (! self.running) return;
+    if (! _recordingInfo.recordingNow) return;
+    [_driver stopEmitting];
+    [_recordingInfo stop];
 
-    self.running = NO;
-    [self.runData stop];
-    self.recordingInfo.recording = NO;
+    if (! _mainViewController.dropboxUploader) {
+        [self saveContext];
+        return;
+    }
 
-    [self.driver stopEmitting];
-    
-    NSURL *runDataArchive = [self.recordingInfo.folderURL URLByAppendingPathComponent:@"runData.archive"];
-    NSData *archiveData = [NSKeyedArchiver archivedDataWithRootObject:self.runData];
-    NSLog(@"archiveData size: %lu", (unsigned long)archiveData.length);
-        
-    NSError *error;
-    if (![archiveData writeToURL:runDataArchive options:0 error:&error]) {
-        NSLog(@"failed to write archive: %@", error.description);
+    if ([BRHUserSettings userSettings].uploadAutomatically) {
+        _recordingInfo.awaitingUpload = YES;
+        _mainViewController.dropboxUploader.uploadingFile = _recordingInfo;
+        [self saveContext];
+        return;
+    }
+
+    NSString *title = @"Upload to Dropbox?";
+    NSString *msg = @"Do you wish to upload this recording to your Dropbox folder?";
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:title message:msg preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *yesAction = [UIAlertAction actionWithTitle:@"Yes" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        _recordingInfo.awaitingUpload = YES;
+        _mainViewController.dropboxUploader.uploadingFile = _recordingInfo;
+        [self saveContext];
+    }];
+
+    UIAlertAction *noAction = [UIAlertAction actionWithTitle:@"No" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
+        _recordingInfo.awaitingUpload = NO;
+        [self saveContext];
+    }];
+
+    [alert addAction:yesAction];
+    [alert addAction:noAction];
+
+    UIViewController *vc = [UIApplication sharedApplication].keyWindow.rootViewController;
+    if (vc.presentedViewController) {
+        vc = vc.presentedViewController;
     }
     
-    [self.recordingInfo updateSize];
-    [self saveContext];
+    [vc presentViewController:alert animated:YES completion:nil];
     
-    //        [self selectRecording:self.recordingInfo];
-    
-    if (self.mainViewController.dropboxUploader) {
-        self.mainViewController.dropboxUploader.uploadingFile = self.recordingInfo;
-    }
-    
-    self.recordingInfo = nil;
 }
 
 - (void)selectRecording:(BRHRecordingInfo *)recordingInfo
 {
-    NSURL *runDataArchive = [recordingInfo.folderURL URLByAppendingPathComponent:@"runData.archive"];
-    NSData *archiveData = [NSData dataWithContentsOfURL:runDataArchive];
-    if (archiveData) {
-        NSLog(@"archiveData size: %lu", (unsigned long)archiveData.length);
-        self.runData = [NSKeyedUnarchiver unarchiveObjectWithData:archiveData];
-        [self.mainViewController setRunData:self.runData];
-    }
-
-    [[BRHLogger sharedInstance] save];
-    [BRHLogger sharedInstance].logPath = recordingInfo.folderURL;
-    
-    [[BRHEventLog sharedInstance] save];
-    [BRHEventLog sharedInstance].logPath = recordingInfo.folderURL;
+    self.recordingInfo = recordingInfo;
 }
 
 - (void)deleteRecording:(BRHRecordingInfo *)recordingInfo
 {
-    if (self.recordingInfo && self.recordingInfo.filePath == recordingInfo.filePath) {
-        self.recordingInfo = nil;
-        self.runData = [[BRHRunData alloc] initWithName:@"Received Notifications"];
-        [self.mainViewController setRunData:self.runData];
+    if (_recordingInfo == recordingInfo) {
+        self.recordingInfo = [self makeRecordingInfo];
     }
 
     NSError *error;
@@ -426,25 +440,26 @@ static void* kKVOContext = &kKVOContext;
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    [UIDevice currentDevice].batteryMonitoringEnabled = YES;
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(batteryStateChanged:)
-                                                 name:UIDeviceBatteryStateDidChangeNotification object:nil];
+    NSLog(@"launchOptions: %@", launchOptions);
 
-    self.mainViewController = (BRHMainViewController *)self.window.rootViewController;
-    self.runData = [[BRHRunData alloc] initWithName:@"Received Notifications"];
-    self.driver = nil;
-    self.running = NO;
+    if (! launchOptions || launchOptions.count == 0) {
+        [UIDevice currentDevice].batteryMonitoringEnabled = YES;
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(batteryStateChanged:)
+                                                     name:UIDeviceBatteryStateDidChangeNotification object:nil];
 
-    self.reachability = [Reachability reachabilityForInternetConnection];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reachabilityChanged:) name:kReachabilityChangedNotification object:nil];
-    [self.reachability startNotifier];
+        _reachability = [Reachability reachabilityForInternetConnection];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reachabilityChanged:) name:kReachabilityChangedNotification object:nil];
+        [_reachability startNotifier];
 
-    [application setStatusBarStyle:UIStatusBarStyleLightContent];
-    [application setMinimumBackgroundFetchInterval:UIApplicationBackgroundFetchIntervalMinimum];
-    
-    [application registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:UIUserNotificationTypeBadge|UIUserNotificationTypeSound|UIUserNotificationTypeAlert
-                                                                                    categories:nil]];
-    [application registerForRemoteNotifications];
+        [application setStatusBarStyle:UIStatusBarStyleLightContent];
+        [application setMinimumBackgroundFetchInterval:UIApplicationBackgroundFetchIntervalMinimum];
+        [application registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:UIUserNotificationTypeBadge|UIUserNotificationTypeSound|UIUserNotificationTypeAlert
+                                                                                        categories:nil]];
+        [application registerForRemoteNotifications];
+
+        _mainViewController = (BRHMainViewController *)self.window.rootViewController;
+        _driver = nil;
+    }
 
     return YES;
 }
@@ -482,23 +497,23 @@ static void* kKVOContext = &kKVOContext;
     
     [vc presentViewController:alert animated:YES completion:nil];
 #else
-    self.deviceToken = [NSData dataWithBytes:"12345678901234567890123456789012" length:32];
+    _deviceToken = [NSData dataWithBytes:"12345678901234567890123456789012" length:32];
 #endif
 }
 
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
 {
     [BRHLogger add:@"registered for notifications"];
-    self.deviceToken = deviceToken;
+    _deviceToken = deviceToken;
 }
 
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
 {
     [BRHLogger add:@"didReceiveRemoteNotification"];
-    if (self.running) {
-        BRHLatencySample *sample = [self.driver receivedNotification:userInfo at:[NSDate date] fetchCompletionHandler:completionHandler];
+    if (_recordingInfo && _recordingInfo.recordingNow) {
+        BRHLatencySample *sample = [_driver receivedNotification:userInfo at:[NSDate date] fetchCompletionHandler:completionHandler];
         if (sample) {
-            [self.runData recordLatency:sample];
+            [_recordingInfo.runData recordLatency:sample];
         }
     }
     else {
@@ -528,14 +543,17 @@ static void* kKVOContext = &kKVOContext;
 {
     NSLog(@"applicationDidBecomeActive");
     [BRHEventLog add:@"didBecomeActive", nil];
+    if (! _recordingInfo) {
+        self.recordingInfo = [self makeRecordingInfo];
+    }
     [self setupDropbox];
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application
 {
     [BRHEventLog add:@"willTerminate", nil];
-    if (self.running) {
-        [self.mainViewController startStop:nil];
+    if (_recordingInfo && _recordingInfo.recordingNow) {
+        [_mainViewController stop];
     }
     [[BRHLogger sharedInstance] save];
     [[BRHEventLog sharedInstance] save];
@@ -544,8 +562,8 @@ static void* kKVOContext = &kKVOContext;
 - (void)application:(UIApplication *)application performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
 {
     [BRHLogger add:@"performFetchWithCompletionHandler"];
-    if (self.driver) {
-        [self.driver performFetchWithCompletionHandler:completionHandler];
+    if (_driver) {
+        [_driver performFetchWithCompletionHandler:completionHandler];
     }
     else {
         
@@ -557,7 +575,9 @@ static void* kKVOContext = &kKVOContext;
 - (void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)())completionHandler
 {
     [BRHLogger add:@"handleEventsForBackgroundURLSession - %@", identifier];
-    [self.driver handleEventsForBackgroundURLSession:identifier completionHandler:completionHandler];
+    if (_driver) {
+        [_driver handleEventsForBackgroundURLSession:identifier completionHandler:completionHandler];
+    }
 }
 
 @end

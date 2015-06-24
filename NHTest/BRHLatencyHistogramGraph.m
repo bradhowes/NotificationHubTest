@@ -7,6 +7,7 @@
 #import "BRHLatencyHistogramGraph.h"
 #import "BRHHistogram.h"
 #import "BRHLogger.h"
+#import "BRHRecordingInfo.h"
 #import "BRHRunData.h"
 
 static void* kKVOContext = &kKVOContext;
@@ -20,14 +21,14 @@ static void* kKVOContext = &kKVOContext;
 
 @implementation BRHLatencyHistogramGraph
 
-- (void)setRunData:(BRHRunData *)runData
+- (void)setRecordingInfo:(BRHRecordingInfo *)recordingInfo
 {
-    if (_runData) {
-        [_runData removeObserver:self forKeyPath:BRHHistogramLastBinKey];
+    if (_recordingInfo) {
+        [_recordingInfo.runData removeObserver:self forKeyPath:BRHHistogramLastBinKey];
     }
 
-    _runData = runData;
-    [self.runData addObserver:self forKeyPath:BRHHistogramLastBinKey options:NSKeyValueObservingOptionNew context:kKVOContext];
+    _recordingInfo = recordingInfo;
+    [_recordingInfo.runData addObserver:self forKeyPath:BRHHistogramLastBinKey options:NSKeyValueObservingOptionNew context:kKVOContext];
 
     if (! self.hostedGraph) {
         [self makeGraph];
@@ -41,7 +42,7 @@ static void* kKVOContext = &kKVOContext;
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
     if (context == kKVOContext) {
-        if ([keyPath isEqualToString:BRHHistogramLastBinKey] && _runData.bins.maxBinCount.unsignedIntegerValue == 0) {
+        if ([keyPath isEqualToString:BRHHistogramLastBinKey] && _recordingInfo.runData.bins.maxBinCount.unsignedIntegerValue == 0) {
             [self updateBounds];
         }
     }
@@ -203,7 +204,7 @@ static void* kKVOContext = &kKVOContext;
 
 - (void)updateBounds
 {
-    NSUInteger lastBin = _runData.bins.lastBin;
+    NSUInteger lastBin = _recordingInfo.runData.bins.lastBin;
     CPTXYPlotSpace *plotSpace = (CPTXYPlotSpace *)self.hostedGraph.defaultPlotSpace;
     plotSpace.globalXRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromInteger(-1) length:CPTDecimalFromInteger(lastBin + 1)];
     plotSpace.xRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromInteger(-1) length:CPTDecimalFromInteger(lastBin + 1)];
@@ -215,12 +216,13 @@ static void* kKVOContext = &kKVOContext;
     CPTXYAxis *y = axisSet.xAxis;
     y.gridLinesRange = [CPTMutablePlotRange plotRangeWithLocation:CPTDecimalFromInteger(-1) length:CPTDecimalFromInteger(lastBin + 1)];
 
-    NSUInteger max = (NSUInteger)floor((MAX(_runData.bins.maxBinCount.unsignedIntegerValue, 5) + 4) / 5) * 5;
+    NSUInteger max = (NSUInteger)floor((MAX(_recordingInfo.runData.bins.maxBinCount.unsignedIntegerValue, 5) + 4) / 5) * 5;
     plotSpace.yRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromInteger(0) length:CPTDecimalFromInteger(max)];
 }
 
 - (void)update:(NSNotification *)notification
 {
+    if (! _recordingInfo.recordingNow) return;
     BRHRunDataNotificationInfo *info = notification.userInfo[@"info"];
     [self.hostedGraph.allPlots[0] reloadDataInIndexRange:NSMakeRange(info.binIndex, 1)];
     [self updateBounds];
@@ -230,7 +232,7 @@ static void* kKVOContext = &kKVOContext;
 
 - (NSUInteger)numberOfRecordsForPlot:(CPTPlot *)plot
 {
-    return _runData.bins.lastBin + 1;
+    return _recordingInfo.runData.bins.lastBin + 1;
 }
 
 -(NSNumber *)numberForPlot:(CPTPlot *)plot field:(NSUInteger)fieldEnum recordIndex:(NSUInteger)index
@@ -241,7 +243,7 @@ static void* kKVOContext = &kKVOContext;
             break;
 
         case CPTBarPlotFieldBarTip:
-            return [_runData.bins binAtIndex:index];
+            return [_recordingInfo.runData.bins binAtIndex:index];
             break;
 
         default:

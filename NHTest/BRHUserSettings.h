@@ -72,6 +72,8 @@
 
 @property (assign, nonatomic) BOOL resendUntilFetched;
 
+@property (assign, nonatomic) BOOL uploadAutomatically;
+
 /*!
  @brief Obtain the global BRHUserSettings instance
  
