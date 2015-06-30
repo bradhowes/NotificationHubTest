@@ -88,9 +88,7 @@
 
     if (logPath) {
         _logPath = [logPath URLByAppendingPathComponent:self.fileName];
-        if (_logText.length > 0) {
-            [self writeLog:nil];
-        }
+        [self writeLog:nil];
     }
 }
 
@@ -141,7 +139,7 @@
 
 - (void)clear
 {
-    [self writeLog:nil];
+    self.logPath = nil;
     self.logText = nil;
 }
 
@@ -159,6 +157,8 @@
 
 - (void)writeLog:(NSTimer *)timer
 {
+    if (! _logPath) return;
+
     if (! timer && self.flushTimer) {
         [self.flushTimer invalidate];
     }

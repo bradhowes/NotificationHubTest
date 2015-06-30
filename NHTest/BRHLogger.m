@@ -55,6 +55,7 @@ static NSString *BRHLoggerLogFileName = @"log.txt";
     if (! [content hasSuffix:@"\n"]) content = [content stringByAppendingString:@"\n"];
     NSString *line = [NSString stringWithFormat:@"%@: %@", [self timestamp], content];
     [self addLine:line];
+    NSLog(line);
     return line;
 }
 

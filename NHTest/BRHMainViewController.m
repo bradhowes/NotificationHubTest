@@ -203,52 +203,45 @@
         [self start];
     }
     else {
-        [self stop];
-    }
-}
+        NSString *title = @"Stop Run?";
+        NSString *msg = @"Do you wish to stop running?";
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:title message:msg preferredStyle:UIAlertControllerStyleActionSheet];
+        UIAlertAction *yesAction = [UIAlertAction actionWithTitle:@"Yes" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+            [self stop];
+        }];
 
-- (void)setRecordingInfo:(BRHRecordingInfo *)recordingInfo
-{
-    self.latencyPlot.recordingInfo = recordingInfo;
-    self.countBars.recordingInfo = recordingInfo;
-
-    if (! recordingInfo.wasRecorded) {
-        [BRHLogger sharedInstance].textView = _logView;
-        [BRHEventLog sharedInstance].textView = _eventsView;
-    }
-    else {
-        [BRHLogger sharedInstance].textView = nil;
-        [BRHEventLog sharedInstance].textView = nil;
-
-        NSString *text = [[BRHLogger sharedInstance] logContentForFolderPath:recordingInfo.folderURL];
-        _logView.text = text;
-        [_logView scrollRangeToVisible:NSMakeRange(0, 0)];
+        UIAlertAction *noAction = [UIAlertAction actionWithTitle:@"No" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
+        }];
         
-        text = [[BRHEventLog sharedInstance] logContentForFolderPath:recordingInfo.folderURL];
-        _eventsView.text = text;
-        [_eventsView scrollRangeToVisible:NSMakeRange(0, 0)];
+        [alert addAction:yesAction];
+        [alert addAction:noAction];
+        
+        UIViewController *vc = [UIApplication sharedApplication].keyWindow.rootViewController;
+        if (vc.presentedViewController) {
+            vc = vc.presentedViewController;
+        }
+        
+        // Present the view controller using the popover style.
+        alert.modalPresentationStyle = UIModalPresentationPopover;
+        [vc presentViewController:alert animated: YES completion: nil];
+
+        UIPopoverPresentationController *presentationController = [alert popoverPresentationController];
+        presentationController.permittedArrowDirections = UIPopoverArrowDirectionLeft | UIPopoverArrowDirectionRight;
+        presentationController.barButtonItem = self.stopButton;
     }
 }
 
-- (void)setDropboxUploader:(BRHDropboxUploader *)dropboxUploader
+- (void)shareRecording:(BRHRecordingInfo *)recordingInfo atButton:(UIButton *)button
 {
-    _dropboxUploader = dropboxUploader;
-    if (self.recordingsViewController) {
-        self.recordingsViewController.dropboxUploader = dropboxUploader;
-    }
-
-    [self.settingsViewController.tableView reloadData];
-}
-
-#if 0
-
-- (IBAction)share:(id)sender
-{
+    // Create PDF context to draw into.
+    //
     NSMutableData *pdfData = [[NSMutableData alloc] init];
     CGDataConsumerRef dataConsumer = CGDataConsumerCreateWithCFData((CFMutableDataRef)pdfData);
     CGContextRef pdfContext = CGPDFContextCreate(dataConsumer, NULL, NULL);
     CPTPushCGContext(pdfContext);
-
+    
+    // Draw the charts as PDFs
+    //
     [self.latencyPlot renderPDF:pdfContext];
     [self.countBars renderPDF:pdfContext];
 
@@ -258,13 +251,13 @@
 
     CGDataConsumerRelease(dataConsumer);
 
-    NSURL *plotUrl = [self.runDirectory URLByAppendingPathComponent:@"plots.pdf"];
+    NSURL *plotUrl = [recordingInfo.folderURL URLByAppendingPathComponent:@"plots.pdf"];
     [pdfData writeToURL:plotUrl atomically:YES];
 
     NSMutableArray *objectsToShare = [NSMutableArray new];
     [objectsToShare addObject:plotUrl];
-    [objectsToShare addObject:[BRHLogger sharedInstance].logPath];
-    [objectsToShare addObject:[BRHEventLog sharedInstance].logPath];
+    [objectsToShare addObject:[[BRHLogger sharedInstance] logPathForFolderPath:recordingInfo.folderURL]];
+    [objectsToShare addObject:[[BRHEventLog sharedInstance] logPathForFolderPath:recordingInfo.folderURL]];
 
     UIActivityViewController *controller = [[UIActivityViewController alloc] initWithActivityItems:objectsToShare applicationActivities:nil];
 
@@ -281,21 +274,73 @@
     controller.excludedActivityTypes = nil; // excludedActivities;
 #endif
 
-    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone) {
-        [self presentViewController:controller animated:YES completion:nil];
+    UIViewController *vc = [UIApplication sharedApplication].keyWindow.rootViewController;
+    if (vc.presentedViewController) {
+        vc = vc.presentedViewController;
+    }
+
+    // Present the view controller using the popover style.
+    controller.modalPresentationStyle = UIModalPresentationPopover;
+    [vc presentViewController:controller animated: YES completion: nil];
+    
+    UIPopoverPresentationController *presentationController = [controller popoverPresentationController];
+    presentationController.permittedArrowDirections = UIPopoverArrowDirectionLeft | UIPopoverArrowDirectionRight;
+    presentationController.sourceView = button;
+    presentationController.sourceRect = button.frame;
+}
+
+- (void)setRecordingInfo:(BRHRecordingInfo *)recordingInfo
+{
+    self.latencyPlot.recordingInfo = recordingInfo;
+    self.countBars.recordingInfo = recordingInfo;
+
+    if (! recordingInfo.wasRecorded) {
+
+        if (! recordingInfo.recordingNow) {
+            
+            // New recording is about to start -- start with new log files
+            //
+            [[BRHLogger sharedInstance] clear];
+            [[BRHEventLog sharedInstance] clear];
+
+            [BRHLogger add:@"new recording"];
+            [BRHEventLog add:@"newRecording", nil];
+        }
+
+        // Switch to showing the recording logs
+        //
+        [BRHLogger sharedInstance].textView = _logView;
+        [BRHLogger sharedInstance].logPath = recordingInfo.folderURL;
+
+        [BRHEventLog sharedInstance].textView = _eventsView;
+        [BRHEventLog sharedInstance].logPath = recordingInfo.folderURL;
     }
     else {
-        if (! [self.activityPopover isPopoverVisible]) {
-            self.activityPopover = [[UIPopoverController alloc] initWithContentViewController:controller];
-            [self.activityPopover presentPopoverFromBarButtonItem:self.shareButton permittedArrowDirections:UIPopoverArrowDirectionAny animated:YES];
-        }
-        else {
-            [self.activityPopover dismissPopoverAnimated:YES];
-        }
+        
+        // Prior recording. Show the contents of the recording, not the active log devices.
+        //
+        [BRHLogger sharedInstance].textView = nil;
+        [BRHEventLog sharedInstance].textView = nil;
+
+        NSString *text = [[BRHLogger sharedInstance] logContentForFolderPath:recordingInfo.folderURL];
+        _logView.text = text;
+        [_logView scrollRangeToVisible:NSMakeRange(0, 0)];
+
+        text = [[BRHEventLog sharedInstance] logContentForFolderPath:recordingInfo.folderURL];
+        _eventsView.text = text;
+        [_eventsView scrollRangeToVisible:NSMakeRange(0, 0)];
     }
 }
 
-#endif
+- (void)setDropboxUploader:(BRHDropboxUploader *)dropboxUploader
+{
+    _dropboxUploader = dropboxUploader;
+    if (self.recordingsViewController) {
+        self.recordingsViewController.dropboxUploader = dropboxUploader;
+    }
+
+    [self.settingsViewController.tableView reloadData];
+}
 
 - (UIStatusBarStyle)preferredStatusBarStyle
 {

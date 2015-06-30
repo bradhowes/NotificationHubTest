@@ -62,8 +62,6 @@
 
 - (void)setupDropbox
 {
-    NSLog(@"setupDropbox");
-
     if (! self.session) {
         self.session = [[DBSession alloc] initWithAppKey:DROPBOX_APP_KEY appSecret:DROPBOX_APP_SECRET root:kDBRootAppFolder];
         [DBSession setSharedSession:self.session];
@@ -123,11 +121,10 @@
 
 - (void)enableDropbox:(BOOL)value
 {
-    NSLog(@"enableDropbox - %d", value);
     [BRHUserSettings userSettings].useDropbox = value;
     if (value) {
         if (! self.session.isLinked) {
-            NSLog(@"not linked - showing link request");
+            [BRHLogger add:@"Dropbox not linked - showing link request"];
             UIViewController *vc = [UIApplication sharedApplication].keyWindow.rootViewController;
             if (vc.presentedViewController) {
                 vc = vc.presentedViewController;
@@ -135,7 +132,7 @@
             [self.session linkFromController:vc];
         }
         else if (! self.mainViewController.dropboxUploader){
-            NSLog(@"linked - creating BRHDropboxUploader");
+            [BRHLogger add:@"Dropbo linked - creating BRHDropboxUploader"];
             self.mainViewController.dropboxUploader = [BRHDropboxUploader new];
         }
     }
@@ -237,8 +234,8 @@
                                                          options:options
                                                            error:&error]) {
         // Update to handle the error appropriately.
-        NSLog(@"persistentStoreCoordinator failure - %@", error.description);
-        exit(-1);  // Fail
+        [BRHLogger add:@"persistentStoreCoordinator failure - %@", error.description];
+        abort();  // Fail
     }
     
     return _persistentStoreCoordinator;
@@ -261,12 +258,12 @@
     
     NSFetchedResultsController *fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest managedObjectContext:self.managedObjectContext sectionNameKeyPath:nil cacheName:nil];
     if (![fetchedResultsController performFetch:&error]) {
-        NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
+        [BRHLogger add:@"Unresolved error %@, %@", error, [error userInfo]];
         abort();
     }
 
     NSArray* found = fetchedResultsController.fetchedObjects;
-    NSLog(@"found %d", found.count);
+    NSLog(@"found %lu", (unsigned long)found.count);
     for (BRHRecordingInfo *obj in found) {
         NSLog(@"obj - %@", obj.description);
     }
@@ -340,45 +337,15 @@
 - (void)stopRun
 {
     if (! _recordingInfo.recordingNow) return;
+
     [_driver stopEmitting];
     [_recordingInfo stop];
 
-    if (! _mainViewController.dropboxUploader) {
-        [self saveContext];
-        return;
-    }
-
-    if ([BRHUserSettings userSettings].uploadAutomatically) {
+    if (_mainViewController.dropboxUploader && [BRHUserSettings userSettings].uploadAutomatically) {
         _recordingInfo.awaitingUpload = YES;
         _mainViewController.dropboxUploader.uploadingFile = _recordingInfo;
         [self saveContext];
-        return;
     }
-
-    NSString *title = @"Upload to Dropbox?";
-    NSString *msg = @"Do you wish to upload this recording to your Dropbox folder?";
-    UIAlertController *alert = [UIAlertController alertControllerWithTitle:title message:msg preferredStyle:UIAlertControllerStyleAlert];
-    UIAlertAction *yesAction = [UIAlertAction actionWithTitle:@"Yes" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-        _recordingInfo.awaitingUpload = YES;
-        _mainViewController.dropboxUploader.uploadingFile = _recordingInfo;
-        [self saveContext];
-    }];
-
-    UIAlertAction *noAction = [UIAlertAction actionWithTitle:@"No" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
-        _recordingInfo.awaitingUpload = NO;
-        [self saveContext];
-    }];
-
-    [alert addAction:yesAction];
-    [alert addAction:noAction];
-
-    UIViewController *vc = [UIApplication sharedApplication].keyWindow.rootViewController;
-    if (vc.presentedViewController) {
-        vc = vc.presentedViewController;
-    }
-    
-    [vc presentViewController:alert animated:YES completion:nil];
-    
 }
 
 - (void)selectRecording:(BRHRecordingInfo *)recordingInfo
@@ -393,10 +360,10 @@
     }
 
     NSError *error;
-    NSLog(@"deleting %@", recordingInfo.name);
+    [BRHLogger add:@"deleting %@", recordingInfo.name];
 
     if (! [[NSFileManager defaultManager] removeItemAtPath:recordingInfo.folderURL.path error:&error]) {
-        NSLog(@"failed to remove file at '%@' - %@, %@", recordingInfo.filePath, error, [error userInfo]);
+        [BRHLogger add:@"failed to remove file at '%@' - %@, %@", recordingInfo.filePath, error, [error userInfo]];
     }
 
     [self.managedObjectContext deleteObject:recordingInfo];
@@ -440,7 +407,7 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    NSLog(@"launchOptions: %@", launchOptions);
+    [BRHLogger add:@"launchOptions: %@", launchOptions];
 
     if (! launchOptions || launchOptions.count == 0) {
         [UIDevice currentDevice].batteryMonitoringEnabled = YES;
@@ -452,7 +419,7 @@
         [_reachability startNotifier];
 
         [application setStatusBarStyle:UIStatusBarStyleLightContent];
-        [application setMinimumBackgroundFetchInterval:UIApplicationBackgroundFetchIntervalMinimum];
+        // [application setMinimumBackgroundFetchInterval:UIApplicationBackgroundFetchIntervalMinimum];
         [application registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:UIUserNotificationTypeBadge|UIUserNotificationTypeSound|UIUserNotificationTypeAlert
                                                                                         categories:nil]];
         [application registerForRemoteNotifications];
@@ -468,7 +435,7 @@
 {
     if ([[DBSession sharedSession] handleOpenURL:url]) {
         if ([[DBSession sharedSession] isLinked]) {
-            NSLog(@"Dropbox linked!");
+            [BRHLogger add:@"Dropbox linked!"];
             [self enableDropbox:YES];
         }
         return YES;
@@ -479,7 +446,7 @@
 
 - (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error
 {
-    [BRHEventLog add:@"failedPushRegistration", nil];
+    [BRHEventLog add:@"failedToRegister", nil];
     [BRHLogger add:@"failed to register notifications: %@", [error description]];
 
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Push Notifications"
@@ -504,12 +471,14 @@
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
 {
     [BRHLogger add:@"registered for notifications"];
+    [BRHEventLog add:@"registeredForNotifications", nil];
     _deviceToken = deviceToken;
 }
 
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
 {
     [BRHLogger add:@"didReceiveRemoteNotification"];
+    [BRHEventLog add:@"didReceiveRemoteNotification", nil];
     if (_recordingInfo && _recordingInfo.recordingNow) {
         BRHLatencySample *sample = [_driver receivedNotification:userInfo at:[NSDate date] fetchCompletionHandler:completionHandler];
         if (sample) {
@@ -517,31 +486,31 @@
         }
     }
     else {
-        completionHandler(UIBackgroundFetchResultNoData);
+        completionHandler(UIBackgroundFetchResultFailed);
     }
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application
 {
-    NSLog(@"applicationWillResignActive");
+    [BRHLogger add:@"applicationWillResignActive"];
     [BRHEventLog add:@"resignActive", nil];
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application
 {
-    NSLog(@"applicationDidEnterBackground");
+    [BRHLogger add:@"applicationDidEnterBackground"];
     [BRHEventLog add:@"didEnterBackground", nil];
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application
 {
-    NSLog(@"applicationWillEnterForeground");
+    [BRHLogger add:@"applicationWillEnterForeground"];
     [BRHEventLog add:@"willEnterForeground", nil];
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
-    NSLog(@"applicationDidBecomeActive");
+    [BRHLogger add:@"applicationDidBecomeActive"];
     [BRHEventLog add:@"didBecomeActive", nil];
     if (! _recordingInfo) {
         self.recordingInfo = [self makeRecordingInfo];
@@ -551,6 +520,7 @@
 
 - (void)applicationWillTerminate:(UIApplication *)application
 {
+    [BRHLogger add:@"willTerminate"];
     [BRHEventLog add:@"willTerminate", nil];
     if (_recordingInfo && _recordingInfo.recordingNow) {
         [_mainViewController stop];
@@ -562,6 +532,7 @@
 - (void)application:(UIApplication *)application performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
 {
     [BRHLogger add:@"performFetchWithCompletionHandler"];
+    [BRHEventLog add:@"performFetchWithCompletionHandler", @"NoData", nil];
     if (_driver) {
         [_driver performFetchWithCompletionHandler:completionHandler];
     }

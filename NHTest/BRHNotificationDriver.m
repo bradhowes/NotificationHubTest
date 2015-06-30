@@ -89,6 +89,7 @@
 
 - (void)performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
 {
+    [BRHEventLog add:@"performFetchWithCompletionHandler", @"NoData", nil];
     completionHandler(UIBackgroundFetchResultNoData);
 }
 

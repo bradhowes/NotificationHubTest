@@ -110,37 +110,43 @@ static void *kKVOContext = &kKVOContext;
     [self configureCell:(MGSwipeTableCell *)[self.tableView cellForRowAtIndexPath:indexPath] atIndexPath:indexPath];
 }
 
-- (NSArray *)createLeftButtons
+- (NSArray *)createLeftButtons:(BRHRecordingInfo *)recordingInfo
 {
     UIImage *dropboxImage = [UIImage imageNamed:@"dropbox"];
     UIImage *shareImage = [UIImage imageNamed:@"share"];
-    
-    return @[
-             [MGSwipeButton buttonWithTitle:@"" icon:dropboxImage backgroundColor:[UIColor whiteColor] padding:10 callback:^BOOL(MGSwipeTableCell *sender) {
-                 NSIndexPath *path = [self.tableView indexPathForCell:sender];
-                 BRHRecordingInfo *recordingInfo = [self.fetchedResultsController objectAtIndexPath:path];
-                 if (_dropboxUploader) {
+
+    if (_dropboxUploader) {
+        return @[
+                 [MGSwipeButton buttonWithTitle:@"" icon:dropboxImage backgroundColor:[UIColor whiteColor] padding:10 callback:^BOOL(MGSwipeTableCell *sender) {
                      recordingInfo.uploaded = NO;
                      recordingInfo.awaitingUpload = YES;
                      NSIndexPath *indexPath = [self.fetchedResultsController indexPathForObject:recordingInfo];
                      [self configureCell:(MGSwipeTableCell *)[self.tableView cellForRowAtIndexPath:indexPath] atIndexPath:indexPath];
                      _dropboxUploader.uploadingFile = recordingInfo;
-                 }
-                 return YES;
-             }],
-             [MGSwipeButton buttonWithTitle:@"" icon:shareImage backgroundColor:[UIColor whiteColor] padding:10 callback:^BOOL(MGSwipeTableCell *sender) {
-                 return YES;
-             }]
-             ];
+                     return YES;
+                 }],
+                 [MGSwipeButton buttonWithTitle:@"" icon:shareImage backgroundColor:[UIColor whiteColor] padding:10 callback:^BOOL(MGSwipeTableCell *sender) {
+                     BRHMainViewController* mvc = (BRHMainViewController *)[UIApplication sharedApplication].keyWindow.rootViewController;
+                     [mvc shareRecording:recordingInfo atButton:sender.leftButtons[1]];
+                     return YES;
+                 }]
+                 ];
+    }
+    else {
+        return @[
+                 [MGSwipeButton buttonWithTitle:@"" icon:shareImage backgroundColor:[UIColor whiteColor] padding:10 callback:^BOOL(MGSwipeTableCell *sender) {
+                     BRHMainViewController* mvc = (BRHMainViewController *)[UIApplication sharedApplication].keyWindow.rootViewController;
+                     [mvc shareRecording:recordingInfo atButton:sender.leftButtons[1]];
+                     return YES;
+                 }]
+                 ];
+    }
 }
 
-- (NSArray *)createRightButtons
+- (NSArray *)createRightButtons:(BRHRecordingInfo *)recordingInfo
 {
     return @[
              [MGSwipeButton buttonWithTitle:@"Delete" backgroundColor:[UIColor redColor] callback:^BOOL(MGSwipeTableCell *sender) {
-                 NSIndexPath *path = [self.tableView indexPathForCell:sender];
-                 NSLog(@"path: %@", path.description);
-                 BRHRecordingInfo *recordingInfo = [self.fetchedResultsController objectAtIndexPath:path];
                  [self.delegate deleteRecording:recordingInfo];
                  return NO;
              }]
@@ -153,13 +159,14 @@ static void *kKVOContext = &kKVOContext;
     NSLog(@"configureCell - %@", recordingInfo);
     
     cell.textLabel.text = recordingInfo.name;
-    
-    cell.leftSwipeSettings.transition = MGSwipeTransitionStatic;
-    cell.leftButtons = [self createLeftButtons];
-    
-    cell.rightSwipeSettings.transition = MGSwipeTransitionStatic;
-    cell.rightButtons = [self createRightButtons];
-    
+
+    if (! recordingInfo.recordingNow && recordingInfo.wasRecorded) {
+        cell.leftSwipeSettings.transition = MGSwipeTransitionStatic;
+        cell.leftButtons = [self createLeftButtons:recordingInfo];
+        cell.rightSwipeSettings.transition = MGSwipeTransitionStatic;
+        cell.rightButtons = [self createRightButtons:recordingInfo];
+    }
+
     cell.allowsMultipleSwipe = NO;
     
     NSString *status;
@@ -179,7 +186,7 @@ static void *kKVOContext = &kKVOContext;
     }
     else if (recordingInfo.errorCode) {
         statusColor = [UIColor redColor];
-        status = [NSString stringWithFormat:@"Failed (%d)", recordingInfo.errorCode];
+        status = [NSString stringWithFormat:@"Failed (%ld)", (long)recordingInfo.errorCode];
     }
     else if (recordingInfo.awaitingUpload){
         status = @"Awaiting upload";
@@ -515,6 +522,8 @@ static void *kKVOContext = &kKVOContext;
     if (_dropboxUploader) {
         _dropboxUploader.monitor = self;
     }
+    
+    [self.tableView reloadData];
 }
 
 - (BRHRecordingInfo *)nextToUpload

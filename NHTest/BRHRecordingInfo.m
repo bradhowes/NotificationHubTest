@@ -133,10 +133,6 @@ NSString *BRHRecordingInfoDataModelName = @"BRHRecordingInfo";
     return [dateFormatter stringFromDate:when];
 }
 
-- (void)createRecordingDirectory
-{
-}
-
 - (NSURL *)folderURL
 {
     if (! _folderURL) {
@@ -211,7 +207,7 @@ NSString *BRHRecordingInfoDataModelName = @"BRHRecordingInfo";
 - (void)setRecordingNow:(BOOL)recording
 {
     if (recording) {
-        
+
         // Update Core Data entity with recording info
         //
         NSDate *now = [NSDate date];
@@ -230,32 +226,30 @@ NSString *BRHRecordingInfoDataModelName = @"BRHRecordingInfo";
             NSLog(@"failed to create dir: %@ err: %@", _folderURL, [err description]);
             _folderURL = nil;
         }
-        
+
         // Have the loggers record into the recording directory
         //
         NSLog(@"recordingDir: %@", _folderURL);
         [BRHLogger sharedInstance].logPath = _folderURL;
         [BRHEventLog sharedInstance].logPath = _folderURL;
     }
-    else {
-        if (_recordingNow) {
+    else if (_recordingNow) {
 
-            // Stop recording and archive what we measured.
-            //
-            self.endTime = [NSDate date];
-            if (_folderURL) {
-                NSURL *runDataArchive = [_folderURL URLByAppendingPathComponent:@"runData.archive"];
-                NSData *archiveData = [NSKeyedArchiver archivedDataWithRootObject:self.runData];
-                NSLog(@"archiveData size: %lu", (unsigned long)archiveData.length);
-                NSError *error;
-                if (![archiveData writeToURL:runDataArchive options:0 error:&error]) {
-                    NSLog(@"failed to write archive: %@", error.description);
-                }
+        // Stop recording and archive what we measured.
+        //
+        self.endTime = [NSDate date];
+        if (_folderURL) {
+            NSURL *runDataArchive = [_folderURL URLByAppendingPathComponent:@"runData.archive"];
+            NSData *archiveData = [NSKeyedArchiver archivedDataWithRootObject:self.runData];
+            NSLog(@"archiveData size: %lu", (unsigned long)archiveData.length);
+            NSError *error;
+            if (![archiveData writeToURL:runDataArchive options:0 error:&error]) {
+                NSLog(@"failed to write archive: %@", error.description);
             }
-
-            [self updateSize];
-            _wasRecorded = YES;
         }
+
+        [self updateSize];
+        _wasRecorded = YES;
     }
 
     _recordingNow = recording;
